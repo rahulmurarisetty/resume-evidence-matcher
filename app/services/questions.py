@@ -14,6 +14,7 @@ from app.models import (
     Priority,
     RequirementMatch,
 )
+from app.services.credentials import CredentialAsk, credential_ask, with_article
 from app.services.skills import SkillCatalog, get_catalog
 
 QUESTION_STATUSES = {MatchStatus.GAP, MatchStatus.ADJACENT}
@@ -50,6 +51,19 @@ def _ask_about(skills: list[str], mode: MatchMode, catalog: SkillCatalog) -> str
     return f"Have you used {names}? If yes, where, and what did you build with {pronoun}?"
 
 
+def _ask_for_credential(ask: CredentialAsk) -> str:
+    if ask.kind == "degree":
+        field = f" in {' or '.join(ask.fields)}" if ask.fields else ""
+        return (
+            f"Do you have {with_article(ask.name)}{field}? If yes, add it to your education "
+            "section with the school and the year."
+        )
+    return (
+        f"Do you hold {with_article(ask.name)}? If yes, add it with its full name and the "
+        "year you earned it."
+    )
+
+
 def question_for(match: RequirementMatch, catalog: SkillCatalog | None = None) -> str | None:
     """The question for one requirement, or None when it doesn't get one."""
     if match.status not in QUESTION_STATUSES:
@@ -57,6 +71,9 @@ def question_for(match: RequirementMatch, catalog: SkillCatalog | None = None) -
     catalog = catalog or get_catalog()
     requirement = match.requirement
     missing = [m.skill for m in match.skills if m.strength is None]
+    ask = credential_ask(requirement.text, catalog)
+    if ask is not None and match.status is MatchStatus.GAP:
+        return _ask_for_credential(ask)
 
     if match.status is MatchStatus.GAP:
         if requirement.min_years and not requirement.skills:

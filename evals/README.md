@@ -1,6 +1,8 @@
 # Evaluation
 
-This folder measures the app against a hand-labeled set of fictional resumes and job descriptions. It renders each resume into real PDF and DOCX files, runs them through the app's own pipeline and compares the results with the labels. It never changes how the app behaves, and the app is never tuned against these labels: a weakness the evaluation finds is recorded in the report, not patched to raise the number.
+This folder measures the app against a hand-labeled set of fictional resumes and job descriptions. It renders each resume into real PDF and DOCX files, runs them through the app's own pipeline and compares the results with the labels. It never changes how the app behaves.
+
+The set in `data/` is the development set. v0.4 measured it and recorded its failure patterns, and v0.5 fixed those patterns with general rules (never with a string, name or company from the set). Its numbers are therefore optimistic, and the report says so. A fair measure needs a held-out set that nobody read while changing the app, run with `--data-dir` (see below). The labels' own entries are never edited to raise a number.
 
 The labeled data and its conventions are described in [data/README.md](data/README.md). The latest results are in [results/REPORT.md](results/REPORT.md) and, with every number and failure, in `results/latest.json`.
 
@@ -20,8 +22,19 @@ The default run takes a few seconds and makes no network calls. It writes `resul
 | `--formats pdf,docx` | Which renderings to measure. `pdf` covers both PDF layouts (the default `PdfStyle` and the "separate" bullet mode), `docx` the Word file. Default: both. |
 | `--semantic` | Also scores the pairs with matching by meaning, at the default threshold of 0.5 and at 0.3, 0.4, 0.6 and 0.7, and shows exact and semantic results side by side. Needs sentence-transformers. |
 | `--llm` | Also reads every job description with the Claude parser and asks Claude for rewrites of each pair's supporting bullets. Needs `ANTHROPIC_API_KEY`. |
-| `--out DIR` | Where to write the results. Default: `evals/results`. |
+| `--data-dir DIR` | The labeled set to measure: a folder with `resumes/`, `jobs/` and `labels/` laid out like `data/`. Default: `evals/data`, the development set. |
+| `--out DIR` | Where to write the results. Default: `evals/results` for the development set and `evals/results/<folder name>` for another `--data-dir`, so one set never overwrites another. |
 | `--check` | Compares the run with `thresholds.json` and exits with status 1 when a metric is past its threshold. CI runs this in default mode. |
+
+### Another labeled set
+
+```bash
+python -m evals.run --data-dir path/to/set
+```
+
+The folder needs `resumes/*.md`, `jobs/*.txt` and `labels/resumes.json`, `labels/jobs.json` and `labels/pairs.json` in the same formats as `data/`. The fact-check labels (`labels/factcheck.json` and `labels/factcheck_holdout.json`) are optional; without them the report says the fact checker wasn't measured. The report's title names the set (the folder's name), and its results go to `results/<folder name>/`. With `--check`, the run is compared with the development thresholds, which is a useful warning but not a pass mark for another set, and the fact-check thresholds are left out when the set has no fact-check labels.
+
+When a set has earlier runs in `baselines/<set name>.json`, the report shows them next to this run. `baselines/development.json` holds the v0.4 run and the v0.4 app with the v0.5 PDF builder, which is where the before and after table in the report comes from.
 
 ### Matching by meaning, locally
 
@@ -59,7 +72,7 @@ The report ends with an error analysis that groups the failures into recurring p
 
 ## Thresholds
 
-`thresholds.json` holds floors and ceilings for `--check`, keyed by dotted paths into the `metrics` part of `latest.json`. Floors sit 0.02 below the measured default-run values, rounded down. Ceilings sit at the measured value: the held-out false-pass rate of the fact checker may not rise above what was measured, and neither may the false proven rate.
+`thresholds.json` holds floors and ceilings for `--check`, keyed by dotted paths into the `metrics` part of `latest.json`. Floors sit 0.02 below the measured default-run values on the development set, rounded down. Since v0.5 most of them are near 1.0, because the fixes were written against this set, so they catch regressions rather than describe the app. Ceilings sit at the measured value of zero: the false-pass rate of the fact checker may not rise above it, and neither may the false proven rate.
 
 When a change moves a number on purpose, run the evaluation, read the new report, and update `thresholds.json` and the results in the same commit.
 
@@ -80,8 +93,10 @@ errors.py           failure patterns for the error analysis
 report.py           REPORT.md
 thresholds.py       --check
 thresholds.json     the floors and ceilings
-results/            latest.json and REPORT.md from the last default run
-data/               the labeled set
+results/            latest.json and REPORT.md from the last default run, and a folder per
+                    other --data-dir
+baselines/          earlier runs per set, for the report's before and after table
+data/               the labeled development set
 ```
 
-The evaluation's own tests are in `tests/evals/`. They check the matching and metric functions on small hand-made inputs and run a smoke evaluation on two pairs. They use the fake models and the fake Claude client from `tests/fakes.py`, never the real ones.
+The evaluation's own tests are in `tests/evals/`. They check the matching and metric functions on small hand-made inputs, run a smoke evaluation on two pairs, and run `--data-dir` on a one-pair set written to a temporary folder. They use the fake models and the fake Claude client from `tests/fakes.py`, never the real ones.

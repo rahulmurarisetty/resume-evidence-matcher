@@ -5,6 +5,7 @@
     python -m evals.run --semantic         # also matching by meaning (needs the ml extra)
     python -m evals.run --llm              # also Claude parsing and rewrites (needs a key)
     python -m evals.run --check            # exit 1 if a metric is past its threshold
+    python -m evals.run --data-dir DIR     # another labeled set with the same layout
 
 The default run is deterministic: running it again on the same code writes the
 same files, apart from the run date.
@@ -29,7 +30,7 @@ from app.services.jd_parser import RuleJobParser
 from app.services.semantic import Encoder, Reranker
 from app.services.skills import get_catalog
 from evals import errors, factcheck, pairs, requirements, resume_structure
-from evals.dataset import Dataset, load_dataset
+from evals.dataset import DATA_DIR, Dataset, dataset_name, load_dataset
 from evals.formats import FAMILIES, Format, select_formats
 from evals.llm_mode import claude_from_env, run_rewrites
 from evals.matching import FUZZY_THRESHOLD
@@ -44,12 +45,35 @@ from evals.pipeline import (
 )
 from evals.report import render_report
 from evals.semantic_mode import HOW_TO_RUN, load_real_models, run_semantic
-from evals.thresholds import check_thresholds, load_thresholds
+from evals.thresholds import check_thresholds, load_thresholds, without_prefix
 
 EVALS_DIR = Path(__file__).resolve().parent
 ROOT = EVALS_DIR.parent
 RESULTS_DIR = EVALS_DIR / "results"
 THRESHOLDS_PATH = EVALS_DIR / "thresholds.json"
+BASELINES_DIR = EVALS_DIR / "baselines"
+
+# The metrics shown before and after a change, by the dotted paths of thresholds.json.
+COMPARED_METRICS: tuple[tuple[str, str], ...] = (
+    ("Role precision (all formats)", "structure.overall.role_precision"),
+    ("Role recall (all formats)", "structure.overall.role_recall"),
+    ("Start month correct (matched roles)", "structure.overall.start_month_accuracy"),
+    ("End month correct (matched roles)", "structure.overall.end_month_accuracy"),
+    ("Total years within 0.5 of the label", "structure.overall.total_years_within_half"),
+    ("Education recall", "structure.overall.education_recall"),
+    ("Requirement extraction precision", "requirements.rules.extraction_precision"),
+    ("Requirement extraction recall", "requirements.rules.extraction_recall"),
+    ("Priority accuracy on extracted requirements", "requirements.rules.priority_accuracy"),
+    ("Pair status accuracy (all formats)", "pairs.exact.overall.status_accuracy"),
+    ("False proven", "pairs.exact.overall.false_proven_rate"),
+    ("Direct where the label isn't direct", "pairs.exact.overall.overclaim_rate"),
+    ("Gap precision", "pairs.exact.overall.gap_precision"),
+    ("Gap recall", "pairs.exact.overall.gap_recall"),
+    ("Evidence recall@1", "pairs.exact.overall.evidence_recall_at_1"),
+    ("Evidence recall@3", "pairs.exact.overall.evidence_recall_at_3"),
+    ("Fact checker accuracy, held-out set", "factcheck.holdout.accuracy"),
+    ("Fact checker false passes, held-out set", "factcheck.holdout.false_pass_rate"),
+)
 
 LLM_HOW_TO_RUN = (
     "Put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), "
@@ -113,6 +137,39 @@ def _by_format(
             fmt.name: summarize([r for r in rows if getattr(r, attribute) == fmt.name])
             for fmt in formats
         },
+    }
+
+
+def _metric(metrics: dict[str, Any], path: str) -> dict[str, Any] | None:
+    node: Any = metrics
+    for part in path.split("."):
+        if not isinstance(node, dict) or part not in node:
+            return None
+        node = node[part]
+    return node if isinstance(node, dict) and "rate" in node else None
+
+
+def comparison(
+    dataset: Dataset, metrics: dict[str, Any], baselines_dir: Path = BASELINES_DIR
+) -> dict[str, Any] | None:
+    """Earlier runs on the same set next to this one, from baselines/<set>.json."""
+    path = baselines_dir / f"{dataset.name}.json"
+    if not path.is_file():
+        return None
+    data = json.loads(path.read_text(encoding="utf-8"))
+    runs = data.get("runs", [])
+    rows: list[dict[str, Any]] = []
+    for label, metric in COMPARED_METRICS:
+        before: list[dict[str, Any] | None] = [run["metrics"].get(metric) for run in runs]
+        now = _metric(metrics, metric)
+        if now is not None or any(before):
+            rows.append({"metric": label, "path": metric, "before": before, "now": now})
+    return {
+        "runs": [
+            {k: run.get(k) for k in ("label", "pipeline_version", "git_commit", "note")}
+            for run in runs
+        ],
+        "rows": rows,
     }
 
 
@@ -249,15 +306,23 @@ def evaluate(
             }
 
     git_commit = _git("rev-parse", "--short", "HEAD")
-    git_status = _git("status", "--porcelain")
+    # Tracked files only. Untracked folders aren't walked, so a dataset someone is
+    # still writing next to this one (a held-out set) is never listed or read.
+    git_status = _git("status", "--porcelain", "--untracked-files=no")
     results: dict[str, Any] = {
         "meta": {
+            "dataset": {
+                "name": dataset.name,
+                "source": dataset.source,
+                "development": dataset.is_development,
+                "factcheck_labels": dataset.has_factcheck,
+            },
             "date": run_date.isoformat(),
             "git_commit": git_commit,
             "uncommitted_changes": bool(git_status) if git_status is not None else None,
             "app_version": __version__,
             "pipeline_version": pipeline_version(semantic=False),
-            "as_of": dataset.as_of.isoformat(),
+            "as_of": dataset.as_of_text,
             "formats": [{"name": f.name, "description": f.description} for f in formats],
             "modes": {
                 "exact": "ran",
@@ -273,6 +338,7 @@ def evaluate(
             "labels": _label_counts(dataset),
         },
         "metrics": metrics,
+        "comparison": comparison(dataset, metrics),
         "semantic": semantic_section,
         "llm": llm_section,
         "error_analysis": errors.find_patterns(
@@ -330,7 +396,14 @@ def _families(value: str) -> tuple[str, ...]:
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="python -m evals.run",
-        description="Measure the app against the hand-labeled evaluation set in evals/data/.",
+        description="Measure the app against a hand-labeled evaluation set (default: the "
+        "development set in evals/data/).",
+    )
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        default=DATA_DIR,
+        help="folder with resumes/, jobs/ and labels/ (default evals/data, the development set)",
     )
     parser.add_argument(
         "--formats",
@@ -349,7 +422,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="also use the Claude parser and generate rewrites (needs ANTHROPIC_API_KEY)",
     )
     parser.add_argument(
-        "--out", type=Path, default=RESULTS_DIR, help="output folder (default evals/results)"
+        "--out",
+        type=Path,
+        default=None,
+        help="output folder (default evals/results, or evals/results/<set name> for "
+        "another --data-dir)",
     )
     parser.add_argument(
         "--check",
@@ -379,13 +456,23 @@ def _rate_text(value: dict[str, Any]) -> str:
     return f"{shown} ({value['count']}/{value['total']})"
 
 
+def output_dir(data_dir: Path, out: Path | None) -> Path:
+    """Where to write: --out, else evals/results for the development set and
+    evals/results/<set name> for any other, so one set never overwrites another."""
+    if out is not None:
+        return out
+    name = dataset_name(data_dir)
+    return RESULTS_DIR if name == "development" else RESULTS_DIR / name
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
     options = Options(families=args.formats, semantic=args.semantic, llm=args.llm)
-    results, candidates = evaluate(load_dataset(), options, run_date=date.today())
-    written = write_outputs(results, candidates, args.out)
+    dataset = load_dataset(args.data_dir)
+    results, candidates = evaluate(dataset, options, run_date=date.today())
+    written = write_outputs(results, candidates, output_dir(args.data_dir, args.out))
 
-    print("Evaluation finished (exact matching, rule parser).")
+    print(f"Evaluation finished on the {dataset.name} set (exact matching, rule parser).")
     print("\n".join(_headline(results)))
     for mode in ("semantic", "llm"):
         section = results[mode]
@@ -398,7 +485,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
     if options.families != FAMILIES:
         print("note: the thresholds were set on the default run with every format.")
-    failures = check_thresholds(results["metrics"], load_thresholds(THRESHOLDS_PATH))
+    thresholds = load_thresholds(THRESHOLDS_PATH)
+    if not dataset.is_development:
+        print(
+            "note: the thresholds were set on the development set, so this compares the "
+            f"{dataset.name} set with those numbers."
+        )
+    if not dataset.has_factcheck:
+        print("note: this set has no fact-check labels, so the fact checker isn't checked.")
+        thresholds = without_prefix(thresholds, "factcheck.")
+    failures = check_thresholds(results["metrics"], thresholds)
     if failures:
         print(f"check failed: {len(failures)} metric(s) past their thresholds")
         for failure in failures:

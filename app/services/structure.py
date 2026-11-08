@@ -152,21 +152,186 @@ _TITLE_WORDS = re.compile(
     r"|tester|technician|assistant|head|president|vp|founder|co-founder|owner|contractor"
     r"|freelancer|researcher|professor|lecturer|teacher|instructor|accountant|advisor"
     r"|adviser|representative|supervisor|executive|strategist|writer|editor|principal"
-    r"|trainee|apprentice|fellow)s?\b",
+    r"|trainee|apprentice|fellow|partner|clerk|nurse|attorney|paralegal|underwriter"
+    r"|adjuster|agent|auditor|actuary|recruiter|planner|steward|operator)s?\b",
     re.IGNORECASE,
 )
 _PIPE_SPLIT = re.compile(r"\s+[|\u2022\u00b7]\s+|\s*\|\s*")
 _AT_SPLIT = re.compile(r"\s+(?:at|@)\s+")
-_INNER_SPLIT = re.compile(r",\s+|\s+[-\u2013\u2014]\s+")
-# "Tech stack: Python, SQL" or "Client: Example Bank" is a body line, never a header.
-_LABEL_RE = re.compile(r"^[A-Za-z]+(?: [A-Za-z]+)?:\s")
+# A comma, a hyphen with spaces around it, or an en or em dash with or without them
+# ("Example Corp\u2014Data Analyst").
+_INNER_SPLIT = re.compile(r",\s+|\s+-\s+|\s*[\u2013\u2014]\s*")
+# "Tech stack: Python, SQL" or "Client: Example Bank" starts with a label.
+_LABEL_RE = re.compile(r"^(?P<label>[A-Za-z][A-Za-z&.'/ -]{0,40}?)\s*:\s+(?P<value>.*)$")
+# Labels whose line is part of a role but never its title or employer.
+_BODY_LABELS = re.compile(
+    r"^(?:environment|tech(?:nology|nologies)?(?: stack| used)?|stack|tools?(?: used)?"
+    r"|software|frameworks?|languages?|databases?|platforms?|skills?(?: used)?|key skills"
+    r"|projects?|key projects?|project name|responsibilit(?:y|ies)|duties"
+    r"|achievements?|key achievements?|accomplishments?|highlights?|summary|description"
+    r"|domain|industry|team(?: size)?|location|note|notes|link|url|github|website"
+    r"|portfolio|reference|reason for leaving|reporting to|reports to|scope|impact"
+    r"|results?|awards?|methodology|os|operating systems?)$",
+    re.IGNORECASE,
+)
+# Labels that name the employer or the title ("Client: Example Bank", "Role: Developer").
+_EMPLOYER_LABELS = re.compile(
+    r"^(?:client|company|employer|organi[sz]ation|firm|customer|account|end client)$",
+    re.IGNORECASE,
+)
+_TITLE_LABELS = re.compile(
+    r"^(?:role|title|job title|position|designation|job role)$", re.IGNORECASE
+)
+# Labels that come before the dates ("Duration: Mar 2020 - Present").
+_DATE_LABELS = re.compile(r"^(?:duration|dates?|period|tenure|from)$", re.IGNORECASE)
 # Header parts are separated by a comma, pipe, dash or "at". A short line without
 # one ("Promoted to team lead in 2021") is body text even if it mentions a year.
-_HEADER_SEPARATOR = re.compile(r",\s|\||\s[-\u2013\u2014]\s|\s(?:at|@)\s")
+_HEADER_SEPARATOR = re.compile(r",\s|\||\s[-\u2013\u2014]\s|\s(?:at|@)\s|[\u2013\u2014]")
 _ABBREVIATION_END = re.compile(r"\b(?:inc|ltd|co|corp|llc|jr|sr|st)\.$", re.IGNORECASE)
 _EMPTY_BRACKETS = re.compile(r"\(\s*\)|\[\s*\]")
 _EDGE_PUNCTUATION = " |,;:-\u2013\u2014\u2022\u00b7"
 _MAX_HEADER_WORDS = 14
+_CONTACT_RE = re.compile(
+    r"@|https?://|www\.|linkedin|github\.com|\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}", re.IGNORECASE
+)
+
+# ---- Locations ("Jacksonville, FL", "Remote") that sit next to the employer ----
+
+
+def _names(text: str, lower: bool = True) -> frozenset[str]:
+    names = (name.strip() for name in text.split("|"))
+    return frozenset(name.lower() if lower else name for name in names)
+
+
+_US_STATES = _names(
+    "AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV"
+    "|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC|PR"
+    "|ON|BC|AB|QC|MB|NS|NB|SK|NL|PE",
+    lower=False,
+)
+_STATE_NAMES = _names(
+    "Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida"
+    "|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine"
+    "|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska"
+    "|Nevada|New Hampshire|New Jersey|New Mexico|New York|North Carolina|North Dakota"
+    "|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode Island|South Carolina|South Dakota"
+    "|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West Virginia|Wisconsin|Wyoming"
+    "|District of Columbia|Puerto Rico|Ontario|British Columbia|Alberta|Quebec"
+    "|Telangana|Andhra Pradesh|Karnataka|Maharashtra|Tamil Nadu|Kerala|Gujarat|Delhi"
+    "|Uttar Pradesh|West Bengal|Haryana|Punjab|Rajasthan|Madhya Pradesh|Odisha|Goa"
+)
+_COUNTRIES = _names(
+    "USA|U.S.A|US|U.S|United States|United States of America|India|Canada|UK|U.K"
+    "|United Kingdom|England|Scotland|Ireland|Germany|France|Netherlands|Spain|Italy"
+    "|Poland|Portugal|Sweden|Switzerland|Australia|New Zealand|Singapore|Philippines"
+    "|Malaysia|Mexico|Brazil|Argentina|Colombia|UAE|United Arab Emirates|Saudi Arabia"
+    "|Qatar|South Africa|Nigeria|Kenya|Egypt|Japan|China|Hong Kong|Israel"
+)
+_WORK_MODES = {
+    "remote", "hybrid", "onsite", "on-site", "on site", "in-office", "in office",
+    "work from home", "wfh", "fully remote", "remote-first",
+}  # fmt: skip
+# Words that make a name an organization rather than a city.
+_ORGANIZATION_WORDS = re.compile(
+    r"\b(?:inc|llc|llp|ltd|plc|corp|corporation|co|company|group|bank|insurance|mutual"
+    r"|labs?|systems?|solutions?|technolog(?:y|ies)|tech|services?|partners?|holdings?"
+    r"|universit(?:y|ies)|college|institute|school|academy|agency|media|health|healthcare"
+    r"|software|studios?|consulting|consultants|analytics|logistics|financial|finance"
+    r"|capital|networks?|digital|global|international|industries|enterprises?|associates"
+    r"|foundation|hospital|clinic|bureau|department|council|authority|platforms?|cloud"
+    r"|data|pharma\w*|motors|airlines?|energy|retail|foods?|brands?|ventures|works"
+    r"|federal|credit|union|trust|fund|markets?|commerce|freight|express|communications"
+    r"|telecom|interactive|games|entertainment|records|press|publishing|news|network"
+    r"|government|county|city of|state of|district|army|navy|air force|marines)\b",
+    re.IGNORECASE,
+)
+_PLACE_SEPARATOR = re.compile(r"(\s*,\s*|\s+-\s+|\s*[\u2013\u2014/]\s*|\s+(?:at|@)\s+)")
+
+
+def _is_region(part: str) -> bool:
+    """A state, province, country or work mode on its own ("FL", "Texas", "Remote")."""
+    part = part.strip(" ()")
+    lower = part.lower().rstrip(".")
+    return (
+        part in _US_STATES or lower in _STATE_NAMES or lower in _COUNTRIES or lower in _WORK_MODES
+    )
+
+
+def _is_city(part: str) -> bool:
+    """One to three capitalized words that don't name an organization or a job."""
+    words = part.strip(" ()").split()
+    return (
+        0 < len(words) <= 3
+        and all(w[:1].isupper() and not any(c.isdigit() for c in w) for w in words)
+        and not _ORGANIZATION_WORDS.search(part)
+        and not _TITLE_WORDS.search(part)
+    )
+
+
+def _place_parts(text: str) -> list[str]:
+    """The text's parts with parentheses opened up: "Remote (US)" is two parts."""
+    text = re.sub(r"[()]", ",", text)
+    return [p.strip() for p in _PLACE_SEPARATOR.split(text)[::2] if p.strip(" ,")]
+
+
+def _is_location(text: str) -> bool:
+    """Only a place or a work mode: "Tampa, FL", "Remote (US)", "Hyderabad, India".
+    "Accenture, Chicago, IL" isn't one: a place has at most one city."""
+    parts = _place_parts(text)
+    if not parts or not any(_is_region(p) for p in parts):
+        return False
+    cities = [p for p in parts if not _is_region(p)]
+    if len(cities) <= 1 and all(_is_city(p) for p in cities):
+        return True
+    # "Tampa FL", "New York NY"
+    words = text.strip(" ()").split()
+    return (
+        len(parts) == 1
+        and len(words) >= 2
+        and _is_region(words[-1])
+        and _is_city(" ".join(words[:-1]))
+    )
+
+
+def strip_location(text: str) -> str:
+    """Remove a place or work mode at the end: "Example Mutual, Jacksonville, FL"
+    becomes "Example Mutual", "Example Corp (Remote)" becomes "Example Corp".
+
+    A city is removed only together with the state after it, and only when enough of
+    the text is left: in "Data Engineer, Example Corp, Washington" the state is
+    removed and the employer kept. A text that is only a place is left as it is.
+    """
+    text = _clean(text)
+    if _is_location(text):
+        return text
+    while (found := re.search(r"\s*\(([^()]*)\)\s*$", text)) is not None and found.start():
+        if not _is_location(found.group(1)):
+            break
+        text = _clean(text[: found.start()])
+    pieces = _PLACE_SEPARATOR.split(text)
+    parts, separators = pieces[::2], pieces[1::2]
+    # Keep a title and an employer when the text names a job, else one part.
+    keep = 2 if _TITLE_WORDS.search(text) else 1
+
+    def drop_last() -> None:
+        parts.pop()
+        separators.pop()
+
+    state_dropped = False
+    while len(parts) > keep and _is_region(parts[-1]):
+        state_dropped = state_dropped or parts[-1].strip(" .").lower() not in _WORK_MODES
+        drop_last()
+    if state_dropped and len(parts) > keep and _is_city(parts[-1]):
+        drop_last()
+    elif len(parts) > keep and _is_location(parts[-1]):
+        drop_last()  # "Example Corp - Tampa FL"
+    rebuilt = parts[0]
+    for separator, part in zip(separators, parts[1:], strict=True):
+        rebuilt += separator + part
+    return _clean(rebuilt)
+
+
+# ---- Splitting a header into title and employer ----
 
 
 def _clean(text: str) -> str:
@@ -179,11 +344,58 @@ def _is_sentence(text: str) -> bool:
     return text.endswith(".") and not _ABBREVIATION_END.search(text)
 
 
+def _label(text: str) -> tuple[str, str] | None:
+    """("client", "Example Bank") for "Client: Example Bank", None without a label."""
+    found = _LABEL_RE.match(text)
+    if found is None:
+        return None
+    return found.group("label").strip(), found.group("value").strip()
+
+
+def _label_kind(text: str) -> str | None:
+    """How a labeled line reads: "employer", "title", "dates", "header" ("Demo
+    Logistics: Senior Engineer") or "body" ("Environment: Java, Spring"). None when
+    the line has no label."""
+    labeled = _label(text)
+    if labeled is None:
+        return None
+    label, value = labeled
+    if _EMPLOYER_LABELS.match(label):
+        return "employer"
+    if _TITLE_LABELS.match(label):
+        return "title"
+    if _DATE_LABELS.match(label):
+        return "dates"
+    if _BODY_LABELS.match(label) or len(label.split()) > 4:
+        return "body"
+    # "Employer: Title" when one side reads as a job title.
+    if _TITLE_WORDS.search(value) or _TITLE_WORDS.search(label):
+        return "header"
+    return "body"
+
+
 def _header_like(text: str) -> bool:
     words = text.split()
-    return (
-        0 < len(words) <= _MAX_HEADER_WORDS and not _is_sentence(text) and not _LABEL_RE.match(text)
-    )
+    if not (0 < len(words) <= _MAX_HEADER_WORDS) or _is_sentence(text):
+        return False
+    return _label_kind(text) in (None, "employer", "title", "header", "dates")
+
+
+_SMALL_WORDS = {"of", "and", "the", "for", "&", "at", "in", "de", "la", "on", "to", "a", "an"}
+
+
+def _name_like(text: str) -> bool:
+    """Reads like a title or an employer: mostly capitalized words ("Example Mutual",
+    "Senior Data Engineer"), or a job-title word with at least half of them
+    capitalized ("Head of data"). Body text ("Built dashboards in Tableau") isn't."""
+    if _CONTACT_RE.search(text):
+        return False
+    words = [w for w in re.findall(r"[A-Za-z][\w.&'\u2019+#-]*", text)]
+    content = [w for w in words if w.lower() not in _SMALL_WORDS]
+    if not content or not content[0][0].isupper():
+        return False
+    share = sum(1 for w in content if w[0].isupper()) / len(content)
+    return share >= 0.75 or (share >= 0.5 and bool(_TITLE_WORDS.search(text)))
 
 
 def _order(first: str, second: str) -> tuple[str, str]:
@@ -195,24 +407,52 @@ def _order(first: str, second: str) -> tuple[str, str]:
     return first, second
 
 
+def _without_locations(text: str) -> str:
+    """Drop place segments ("Tampa, FL") between pipes and a place at the end of each."""
+    segments = [s for s in _PIPE_SPLIT.split(text) if s.strip()]
+    kept = [strip_location(s) for s in segments if not _is_location(s)]
+    return " | ".join(s for s in kept if s)
+
+
+_DASH_SPLIT = re.compile(r"\s+-\s+|\s*[\u2013\u2014]\s*")
+_COMMA_SPLIT = re.compile(r",\s+")
+
+
 def split_title_employer(text: str) -> tuple[str | None, str | None]:
     """Split a header (dates already removed) into title and employer."""
+    labeled = _label(text)
+    if labeled is not None:
+        kind = _label_kind(text)
+        label, value = labeled
+        value = _without_locations(value)
+        if kind == "employer":
+            return None, value or None
+        if kind == "title":
+            return value or None, None
+        if kind == "header":
+            # "Demo Logistics: Senior Software Engineer"
+            title, employer = _order(label, value)
+            return title or None, employer or None
+    text = _without_locations(text)
     segments = [_clean(s) for s in _PIPE_SPLIT.split(text)]
     segments = [s for s in segments if s]
     if not segments:
         return None, None
     head = segments[0]
-    if len(segments) >= 2 and not (_AT_SPLIT.search(head) or _INNER_SPLIT.search(head)):
+    inner = _AT_SPLIT.search(head) or _DASH_SPLIT.search(head) or _COMMA_SPLIT.search(head)
+    if len(segments) >= 2 and inner is None:
         # "Title | Employer | Location"
         return _order(head, segments[1])
-    at = _AT_SPLIT.search(head)
-    if at:
-        return _clean(head[: at.start()]) or None, _clean(head[at.end() :]) or None
-    inner = _INNER_SPLIT.search(head)
-    if inner:
-        title, employer = _order(head[: inner.start()], head[inner.end() :])
-        return title or None, employer or None
-    return head, None
+    if inner is None:
+        return head, None
+    first, second = head[: inner.start()], head[inner.end() :]
+    if inner.re is _AT_SPLIT:
+        title, employer = _clean(first), strip_location(second)
+    else:
+        # "Example Mutual, Jacksonville, FL - Senior Engineer": the place can sit in
+        # either half.
+        title, employer = _order(strip_location(first), strip_location(second))
+    return title or None, employer or None
 
 
 @dataclass
@@ -226,83 +466,219 @@ class _Draft:
     is_current: bool = False
     date_text: str = ""  # the line the dates came from, quoted in warnings
     body: list[str] = field(default_factory=list)
+    has_bullets: bool = False
+    # Read from a single line with the dates, so the line after it may still add a
+    # missing employer or title ("Senior Engineer  Jan 2020 - Present", then "ACME Corp").
+    single_line: bool = False
+    # The employer came from a line above the title ("ACME Corp", then "Senior
+    # Engineer | 2020 - Present"), so a later title with only dates is at it too.
+    group_employer: bool = False
 
 
-def _draft(header: Span, text: str, section: Section, found: re.Match[str] | None) -> _Draft:
-    title, employer = split_title_employer(text)
-    draft = _Draft(header=header, title=title, employer=employer, section=section)
-    if found is not None:
-        draft.start = _parse_date(found.group("start"))
-        end = found.group("end")
-        if _END_RE.fullmatch(end):
-            draft.is_current = True
-        else:
-            draft.end = _parse_date(end)
-    return draft
+def _set_dates(draft: _Draft, found: re.Match[str] | None) -> None:
+    if found is None:
+        return
+    draft.start = _parse_date(found.group("start"))
+    end = found.group("end")
+    if _END_RE.fullmatch(end):
+        draft.is_current = True
+    else:
+        draft.end = _parse_date(end)
 
 
-def _read_role_drafts(spans: list[Span], section: Section) -> list[_Draft]:
+def _combine(lines: list[str]) -> tuple[str | None, str | None]:
+    """Title and employer from the parts of a header spread over several lines
+    ("Example Mutual" then "Senior Data Engineer | Mar 2022 - Present")."""
+    titles: list[str] = []
+    employers: list[str] = []
+    loose: list[str] = []
+    for line in lines:
+        kind = _label_kind(line)
+        title, employer = split_title_employer(line)
+        if kind == "employer":
+            employers += [employer] if employer else []
+        elif kind == "title":
+            titles += [title] if title else []
+        elif title and employer:
+            titles.append(title)
+            employers.append(employer)
+        elif title:
+            loose.append(title)
+    for part in loose:
+        if _TITLE_WORDS.search(part) and not titles:
+            titles.append(part)
+        elif not employers and not (_TITLE_WORDS.search(part) and titles):
+            employers.append(part)
+        elif not titles:
+            titles.append(part)
+    if not titles and len(employers) > 1:
+        # Neither line names a job-title word: the first one is the title.
+        titles.append(employers.pop(0))
+    return (titles[0] if titles else None), (employers[0] if employers else None)
+
+
+def _rest_of(text: str, found: re.Match[str]) -> str:
+    """The header without its date range, a date label or a place."""
+    rest = _clean(f"{text[: found.start()]} {text[found.end() :]}")
+    labeled = _label(rest) if rest else None
+    if labeled is not None and _DATE_LABELS.match(labeled[0]):
+        rest = _clean(labeled[1])
+    elif rest.endswith(":") and _DATE_LABELS.match(rest.rstrip(":").strip()):
+        rest = ""
+    if rest and _DATE_LABELS.match(rest.rstrip(":").strip()):
+        rest = ""
+    return rest
+
+
+def _read_role_drafts(spans: list[Span], section: Section, inferred: bool = False) -> list[_Draft]:
+    """Role drafts from the lines of an experience (or projects) section.
+
+    A role header is a line with a date range, or a line right before a line that
+    holds the dates. A header's title and employer may also be spread over the one or
+    two short lines before its dates ("Example Mutual", then "Senior Data Engineer",
+    then "Mar 2022 - Present"). With `inferred`, the lines come from a resume without
+    an experience heading, and a plain line after a role's bullets ends the role.
+    """
     drafts: list[_Draft] = []
     current: _Draft | None = None
-    # A short line with no dates. It is a header if the next line is only dates
-    # ("Senior Engineer, Acme" then "Mar 2022 - Present"); otherwise it's body text.
-    pending: Span | None = None
+    # Short lines with no dates since the last bullet or body line. They are part of
+    # the next header when the dates come next; otherwise they're body text.
+    pending: list[Span] = []
 
-    def attach(span: Span | None) -> None:
-        if span is not None and current is not None:
+    def attach(span: Span) -> None:
+        if current is not None:
             current.body.append(span.id)
+            current.has_bullets = current.has_bullets or span.kind is SpanKind.BULLET
+
+    def release() -> None:
+        for span in pending:
+            attach(span)
+        pending.clear()
+
+    def start(header: Span, title: str | None, employer: str | None, date_text: str) -> _Draft:
+        nonlocal current
+        current = _Draft(
+            header=header, title=title, employer=employer, section=section, date_text=date_text
+        )
+        drafts.append(current)
+        return current
 
     for span in spans:
         if span.kind is SpanKind.HEADING and section_for_heading(span.text) is not None:
-            attach(pending)
-            pending = None
+            release()
             current = None
             continue
         if span.kind is SpanKind.BULLET:
-            attach(pending)
-            pending = None
+            release()
             attach(span)
+            continue
+        text = span.text
+        if inferred and looks_like_education(text):
+            release()
+            current = None
             continue
 
         # A line, or a styled heading that isn't a section name (Word "Heading 2" roles).
-        text = span.text
         found = RANGE_RE.search(text)
         if found is not None:
-            rest = _clean(f"{text[: found.start()]} {text[found.end() :]}")
-            dates_first = not _clean(text[: found.start()])
-            if pending is not None and dates_first:
-                current = _draft(pending, pending.text, section, found)
-                current.date_text = f"{pending.text} {text}"
-                current.body.append(span.id)
-                drafts.append(current)
-                pending = None
-                continue
-            attach(pending)
-            pending = None
-            if rest and not _header_like(rest):
+            rest = _rest_of(text, found)
+            title, employer = split_title_employer(rest) if rest else (None, None)
+            dates_only = not rest or _is_location(rest)
+            if rest and not dates_only and not _header_like(rest):
+                release()
                 attach(span)  # a sentence that happens to contain dates
                 continue
-            current = _draft(span, rest, section, found)
-            current.date_text = text
-            drafts.append(current)
+            if pending and (dates_only or title is None or employer is None):
+                # The header's parts are on the lines before the dates.
+                parts = [p.text for p in pending] + ([rest] if not dates_only else [])
+                own_title = title if not dates_only and employer is None else None
+                title, employer = _combine(parts)
+                draft = start(pending[0], title, employer, " ".join([*parts, text]))
+                draft.body.extend(p.id for p in pending[1:])
+                draft.body.append(span.id)
+                draft.group_employer = own_title is not None and title == own_title
+                pending.clear()
+                _set_dates(draft, found)
+                continue
+            release()
+            if dates_only:
+                title, employer = None, None
+            previous = current
+            draft = start(span, title, employer, text)
+            draft.single_line = True
+            if (
+                title is not None
+                and employer is None
+                and previous is not None
+                and previous.group_employer
+                and previous.has_bullets
+            ):
+                # "ACME Corp", "Senior Engineer | 2022 - Present", bullets, then
+                # "Engineer | 2019 - 2021": both titles are at ACME Corp.
+                draft.employer = previous.employer
+                draft.group_employer = True
+            _set_dates(draft, found)
             continue
 
-        attach(pending)
-        pending = None
-        if not _header_like(text):
-            attach(span)
-        elif _DATEISH_RE.search(text) and _HEADER_SEPARATOR.search(text):
+        kind = _label_kind(text)
+        if current is not None and not pending and not current.has_bullets:
+            # "Client: Example Bank | 2020 - 2022" then "Role: Guidewire Developer".
+            title, employer = split_title_employer(text)
+            if kind == "title" and current.title is None:
+                current.title = title
+                attach(span)
+                continue
+            if kind == "employer" and current.employer is None:
+                current.employer = employer
+                attach(span)
+                continue
+            if _fills_header(current, text, kind):
+                # "Senior Engineer  Jan 2020 - Present" then "ACME Corp, Dallas, TX".
+                if current.employer is None:
+                    current.employer = employer or title
+                else:
+                    current.title = title
+                current.single_line = False
+                current.group_employer = False
+                attach(span)
+                continue
+        if not _header_like(text) or not (_name_like(text) or kind in ("title", "employer")):
+            release()
+            if inferred and current is not None and current.has_bullets:
+                current = None  # a plain line after the bullets ends an inferred role
+            else:
+                attach(span)
+            continue
+        if _DATEISH_RE.search(text) and _HEADER_SEPARATOR.search(text):
             # Looks like a header with dates, but they can't be read.
-            current = _Draft(header=span, title=None, employer=None, section=section)
-            current.title, current.employer = split_title_employer(
-                _clean(_DATE_TOKEN_RE.sub(" ", text))
-            )
-            current.date_text = text
-            drafts.append(current)
-        else:
-            pending = span
-    attach(pending)
+            release()
+            title, employer = split_title_employer(_clean(_DATE_TOKEN_RE.sub(" ", text)))
+            start(span, title, employer, text)
+            continue
+        if inferred and current is not None and current.has_bullets:
+            current = None
+        pending.append(span)
+        if len(pending) > 3:
+            attach(pending.pop(0))
+    release()
     return drafts
+
+
+def _fills_header(draft: _Draft, text: str, kind: str | None) -> bool:
+    """Is this line, right after a one-line header that lacks its employer or title,
+    the missing part? It must read like a name and carry no dates or label."""
+    missing = draft.employer is None or draft.title is None
+    return (
+        draft.single_line
+        and missing
+        and not draft.body
+        and kind is None
+        and _header_like(text)
+        and _name_like(text)
+        and not text.rstrip().endswith(":")
+        and not _BODY_LABELS.match(text.strip(" :"))
+        and not _DATEISH_RE.search(text)
+    )
 
 
 def _resolve(draft: _Draft, today: date, warnings: list[str]) -> Role:
@@ -356,10 +732,48 @@ def _resolve(draft: _Draft, today: date, warnings: list[str]) -> Role:
     return role(start_text, end_text, end_index - start_index + 1)
 
 
-def read_roles(spans: list[Span], section: Section, today: date) -> tuple[list[Role], list[str]]:
+def read_roles(
+    spans: list[Span], section: Section, today: date, inferred: bool = False
+) -> tuple[list[Role], list[str]]:
     warnings: list[str] = []
-    roles = [_resolve(d, today, warnings) for d in _read_role_drafts(spans, section)]
+    roles = [_resolve(d, today, warnings) for d in _read_role_drafts(spans, section, inferred)]
     return roles, warnings
+
+
+def inferred_experience(spans: list[Span]) -> list[Span]:
+    """For a resume without an experience heading: the lines from just before the
+    first line with a date range to the end, leaving out the sections that have a
+    heading of their own (skills, education, projects, certifications). Contact lines
+    and the first line of the resume (the name) never start the block."""
+    candidates = [
+        span
+        for span in spans
+        if span.section in _UNHEADED_SECTIONS and span.kind is not SpanKind.HEADING
+    ]
+    first = next(
+        (
+            i
+            for i, span in enumerate(candidates)
+            if RANGE_RE.search(span.text) and not looks_like_education(span.text)
+        ),
+        None,
+    )
+    if first is None:
+        return []
+    begin = first
+    while (
+        begin > 0
+        and first - begin < 3
+        and candidates[begin - 1].id != spans[0].id
+        and candidates[begin - 1].kind is SpanKind.LINE
+        and _header_like(candidates[begin - 1].text)
+        and _name_like(candidates[begin - 1].text)
+    ):
+        begin -= 1
+    return candidates[begin:]
+
+
+_UNHEADED_SECTIONS = {Section.HEADER, Section.SUMMARY, Section.OTHER}
 
 
 # ---------------------------------------------------------------------------
@@ -378,6 +792,27 @@ _DEGREE_RE = re.compile(
 )
 _EDUCATION_SPLIT = re.compile(r"\s*[|,;\u2022\u00b7]\s*|\s+[-\u2013\u2014]\s+|\s+(?:at|from)\s+")
 _STATE_CODE = re.compile(r"^[A-Z]{2}$")
+# Degree words that can't be a job title ("Associate Developer" is a job).
+_STRONG_DEGREE_RE = re.compile(
+    r"(?i:\b(?:bachelor(?:'s|s)?|master(?:'s|s)?\s+(?:of|in|degree)|doctor\s+of|doctorate"
+    r"|ph\.?\s?d|mba)\b)"
+    r"|(?<![\w.])[BM]\.\s?(?:S|A|Sc|E|Eng|Tech|Com|Ed)\.?(?!\w)"
+    r"|(?<![\w.])(?:BS|MS|BA|MA)(?=\s+(?:in\s+)?[A-Z])"
+    r"|\b(?:BBA|BCA|MCA|BSc|MSc|BTech|MTech|BEng|MEng|LLB|LLM)(?!\w)"
+)
+_MAX_EDUCATION_WORDS = 20
+
+
+def looks_like_education(text: str) -> bool:
+    """A degree line ("B.S. Computer Science, Example University, 2019"), for resumes
+    without an education heading. A sentence that mentions a degree isn't one."""
+    if _is_sentence(text) or len(text.split()) > _MAX_EDUCATION_WORDS:
+        return False
+    if _SCHOOL_RE.search(text) and _DEGREE_RE.search(text):
+        return True
+    return bool(_STRONG_DEGREE_RE.search(text)) and (
+        bool(_SCHOOL_RE.search(text)) or bool(_YEAR_RE.search(text))
+    )
 
 
 def _education_parts(text: str) -> tuple[str | None, str | None, int | None]:
@@ -503,7 +938,12 @@ def parse_profile(resume: ResumeDocument, today: date | None = None) -> Profile:
     def in_section(section: Section) -> list[Span]:
         return [span for span in resume.spans if span.section is section]
 
-    roles, role_warnings = read_roles(in_section(Section.EXPERIENCE), Section.EXPERIENCE, today)
+    experience = in_section(Section.EXPERIENCE)
+    inferred = not experience
+    if inferred:
+        # No experience heading: read roles from the lines that carry date ranges.
+        experience = inferred_experience(resume.spans)
+    roles, role_warnings = read_roles(experience, Section.EXPERIENCE, today, inferred=inferred)
     warnings.extend(role_warnings)
     project_roles, project_warnings = read_roles(
         in_section(Section.PROJECTS), Section.PROJECTS, today
@@ -517,30 +957,51 @@ def parse_profile(resume: ResumeDocument, today: date | None = None) -> Profile:
         role for role in roles if role.section is Section.EXPERIENCE and role.months is not None
     ]
     total_years = to_years(merged_months(dated)) if dated else None
-    if Section.EXPERIENCE not in resume.sections_found:
+    if inferred and not roles:
         warnings.append("No experience section was found, so no roles or dates were read.")
-    elif total_years is None:
+    elif inferred:
+        warnings.append(
+            "No experience heading was found, so roles were read from the lines with date "
+            "ranges. Check that each role below is right."
+        )
+    if not (inferred and not roles) and total_years is None:
         warnings.append(
             "No role dates could be read in the experience section, so years of experience "
             "weren't calculated. A line such as \"Data Engineer, Example Corp | Mar 2022 - "
             'Present" works best.'
         )
 
+    role_spans = {role.header_span_id for role in roles} | {
+        span_id for role in roles for span_id in role.bullet_span_ids
+    }
     has_headings = any(span.kind is SpanKind.HEADING for span in resume.spans)
     metrics: dict[str, list[str]] = {}
     for span in resume.spans:
         if span.kind is not SpanKind.BULLET:
             continue
-        if has_headings and span.section not in _RESULT_SECTIONS:
+        in_work = span.section in _RESULT_SECTIONS or span.id in role_spans
+        if has_headings and not in_work:
             continue
         found = find_metrics(span.text)
         if found:
             metrics[span.id] = found
 
+    education_spans = in_section(Section.EDUCATION)
+    if not education_spans:
+        # No education heading: degree lines outside the roles.
+        education_spans = [
+            span
+            for span in resume.spans
+            if span.section in _UNHEADED_SECTIONS
+            and span.kind is not SpanKind.HEADING
+            and span.id not in role_spans
+            and looks_like_education(span.text)
+        ]
+
     return Profile(
         roles=roles,
         total_years=total_years,
-        education=read_education(in_section(Section.EDUCATION)),
+        education=read_education(education_spans),
         metric_bullets=list(metrics),
         metrics=metrics,
         warnings=warnings,

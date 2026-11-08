@@ -1,0 +1,3412 @@
+{
+  "meta": {
+    "dataset": {
+      "name": "holdout",
+      "source": "evals/data/holdout",
+      "development": false,
+      "factcheck_labels": false
+    },
+    "date": "2026-11-08",
+    "git_commit": "6b763ac",
+    "uncommitted_changes": true,
+    "app_version": "0.5.0",
+    "pipeline_version": "0.5.0-exact",
+    "as_of": "2026-11-01",
+    "formats": [
+      {
+        "name": "pdf_inline",
+        "description": "PDF with the default PdfStyle: bullet glyph and text in one text run"
+      },
+      {
+        "name": "pdf_separate",
+        "description": "PDF with bullet_mode=\"separate\": the glyph drawn on its own, as Word exports do"
+      },
+      {
+        "name": "docx",
+        "description": "DOCX from python-docx: Heading 1 sections and List Bullet paragraphs"
+      }
+    ],
+    "modes": {
+      "exact": "ran",
+      "semantic": "not requested",
+      "llm": "not requested"
+    },
+    "job_parser": "rules",
+    "fuzzy_threshold": 0.85,
+    "years_tolerance": 0.5,
+    "python": "3.13.18",
+    "pymupdf": "1.28.2",
+    "python_docx": "1.2.0",
+    "labels": {
+      "resumes": 6,
+      "roles": 18,
+      "education_entries": 9,
+      "jobs": 5,
+      "job_requirements": 90,
+      "pairs": 8,
+      "pair_labels": 110,
+      "factcheck_development": 0,
+      "factcheck_holdout": 0
+    }
+  },
+  "metrics": {
+    "structure": {
+      "overall": {
+        "resumes": 18,
+        "role_precision": {
+          "rate": 0.7778,
+          "count": 42,
+          "total": 54
+        },
+        "role_recall": {
+          "rate": 0.7778,
+          "count": 42,
+          "total": 54
+        },
+        "start_month_accuracy": {
+          "rate": 1.0,
+          "count": 42,
+          "total": 42
+        },
+        "end_month_accuracy": {
+          "rate": 1.0,
+          "count": 42,
+          "total": 42
+        },
+        "total_years_mae": 0.4333,
+        "total_years_measured": {
+          "rate": 1.0,
+          "count": 18,
+          "total": 18
+        },
+        "total_years_within_half": {
+          "rate": 0.8333,
+          "count": 15,
+          "total": 18
+        },
+        "education_recall": {
+          "rate": 0.7778,
+          "count": 21,
+          "total": 27
+        },
+        "education_precision": {
+          "rate": 0.7778,
+          "count": 21,
+          "total": 27
+        },
+        "education_year_accuracy": {
+          "rate": 1.0,
+          "count": 21,
+          "total": 21
+        }
+      },
+      "by_format": {
+        "pdf_inline": {
+          "resumes": 6,
+          "role_precision": {
+            "rate": 0.7778,
+            "count": 14,
+            "total": 18
+          },
+          "role_recall": {
+            "rate": 0.7778,
+            "count": 14,
+            "total": 18
+          },
+          "start_month_accuracy": {
+            "rate": 1.0,
+            "count": 14,
+            "total": 14
+          },
+          "end_month_accuracy": {
+            "rate": 1.0,
+            "count": 14,
+            "total": 14
+          },
+          "total_years_mae": 0.4333,
+          "total_years_measured": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "total_years_within_half": {
+            "rate": 0.8333,
+            "count": 5,
+            "total": 6
+          },
+          "education_recall": {
+            "rate": 0.7778,
+            "count": 7,
+            "total": 9
+          },
+          "education_precision": {
+            "rate": 0.7778,
+            "count": 7,
+            "total": 9
+          },
+          "education_year_accuracy": {
+            "rate": 1.0,
+            "count": 7,
+            "total": 7
+          }
+        },
+        "pdf_separate": {
+          "resumes": 6,
+          "role_precision": {
+            "rate": 0.7778,
+            "count": 14,
+            "total": 18
+          },
+          "role_recall": {
+            "rate": 0.7778,
+            "count": 14,
+            "total": 18
+          },
+          "start_month_accuracy": {
+            "rate": 1.0,
+            "count": 14,
+            "total": 14
+          },
+          "end_month_accuracy": {
+            "rate": 1.0,
+            "count": 14,
+            "total": 14
+          },
+          "total_years_mae": 0.4333,
+          "total_years_measured": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "total_years_within_half": {
+            "rate": 0.8333,
+            "count": 5,
+            "total": 6
+          },
+          "education_recall": {
+            "rate": 0.7778,
+            "count": 7,
+            "total": 9
+          },
+          "education_precision": {
+            "rate": 0.7778,
+            "count": 7,
+            "total": 9
+          },
+          "education_year_accuracy": {
+            "rate": 1.0,
+            "count": 7,
+            "total": 7
+          }
+        },
+        "docx": {
+          "resumes": 6,
+          "role_precision": {
+            "rate": 0.7778,
+            "count": 14,
+            "total": 18
+          },
+          "role_recall": {
+            "rate": 0.7778,
+            "count": 14,
+            "total": 18
+          },
+          "start_month_accuracy": {
+            "rate": 1.0,
+            "count": 14,
+            "total": 14
+          },
+          "end_month_accuracy": {
+            "rate": 1.0,
+            "count": 14,
+            "total": 14
+          },
+          "total_years_mae": 0.4333,
+          "total_years_measured": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "total_years_within_half": {
+            "rate": 0.8333,
+            "count": 5,
+            "total": 6
+          },
+          "education_recall": {
+            "rate": 0.7778,
+            "count": 7,
+            "total": 9
+          },
+          "education_precision": {
+            "rate": 0.7778,
+            "count": 7,
+            "total": 9
+          },
+          "education_year_accuracy": {
+            "rate": 1.0,
+            "count": 7,
+            "total": 7
+          }
+        }
+      }
+    },
+    "requirements": {
+      "rules": {
+        "jobs": 5,
+        "extraction_precision": {
+          "rate": 0.9362,
+          "count": 88,
+          "total": 94
+        },
+        "extraction_recall": {
+          "rate": 0.9778,
+          "count": 88,
+          "total": 90
+        },
+        "priority_accuracy": {
+          "rate": 0.9886,
+          "count": 87,
+          "total": 88
+        },
+        "per_class": {
+          "required": {
+            "precision": {
+              "rate": 0.9512,
+              "count": 39,
+              "total": 41
+            },
+            "recall": {
+              "rate": 0.9512,
+              "count": 39,
+              "total": 41
+            }
+          },
+          "preferred": {
+            "precision": {
+              "rate": 0.875,
+              "count": 28,
+              "total": 32
+            },
+            "recall": {
+              "rate": 1.0,
+              "count": 28,
+              "total": 28
+            }
+          },
+          "context": {
+            "precision": {
+              "rate": 0.9524,
+              "count": 20,
+              "total": 21
+            },
+            "recall": {
+              "rate": 0.9524,
+              "count": 20,
+              "total": 21
+            }
+          }
+        },
+        "confusion": {
+          "gold_labels": [
+            "required",
+            "preferred",
+            "context",
+            "not_a_requirement"
+          ],
+          "predicted_labels": [
+            "required",
+            "preferred",
+            "context",
+            "not_extracted"
+          ],
+          "rows": [
+            [
+              39,
+              0,
+              0,
+              2
+            ],
+            [
+              0,
+              28,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              20,
+              0
+            ],
+            [
+              1,
+              4,
+              1,
+              0
+            ]
+          ]
+        },
+        "min_years_accuracy": {
+          "rate": 1.0,
+          "count": 5,
+          "total": 5
+        },
+        "title_accuracy": {
+          "rate": 0.8,
+          "count": 4,
+          "total": 5
+        },
+        "match_kinds": {
+          "exact": 88,
+          "contains": 0,
+          "fuzzy": 0
+        }
+      },
+      "claude": null
+    },
+    "pairs": {
+      "exact": {
+        "overall": {
+          "items": 330,
+          "status_accuracy": {
+            "rate": 0.6455,
+            "count": 213,
+            "total": 330
+          },
+          "confusion": {
+            "gold_labels": [
+              "direct",
+              "partial",
+              "adjacent",
+              "gap",
+              "needs_check"
+            ],
+            "predicted_labels": [
+              "direct",
+              "partial",
+              "adjacent",
+              "gap",
+              "needs_check",
+              "not_extracted"
+            ],
+            "rows": [
+              [
+                102,
+                9,
+                0,
+                0,
+                21,
+                6
+              ],
+              [
+                3,
+                12,
+                0,
+                0,
+                3,
+                0
+              ],
+              [
+                6,
+                3,
+                0,
+                12,
+                3,
+                0
+              ],
+              [
+                3,
+                6,
+                0,
+                75,
+                42,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                24,
+                0
+              ]
+            ]
+          },
+          "per_status": {
+            "direct": {
+              "precision": {
+                "rate": 0.8947,
+                "count": 102,
+                "total": 114
+              },
+              "recall": {
+                "rate": 0.7391,
+                "count": 102,
+                "total": 138
+              }
+            },
+            "partial": {
+              "precision": {
+                "rate": 0.4,
+                "count": 12,
+                "total": 30
+              },
+              "recall": {
+                "rate": 0.6667,
+                "count": 12,
+                "total": 18
+              }
+            },
+            "adjacent": {
+              "precision": {
+                "rate": null,
+                "count": 0,
+                "total": 0
+              },
+              "recall": {
+                "rate": 0.0,
+                "count": 0,
+                "total": 24
+              }
+            },
+            "gap": {
+              "precision": {
+                "rate": 0.8621,
+                "count": 75,
+                "total": 87
+              },
+              "recall": {
+                "rate": 0.5952,
+                "count": 75,
+                "total": 126
+              }
+            },
+            "needs_check": {
+              "precision": {
+                "rate": 0.2581,
+                "count": 24,
+                "total": 93
+              },
+              "recall": {
+                "rate": 1.0,
+                "count": 24,
+                "total": 24
+              }
+            }
+          },
+          "gap_precision": {
+            "rate": 0.8621,
+            "count": 75,
+            "total": 87
+          },
+          "gap_recall": {
+            "rate": 0.5952,
+            "count": 75,
+            "total": 126
+          },
+          "false_proven_rate": {
+            "rate": 0.02,
+            "count": 3,
+            "total": 150
+          },
+          "false_proven_share_of_direct": {
+            "rate": 0.0263,
+            "count": 3,
+            "total": 114
+          },
+          "overclaim_rate": {
+            "rate": 0.0625,
+            "count": 12,
+            "total": 192
+          },
+          "not_extracted": {
+            "rate": 0.0182,
+            "count": 6,
+            "total": 330
+          },
+          "evidence_recall_at_1": {
+            "rate": 0.45,
+            "count": 81,
+            "total": 180
+          },
+          "evidence_recall_at_3": {
+            "rate": 0.5333,
+            "count": 96,
+            "total": 180
+          },
+          "evidence_recall_at_1_without_years_only": {
+            "rate": 0.4737,
+            "count": 81,
+            "total": 171
+          },
+          "evidence_recall_at_3_without_years_only": {
+            "rate": 0.5614,
+            "count": 96,
+            "total": 171
+          },
+          "status_accuracy_by_fit": {
+            "strong": {
+              "rate": 0.675,
+              "count": 81,
+              "total": 120
+            },
+            "mixed": {
+              "rate": 0.5172,
+              "count": 45,
+              "total": 87
+            },
+            "wrong": {
+              "rate": 0.7073,
+              "count": 87,
+              "total": 123
+            }
+          }
+        },
+        "by_format": {
+          "pdf_inline": {
+            "items": 110,
+            "status_accuracy": {
+              "rate": 0.6455,
+              "count": 71,
+              "total": 110
+            },
+            "confusion": {
+              "gold_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check"
+              ],
+              "predicted_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check",
+                "not_extracted"
+              ],
+              "rows": [
+                [
+                  34,
+                  3,
+                  0,
+                  0,
+                  7,
+                  2
+                ],
+                [
+                  1,
+                  4,
+                  0,
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  2,
+                  1,
+                  0,
+                  4,
+                  1,
+                  0
+                ],
+                [
+                  1,
+                  2,
+                  0,
+                  25,
+                  14,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0,
+                  8,
+                  0
+                ]
+              ]
+            },
+            "per_status": {
+              "direct": {
+                "precision": {
+                  "rate": 0.8947,
+                  "count": 34,
+                  "total": 38
+                },
+                "recall": {
+                  "rate": 0.7391,
+                  "count": 34,
+                  "total": 46
+                }
+              },
+              "partial": {
+                "precision": {
+                  "rate": 0.4,
+                  "count": 4,
+                  "total": 10
+                },
+                "recall": {
+                  "rate": 0.6667,
+                  "count": 4,
+                  "total": 6
+                }
+              },
+              "adjacent": {
+                "precision": {
+                  "rate": null,
+                  "count": 0,
+                  "total": 0
+                },
+                "recall": {
+                  "rate": 0.0,
+                  "count": 0,
+                  "total": 8
+                }
+              },
+              "gap": {
+                "precision": {
+                  "rate": 0.8621,
+                  "count": 25,
+                  "total": 29
+                },
+                "recall": {
+                  "rate": 0.5952,
+                  "count": 25,
+                  "total": 42
+                }
+              },
+              "needs_check": {
+                "precision": {
+                  "rate": 0.2581,
+                  "count": 8,
+                  "total": 31
+                },
+                "recall": {
+                  "rate": 1.0,
+                  "count": 8,
+                  "total": 8
+                }
+              }
+            },
+            "gap_precision": {
+              "rate": 0.8621,
+              "count": 25,
+              "total": 29
+            },
+            "gap_recall": {
+              "rate": 0.5952,
+              "count": 25,
+              "total": 42
+            },
+            "false_proven_rate": {
+              "rate": 0.02,
+              "count": 1,
+              "total": 50
+            },
+            "false_proven_share_of_direct": {
+              "rate": 0.0263,
+              "count": 1,
+              "total": 38
+            },
+            "overclaim_rate": {
+              "rate": 0.0625,
+              "count": 4,
+              "total": 64
+            },
+            "not_extracted": {
+              "rate": 0.0182,
+              "count": 2,
+              "total": 110
+            },
+            "evidence_recall_at_1": {
+              "rate": 0.45,
+              "count": 27,
+              "total": 60
+            },
+            "evidence_recall_at_3": {
+              "rate": 0.5333,
+              "count": 32,
+              "total": 60
+            },
+            "evidence_recall_at_1_without_years_only": {
+              "rate": 0.4737,
+              "count": 27,
+              "total": 57
+            },
+            "evidence_recall_at_3_without_years_only": {
+              "rate": 0.5614,
+              "count": 32,
+              "total": 57
+            },
+            "status_accuracy_by_fit": {
+              "strong": {
+                "rate": 0.675,
+                "count": 27,
+                "total": 40
+              },
+              "mixed": {
+                "rate": 0.5172,
+                "count": 15,
+                "total": 29
+              },
+              "wrong": {
+                "rate": 0.7073,
+                "count": 29,
+                "total": 41
+              }
+            }
+          },
+          "pdf_separate": {
+            "items": 110,
+            "status_accuracy": {
+              "rate": 0.6455,
+              "count": 71,
+              "total": 110
+            },
+            "confusion": {
+              "gold_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check"
+              ],
+              "predicted_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check",
+                "not_extracted"
+              ],
+              "rows": [
+                [
+                  34,
+                  3,
+                  0,
+                  0,
+                  7,
+                  2
+                ],
+                [
+                  1,
+                  4,
+                  0,
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  2,
+                  1,
+                  0,
+                  4,
+                  1,
+                  0
+                ],
+                [
+                  1,
+                  2,
+                  0,
+                  25,
+                  14,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0,
+                  8,
+                  0
+                ]
+              ]
+            },
+            "per_status": {
+              "direct": {
+                "precision": {
+                  "rate": 0.8947,
+                  "count": 34,
+                  "total": 38
+                },
+                "recall": {
+                  "rate": 0.7391,
+                  "count": 34,
+                  "total": 46
+                }
+              },
+              "partial": {
+                "precision": {
+                  "rate": 0.4,
+                  "count": 4,
+                  "total": 10
+                },
+                "recall": {
+                  "rate": 0.6667,
+                  "count": 4,
+                  "total": 6
+                }
+              },
+              "adjacent": {
+                "precision": {
+                  "rate": null,
+                  "count": 0,
+                  "total": 0
+                },
+                "recall": {
+                  "rate": 0.0,
+                  "count": 0,
+                  "total": 8
+                }
+              },
+              "gap": {
+                "precision": {
+                  "rate": 0.8621,
+                  "count": 25,
+                  "total": 29
+                },
+                "recall": {
+                  "rate": 0.5952,
+                  "count": 25,
+                  "total": 42
+                }
+              },
+              "needs_check": {
+                "precision": {
+                  "rate": 0.2581,
+                  "count": 8,
+                  "total": 31
+                },
+                "recall": {
+                  "rate": 1.0,
+                  "count": 8,
+                  "total": 8
+                }
+              }
+            },
+            "gap_precision": {
+              "rate": 0.8621,
+              "count": 25,
+              "total": 29
+            },
+            "gap_recall": {
+              "rate": 0.5952,
+              "count": 25,
+              "total": 42
+            },
+            "false_proven_rate": {
+              "rate": 0.02,
+              "count": 1,
+              "total": 50
+            },
+            "false_proven_share_of_direct": {
+              "rate": 0.0263,
+              "count": 1,
+              "total": 38
+            },
+            "overclaim_rate": {
+              "rate": 0.0625,
+              "count": 4,
+              "total": 64
+            },
+            "not_extracted": {
+              "rate": 0.0182,
+              "count": 2,
+              "total": 110
+            },
+            "evidence_recall_at_1": {
+              "rate": 0.45,
+              "count": 27,
+              "total": 60
+            },
+            "evidence_recall_at_3": {
+              "rate": 0.5333,
+              "count": 32,
+              "total": 60
+            },
+            "evidence_recall_at_1_without_years_only": {
+              "rate": 0.4737,
+              "count": 27,
+              "total": 57
+            },
+            "evidence_recall_at_3_without_years_only": {
+              "rate": 0.5614,
+              "count": 32,
+              "total": 57
+            },
+            "status_accuracy_by_fit": {
+              "strong": {
+                "rate": 0.675,
+                "count": 27,
+                "total": 40
+              },
+              "mixed": {
+                "rate": 0.5172,
+                "count": 15,
+                "total": 29
+              },
+              "wrong": {
+                "rate": 0.7073,
+                "count": 29,
+                "total": 41
+              }
+            }
+          },
+          "docx": {
+            "items": 110,
+            "status_accuracy": {
+              "rate": 0.6455,
+              "count": 71,
+              "total": 110
+            },
+            "confusion": {
+              "gold_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check"
+              ],
+              "predicted_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check",
+                "not_extracted"
+              ],
+              "rows": [
+                [
+                  34,
+                  3,
+                  0,
+                  0,
+                  7,
+                  2
+                ],
+                [
+                  1,
+                  4,
+                  0,
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  2,
+                  1,
+                  0,
+                  4,
+                  1,
+                  0
+                ],
+                [
+                  1,
+                  2,
+                  0,
+                  25,
+                  14,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0,
+                  8,
+                  0
+                ]
+              ]
+            },
+            "per_status": {
+              "direct": {
+                "precision": {
+                  "rate": 0.8947,
+                  "count": 34,
+                  "total": 38
+                },
+                "recall": {
+                  "rate": 0.7391,
+                  "count": 34,
+                  "total": 46
+                }
+              },
+              "partial": {
+                "precision": {
+                  "rate": 0.4,
+                  "count": 4,
+                  "total": 10
+                },
+                "recall": {
+                  "rate": 0.6667,
+                  "count": 4,
+                  "total": 6
+                }
+              },
+              "adjacent": {
+                "precision": {
+                  "rate": null,
+                  "count": 0,
+                  "total": 0
+                },
+                "recall": {
+                  "rate": 0.0,
+                  "count": 0,
+                  "total": 8
+                }
+              },
+              "gap": {
+                "precision": {
+                  "rate": 0.8621,
+                  "count": 25,
+                  "total": 29
+                },
+                "recall": {
+                  "rate": 0.5952,
+                  "count": 25,
+                  "total": 42
+                }
+              },
+              "needs_check": {
+                "precision": {
+                  "rate": 0.2581,
+                  "count": 8,
+                  "total": 31
+                },
+                "recall": {
+                  "rate": 1.0,
+                  "count": 8,
+                  "total": 8
+                }
+              }
+            },
+            "gap_precision": {
+              "rate": 0.8621,
+              "count": 25,
+              "total": 29
+            },
+            "gap_recall": {
+              "rate": 0.5952,
+              "count": 25,
+              "total": 42
+            },
+            "false_proven_rate": {
+              "rate": 0.02,
+              "count": 1,
+              "total": 50
+            },
+            "false_proven_share_of_direct": {
+              "rate": 0.0263,
+              "count": 1,
+              "total": 38
+            },
+            "overclaim_rate": {
+              "rate": 0.0625,
+              "count": 4,
+              "total": 64
+            },
+            "not_extracted": {
+              "rate": 0.0182,
+              "count": 2,
+              "total": 110
+            },
+            "evidence_recall_at_1": {
+              "rate": 0.45,
+              "count": 27,
+              "total": 60
+            },
+            "evidence_recall_at_3": {
+              "rate": 0.5333,
+              "count": 32,
+              "total": 60
+            },
+            "evidence_recall_at_1_without_years_only": {
+              "rate": 0.4737,
+              "count": 27,
+              "total": 57
+            },
+            "evidence_recall_at_3_without_years_only": {
+              "rate": 0.5614,
+              "count": 32,
+              "total": 57
+            },
+            "status_accuracy_by_fit": {
+              "strong": {
+                "rate": 0.675,
+                "count": 27,
+                "total": 40
+              },
+              "mixed": {
+                "rate": 0.5172,
+                "count": 15,
+                "total": 29
+              },
+              "wrong": {
+                "rate": 0.7073,
+                "count": 29,
+                "total": 41
+              }
+            }
+          }
+        }
+      },
+      "semantic": null,
+      "claude": null
+    },
+    "factcheck": {
+      "holdout": {
+        "cases": 0,
+        "adds_fact_cases": 0,
+        "faithful_cases": 0,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0
+        },
+        "accuracy": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "precision": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "recall": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "false_pass_rate": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "false_reject_rate": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "per_category": []
+      },
+      "development": {
+        "cases": 0,
+        "adds_fact_cases": 0,
+        "faithful_cases": 0,
+        "counts": {
+          "tp": 0,
+          "fp": 0,
+          "tn": 0,
+          "fn": 0
+        },
+        "accuracy": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "precision": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "recall": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "false_pass_rate": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "false_reject_rate": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "per_category": []
+      }
+    }
+  },
+  "comparison": null,
+  "semantic": {
+    "status": "not requested",
+    "how_to_run": "Install the ml extra (pip install -e \".[dev,ml]\", with the CPU-only PyTorch first on Linux as the README shows), then run python -m evals.run --semantic. The first run downloads the two models from Hugging Face, about 180 MB."
+  },
+  "llm": {
+    "status": "not requested",
+    "how_to_run": "Put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), then run python -m evals.run --llm. It makes one parse call per job and up to LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by default)."
+  },
+  "error_analysis": [
+    {
+      "id": "pair_no_catalog_skill",
+      "area": "Pair status",
+      "title": "Requirements that name no catalog skill are left for a person to check",
+      "observation": "The rule parser only finds skills from the skill catalog. A requirement whose tools or domain are outside it gets no skills, and a degree or certification requirement the app can't judge is left to a person, so exact matching marks it needs_check whether the resume proves it, lacks it or shows it in part.",
+      "count": 23,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "h_r01_guidewire_claimcenter x h_j01_guidewire_claimcenter_developer",
+          "formats": "all formats",
+          "what": "\"Knowledge of ISO ClaimSearch or other claims industry integrations\": labeled direct; the parser found no catalog skill in it."
+        },
+        {
+          "where": "h_r02_data_scientist x h_j02_data_scientist",
+          "formats": "all formats",
+          "what": "\"Experience with causal inference methods such as propensity scores, difference-in-diffe...\": labeled direct; the parser found no catalog skill in it."
+        },
+        {
+          "where": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+          "formats": "all formats",
+          "what": "\"Salesforce Platform Developer II certification\": labeled gap; the parser found no catalog skill in it."
+        }
+      ]
+    },
+    {
+      "id": "pair_adjacent_missed",
+      "area": "Pair status",
+      "title": "Related experience needs matching by meaning",
+      "observation": "In exact mode the app never returns adjacent, so related experience the labels mark adjacent (GitLab CI for GitHub Actions, Java for C#) comes out as gap, partial or needs_check. Matching by meaning is meant for these and wasn't run.",
+      "count": 8,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "h_r06_mobile_developer x h_j01_guidewire_claimcenter_developer",
+          "formats": "all formats",
+          "what": "\"Experience with TeamCity or Jenkins build pipelines\": labeled adjacent, app gap (Jenkins missing, CI/CD missing)."
+        },
+        {
+          "where": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+          "formats": "all formats",
+          "what": "\"Deep, hands-on experience running Amazon EKS in production\": labeled adjacent, app gap (Amazon EKS missing)."
+        },
+        {
+          "where": "h_r03_salesforce_developer x h_j04_platform_engineer",
+          "formats": "all formats",
+          "what": "\"Experience building CI/CD pipelines in GitHub Actions or CircleCI\": labeled adjacent, app gap (CI/CD missing, GitHub Actions missing)."
+        }
+      ]
+    },
+    {
+      "id": "jd_intro_kept",
+      "area": "Requirement extraction",
+      "title": "Company and posting details are kept as requirements",
+      "observation": "Company descriptions and posting lines are kept as requirements, usually as context: they name a skill or address the candidate, so the parser can't tell them from a duty.",
+      "count": 6,
+      "unit": "job lines",
+      "formats": "",
+      "examples": [
+        {
+          "where": "h_j01_guidewire_claimcenter_developer",
+          "formats": "",
+          "what": "\"We are looking for a hands-on ClaimCenter developer to join the claims IT team.\" kept as required."
+        },
+        {
+          "where": "h_j04_platform_engineer",
+          "formats": "",
+          "what": "\"Mock Payments, Inc. | Remote, US (Eastern or Central time zones preferred)\" kept as preferred."
+        },
+        {
+          "where": "h_j05_bi_developer",
+          "formats": "",
+          "what": "\"The team supports 14 hospitals and more than 200 clinics with reporting on quality, finance and operations.\" kept as context."
+        }
+      ]
+    },
+    {
+      "id": "structure_fields_differ",
+      "area": "Resume structure",
+      "title": "Roles are found but the title or employer is split wrongly",
+      "observation": "The role and its dates are read, but the title and employer are split in another place than the labels (extra text in one of them, or both in the title), so the role doesn't match its label.",
+      "count": 4,
+      "unit": "roles or entries",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "h_r02_data_scientist",
+          "formats": "all formats",
+          "what": "role 'Graduate Research Assistant, Example State University': Read as a role with title 'Graduate Research Assistant' and employer 'Example State University, Department of Statistics'. Extracted line: \"Graduate Research Assistant – Example State University, Department of Statistics | Aug 2016 – Jun 2020\"."
+        },
+        {
+          "where": "h_r04_platform_cloud_engineer",
+          "formats": "all formats",
+          "what": "role 'Adjunct Instructor, Sample Community College': Read as a role with title 'Adjunct Instructor, part-time' and employer 'Sample Community College'. Extracted line: \"Sample Community College – Adjunct Instructor, part-time (01/2021 – 12/2021)\"."
+        },
+        {
+          "where": "h_r05_bi_developer",
+          "formats": "all formats",
+          "what": "education 'Master of Science, Information Systems': The degree or school was read differently. Extracted line: \"Master of Science, Information Systems\"."
+        }
+      ]
+    },
+    {
+      "id": "pair_overcredited",
+      "area": "Pair status",
+      "title": "A related skill or a missing detail is counted as direct proof",
+      "observation": "The catalog files some tools under a broader skill as well (JUnit and NUnit also count as Unit testing, GitHub and GitLab as Git), so a requirement that names the broad skill can be proven by a line that names another tool, and a domain word (\"payments\") counts wherever a work line uses it.",
+      "count": 4,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+          "formats": "all formats",
+          "what": "\"Knowledge of PMD or other static code analysis tools for Apex\": labeled partial, app direct from the experience line \"Wrote Apex triggers on a trigger handler framework, plus batch and queueable Apex for n...\" (Apex via 'Apex triggers')."
+        },
+        {
+          "where": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+          "formats": "all formats",
+          "what": "\"Experience building CI/CD pipelines in GitHub Actions or CircleCI\": labeled adjacent, app direct from the experience line \"Azure, AKS, AWS (EC2, S3), Kubernetes, Docker, Terraform, Bicep, Helm, Kustomize, Flux,...\" (CI/CD via 'GitLab CI')."
+        },
+        {
+          "where": "h_r05_bi_developer x h_j05_bi_developer",
+          "formats": "all formats",
+          "what": "\"Experience implementing row-level security in Power BI.\": labeled adjacent, app direct from the experience line \"Built Power BI reports with DAX measures for the HR and procurement teams, published to...\" (Power BI via 'Power BI')."
+        }
+      ]
+    },
+    {
+      "id": "evidence_years_only",
+      "area": "Evidence",
+      "title": "Years requirements cite no resume lines",
+      "observation": "For a years-only requirement the report gives the years it counted but no lines, while the labels cite the role header lines. These items always miss in evidence recall, which is why recall is also shown without them.",
+      "count": 3,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "h_r01_guidewire_claimcenter x h_j01_guidewire_claimcenter_developer",
+          "formats": "all formats",
+          "what": "\"7+ years of overall IT experience\": labeled direct; the report cites no lines (10.4 years read)."
+        },
+        {
+          "where": "h_r06_mobile_developer x h_j01_guidewire_claimcenter_developer",
+          "formats": "all formats",
+          "what": "\"7+ years of overall IT experience\": labeled direct; the report cites no lines (7.4 years read)."
+        },
+        {
+          "where": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+          "formats": "all formats",
+          "what": "\"6+ years in infrastructure, DevOps, SRE or platform engineering roles\": labeled direct; the report cites no lines (9.9 years read)."
+        }
+      ]
+    },
+    {
+      "id": "evidence_other_line",
+      "area": "Evidence",
+      "title": "The status is right but the first lines cited aren't the labeled ones",
+      "observation": "The status matches the label, but none of the report's first three lines is a labeled evidence line. Evidence is listed skill by skill, so the first lines can all come from one skill of the requirement, or from a broad skill such as ETL (matched by \"data pipelines\").",
+      "count": 3,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+          "formats": "all formats",
+          "what": "\"Experience with Salesforce integrations using REST and SOAP APIs\": labeled direct, app direct; first line: certifications line \"Salesforce Certified Platform Developer I\" (Salesforce via 'Salesforce')."
+        },
+        {
+          "where": "h_r05_bi_developer x h_j05_bi_developer",
+          "formats": "all formats",
+          "what": "\"At least 5 years of experience in business intelligence, data warehousing or reporting...\": labeled direct, app direct; first line: experience line \"Developed Informatica PowerCenter mappings that loaded the Oracle enterprise data wareh...\" (Data warehousing via 'data warehouse')."
+        },
+        {
+          "where": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+          "formats": "all formats",
+          "what": "\"Experience with Salesforce DevOps tools such as Copado, Gearset or Salesforce DX\": labeled direct, app direct; first line: certifications line \"Salesforce Certified Platform Developer I\" (Salesforce via 'Salesforce')."
+        }
+      ]
+    },
+    {
+      "id": "jd_missed",
+      "area": "Requirement extraction",
+      "title": "Labeled requirements are not extracted",
+      "observation": "A labeled requirement line has no matching extracted requirement.",
+      "count": 2,
+      "unit": "job lines",
+      "formats": "",
+      "examples": [
+        {
+          "where": "h_j03_salesforce_developer",
+          "formats": "",
+          "what": "\"Experience: 5 - 8 Years\" (required) not found."
+        },
+        {
+          "where": "h_j03_salesforce_developer",
+          "formats": "",
+          "what": "\"Educational Qualification: B.E./B.Tech/MCA or equivalent\" (required) not found."
+        }
+      ]
+    },
+    {
+      "id": "pair_undercredited",
+      "area": "Pair status",
+      "title": "Work the labels count as shown is found only in a summary or skills line",
+      "observation": "The labels count the work as shown in a bullet, but the bullet describes it in other words, so exact matching finds the skill only in the summary or skills section, or not at all, and calls the requirement partial.",
+      "count": 2,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "h_r02_data_scientist x h_j02_data_scientist",
+          "formats": "all formats",
+          "what": "\"4+ years of experience applying statistics or machine learning in industry\": labeled direct, app partial (Statistics demonstrated, Machine learning listed)."
+        },
+        {
+          "where": "h_r05_bi_developer x h_j05_bi_developer",
+          "formats": "all formats",
+          "what": "\"Solid understanding of dimensional modeling (star schemas, slowly changing dimensions).\": labeled direct, app partial (Data modeling listed)."
+        }
+      ]
+    },
+    {
+      "id": "pair_not_extracted",
+      "area": "Pair status",
+      "title": "Labeled requirements missing from the report",
+      "observation": "The job parser didn't extract the requirement, so the report has no status for it.",
+      "count": 2,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+          "formats": "all formats",
+          "what": "\"Experience: 5 - 8 Years\": labeled direct; the parser didn't extract it."
+        },
+        {
+          "where": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+          "formats": "all formats",
+          "what": "\"Educational Qualification: B.E./B.Tech/MCA or equivalent\": labeled direct; the parser didn't extract it."
+        }
+      ]
+    },
+    {
+      "id": "structure_not_in_text",
+      "area": "Resume structure",
+      "title": "Roles not found in the extracted text",
+      "observation": "No extracted line holds both the title and the employer.",
+      "count": 1,
+      "unit": "roles or entries",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "h_r01_guidewire_claimcenter",
+          "formats": "all formats",
+          "what": "role 'Guidewire Developer, Demo Infotech Pvt. Ltd.': No extracted line holds both the title and the employer."
+        }
+      ]
+    },
+    {
+      "id": "structure_dates_unreadable",
+      "area": "Resume structure",
+      "title": "Date ranges with a separator the parser doesn't accept are not read",
+      "observation": "The extracted header has a character between the two dates that the date pattern doesn't accept, so the role's months aren't counted.",
+      "count": 1,
+      "unit": "roles or entries",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "h_r03_salesforce_developer",
+          "formats": "all formats",
+          "what": "role 'Associate Salesforce Developer, Demo Technologies': No date range the app can read is on the line. Extracted line: \"Associate Salesforce Developer | Demo Technologies, Chennai\"."
+        }
+      ]
+    },
+    {
+      "id": "jd_priority",
+      "area": "Requirement extraction",
+      "title": "Required lines get the wrong priority",
+      "observation": "A line gets another priority than its label: its section's priority, changed by wording in the line (\"is a plus\" makes it preferred, \"you should\" or \"must\" makes a context line required).",
+      "count": 1,
+      "unit": "job lines",
+      "formats": "",
+      "examples": [
+        {
+          "where": "h_j03_salesforce_developer",
+          "formats": "",
+          "what": "\"Take part in requirement discussions with onsite teams and client stakeholders.\" labeled context, parsed as required."
+        }
+      ]
+    },
+    {
+      "id": "pair_years_wrong",
+      "area": "Pair status",
+      "title": "Years requirements fail when roles weren't read",
+      "observation": "A years requirement is decided from the roles the app read: their total for \"5+ years of experience\", and the roles that mention the skill for \"4+ years with Java\". When a role is lost (see the structure patterns) the years fall short and the requirement becomes a gap or partial, or needs_check when no role was read at all.",
+      "count": 1,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+          "formats": "all formats",
+          "what": "\"5+ years of hands-on Salesforce development experience\": labeled direct, app partial with 4.9 years read in roles that mention Salesforce."
+        }
+      ]
+    }
+  ],
+  "details": {
+    "structure_per_resume": [
+      {
+        "resume": "h_r01_guidewire_claimcenter",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 10.4,
+        "years_app": 10.4,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "h_r02_data_scientist",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 10.3,
+        "years_app": 10.3,
+        "education_gold": 3,
+        "education_matched": 3
+      },
+      {
+        "resume": "h_r03_salesforce_developer",
+        "format": "pdf_inline",
+        "roles_gold": 2,
+        "roles_found": 2,
+        "roles_matched": 1,
+        "dates_correct": 1,
+        "years_gold": 7.5,
+        "years_app": 4.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "h_r04_platform_cloud_engineer",
+        "format": "pdf_inline",
+        "roles_gold": 4,
+        "roles_found": 4,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 9.9,
+        "years_app": 9.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "h_r05_bi_developer",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 12.4,
+        "years_app": 12.4,
+        "education_gold": 2,
+        "education_matched": 0
+      },
+      {
+        "resume": "h_r06_mobile_developer",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 7.4,
+        "years_app": 7.4,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "h_r01_guidewire_claimcenter",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 10.4,
+        "years_app": 10.4,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "h_r02_data_scientist",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 10.3,
+        "years_app": 10.3,
+        "education_gold": 3,
+        "education_matched": 3
+      },
+      {
+        "resume": "h_r03_salesforce_developer",
+        "format": "pdf_separate",
+        "roles_gold": 2,
+        "roles_found": 2,
+        "roles_matched": 1,
+        "dates_correct": 1,
+        "years_gold": 7.5,
+        "years_app": 4.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "h_r04_platform_cloud_engineer",
+        "format": "pdf_separate",
+        "roles_gold": 4,
+        "roles_found": 4,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 9.9,
+        "years_app": 9.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "h_r05_bi_developer",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 12.4,
+        "years_app": 12.4,
+        "education_gold": 2,
+        "education_matched": 0
+      },
+      {
+        "resume": "h_r06_mobile_developer",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 7.4,
+        "years_app": 7.4,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "h_r01_guidewire_claimcenter",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 10.4,
+        "years_app": 10.4,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "h_r02_data_scientist",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 10.3,
+        "years_app": 10.3,
+        "education_gold": 3,
+        "education_matched": 3
+      },
+      {
+        "resume": "h_r03_salesforce_developer",
+        "format": "docx",
+        "roles_gold": 2,
+        "roles_found": 2,
+        "roles_matched": 1,
+        "dates_correct": 1,
+        "years_gold": 7.5,
+        "years_app": 4.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "h_r04_platform_cloud_engineer",
+        "format": "docx",
+        "roles_gold": 4,
+        "roles_found": 4,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 9.9,
+        "years_app": 9.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "h_r05_bi_developer",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 12.4,
+        "years_app": 12.4,
+        "education_gold": 2,
+        "education_matched": 0
+      },
+      {
+        "resume": "h_r06_mobile_developer",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 7.4,
+        "years_app": 7.4,
+        "education_gold": 1,
+        "education_matched": 1
+      }
+    ],
+    "structure_failures": [
+      {
+        "resume": "h_r01_guidewire_claimcenter",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Guidewire Developer",
+          "employer": "Demo Infotech Pvt. Ltd.",
+          "start": "2018-08",
+          "end": "2021-05"
+        },
+        "cause": "not_in_text",
+        "line": null,
+        "detail": "No extracted line holds both the title and the employer."
+      },
+      {
+        "resume": "h_r02_data_scientist",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Graduate Research Assistant",
+          "employer": "Example State University",
+          "start": "2016-08",
+          "end": "2020-06"
+        },
+        "cause": "fields_differ",
+        "line": "Graduate Research Assistant – Example State University, Department of Statistics | Aug 2016 – Jun 2020",
+        "detail": "Read as a role with title 'Graduate Research Assistant' and employer 'Example State University, Department of Statistics'."
+      },
+      {
+        "resume": "h_r03_salesforce_developer",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Associate Salesforce Developer",
+          "employer": "Demo Technologies",
+          "start": "2019-06",
+          "end": "2021-12"
+        },
+        "cause": "dates_unreadable",
+        "line": "Associate Salesforce Developer | Demo Technologies, Chennai",
+        "detail": "No date range the app can read is on the line."
+      },
+      {
+        "resume": "h_r04_platform_cloud_engineer",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Adjunct Instructor",
+          "employer": "Sample Community College",
+          "start": "2021-01",
+          "end": "2021-12"
+        },
+        "cause": "fields_differ",
+        "line": "Sample Community College – Adjunct Instructor, part-time (01/2021 – 12/2021)",
+        "detail": "Read as a role with title 'Adjunct Instructor, part-time' and employer 'Sample Community College'."
+      },
+      {
+        "resume": "h_r05_bi_developer",
+        "format": "pdf_inline",
+        "gold": {
+          "degree": "Master of Science, Information Systems",
+          "school": "Sample State University",
+          "year": 2016
+        },
+        "cause": "fields_differ",
+        "line": "Master of Science, Information Systems",
+        "detail": "The degree or school was read differently."
+      },
+      {
+        "resume": "h_r05_bi_developer",
+        "format": "pdf_inline",
+        "gold": {
+          "degree": "Bachelor of Technology, Computer Science",
+          "school": "Example College of Engineering",
+          "year": 2012
+        },
+        "cause": "fields_differ",
+        "line": "Bachelor of Technology, Computer Science",
+        "detail": "The degree or school was read differently."
+      },
+      {
+        "resume": "h_r01_guidewire_claimcenter",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Guidewire Developer",
+          "employer": "Demo Infotech Pvt. Ltd.",
+          "start": "2018-08",
+          "end": "2021-05"
+        },
+        "cause": "not_in_text",
+        "line": null,
+        "detail": "No extracted line holds both the title and the employer."
+      },
+      {
+        "resume": "h_r02_data_scientist",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Graduate Research Assistant",
+          "employer": "Example State University",
+          "start": "2016-08",
+          "end": "2020-06"
+        },
+        "cause": "fields_differ",
+        "line": "Graduate Research Assistant – Example State University, Department of Statistics | Aug 2016 – Jun 2020",
+        "detail": "Read as a role with title 'Graduate Research Assistant' and employer 'Example State University, Department of Statistics'."
+      },
+      {
+        "resume": "h_r03_salesforce_developer",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Associate Salesforce Developer",
+          "employer": "Demo Technologies",
+          "start": "2019-06",
+          "end": "2021-12"
+        },
+        "cause": "dates_unreadable",
+        "line": "Associate Salesforce Developer | Demo Technologies, Chennai",
+        "detail": "No date range the app can read is on the line."
+      },
+      {
+        "resume": "h_r04_platform_cloud_engineer",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Adjunct Instructor",
+          "employer": "Sample Community College",
+          "start": "2021-01",
+          "end": "2021-12"
+        },
+        "cause": "fields_differ",
+        "line": "Sample Community College – Adjunct Instructor, part-time (01/2021 – 12/2021)",
+        "detail": "Read as a role with title 'Adjunct Instructor, part-time' and employer 'Sample Community College'."
+      },
+      {
+        "resume": "h_r05_bi_developer",
+        "format": "pdf_separate",
+        "gold": {
+          "degree": "Master of Science, Information Systems",
+          "school": "Sample State University",
+          "year": 2016
+        },
+        "cause": "fields_differ",
+        "line": "Master of Science, Information Systems",
+        "detail": "The degree or school was read differently."
+      },
+      {
+        "resume": "h_r05_bi_developer",
+        "format": "pdf_separate",
+        "gold": {
+          "degree": "Bachelor of Technology, Computer Science",
+          "school": "Example College of Engineering",
+          "year": 2012
+        },
+        "cause": "fields_differ",
+        "line": "Bachelor of Technology, Computer Science",
+        "detail": "The degree or school was read differently."
+      },
+      {
+        "resume": "h_r01_guidewire_claimcenter",
+        "format": "docx",
+        "gold": {
+          "title": "Guidewire Developer",
+          "employer": "Demo Infotech Pvt. Ltd.",
+          "start": "2018-08",
+          "end": "2021-05"
+        },
+        "cause": "not_in_text",
+        "line": null,
+        "detail": "No extracted line holds both the title and the employer."
+      },
+      {
+        "resume": "h_r02_data_scientist",
+        "format": "docx",
+        "gold": {
+          "title": "Graduate Research Assistant",
+          "employer": "Example State University",
+          "start": "2016-08",
+          "end": "2020-06"
+        },
+        "cause": "fields_differ",
+        "line": "Graduate Research Assistant – Example State University, Department of Statistics | Aug 2016 – Jun 2020",
+        "detail": "Read as a role with title 'Graduate Research Assistant' and employer 'Example State University, Department of Statistics'."
+      },
+      {
+        "resume": "h_r03_salesforce_developer",
+        "format": "docx",
+        "gold": {
+          "title": "Associate Salesforce Developer",
+          "employer": "Demo Technologies",
+          "start": "2019-06",
+          "end": "2021-12"
+        },
+        "cause": "dates_unreadable",
+        "line": "Associate Salesforce Developer | Demo Technologies, Chennai",
+        "detail": "No date range the app can read is on the line."
+      },
+      {
+        "resume": "h_r04_platform_cloud_engineer",
+        "format": "docx",
+        "gold": {
+          "title": "Adjunct Instructor",
+          "employer": "Sample Community College",
+          "start": "2021-01",
+          "end": "2021-12"
+        },
+        "cause": "fields_differ",
+        "line": "Sample Community College – Adjunct Instructor, part-time (01/2021 – 12/2021)",
+        "detail": "Read as a role with title 'Adjunct Instructor, part-time' and employer 'Sample Community College'."
+      },
+      {
+        "resume": "h_r05_bi_developer",
+        "format": "docx",
+        "gold": {
+          "degree": "Master of Science, Information Systems",
+          "school": "Sample State University",
+          "year": 2016
+        },
+        "cause": "fields_differ",
+        "line": "Master of Science, Information Systems",
+        "detail": "The degree or school was read differently."
+      },
+      {
+        "resume": "h_r05_bi_developer",
+        "format": "docx",
+        "gold": {
+          "degree": "Bachelor of Technology, Computer Science",
+          "school": "Example College of Engineering",
+          "year": 2012
+        },
+        "cause": "fields_differ",
+        "line": "Bachelor of Technology, Computer Science",
+        "detail": "The degree or school was read differently."
+      }
+    ],
+    "extra_roles": [
+      {
+        "resume": "h_r01_guidewire_claimcenter",
+        "format": "pdf_inline",
+        "predicted": {
+          "title": "Demo Infotech Pvt. Ltd.",
+          "employer": "Placeholder General Insurance",
+          "start": "2018-08",
+          "end": "2021-05"
+        }
+      },
+      {
+        "resume": "h_r02_data_scientist",
+        "format": "pdf_inline",
+        "predicted": {
+          "title": "Graduate Research Assistant",
+          "employer": "Example State University, Department of Statistics",
+          "start": "2016-08",
+          "end": "2020-06"
+        }
+      },
+      {
+        "resume": "h_r03_salesforce_developer",
+        "format": "pdf_inline",
+        "predicted": {
+          "title": "Jun'19",
+          "employer": "Dec'21",
+          "start": null,
+          "end": null
+        }
+      },
+      {
+        "resume": "h_r04_platform_cloud_engineer",
+        "format": "pdf_inline",
+        "predicted": {
+          "title": "Adjunct Instructor, part-time",
+          "employer": "Sample Community College",
+          "start": "2021-01",
+          "end": "2021-12"
+        }
+      },
+      {
+        "resume": "h_r01_guidewire_claimcenter",
+        "format": "pdf_separate",
+        "predicted": {
+          "title": "Demo Infotech Pvt. Ltd.",
+          "employer": "Placeholder General Insurance",
+          "start": "2018-08",
+          "end": "2021-05"
+        }
+      },
+      {
+        "resume": "h_r02_data_scientist",
+        "format": "pdf_separate",
+        "predicted": {
+          "title": "Graduate Research Assistant",
+          "employer": "Example State University, Department of Statistics",
+          "start": "2016-08",
+          "end": "2020-06"
+        }
+      },
+      {
+        "resume": "h_r03_salesforce_developer",
+        "format": "pdf_separate",
+        "predicted": {
+          "title": "Jun'19",
+          "employer": "Dec'21",
+          "start": null,
+          "end": null
+        }
+      },
+      {
+        "resume": "h_r04_platform_cloud_engineer",
+        "format": "pdf_separate",
+        "predicted": {
+          "title": "Adjunct Instructor, part-time",
+          "employer": "Sample Community College",
+          "start": "2021-01",
+          "end": "2021-12"
+        }
+      },
+      {
+        "resume": "h_r01_guidewire_claimcenter",
+        "format": "docx",
+        "predicted": {
+          "title": "Demo Infotech Pvt. Ltd.",
+          "employer": "Placeholder General Insurance",
+          "start": "2018-08",
+          "end": "2021-05"
+        }
+      },
+      {
+        "resume": "h_r02_data_scientist",
+        "format": "docx",
+        "predicted": {
+          "title": "Graduate Research Assistant",
+          "employer": "Example State University, Department of Statistics",
+          "start": "2016-08",
+          "end": "2020-06"
+        }
+      },
+      {
+        "resume": "h_r03_salesforce_developer",
+        "format": "docx",
+        "predicted": {
+          "title": "Jun'19",
+          "employer": "Dec'21",
+          "start": null,
+          "end": null
+        }
+      },
+      {
+        "resume": "h_r04_platform_cloud_engineer",
+        "format": "docx",
+        "predicted": {
+          "title": "Adjunct Instructor, part-time",
+          "employer": "Sample Community College",
+          "start": "2021-01",
+          "end": "2021-12"
+        }
+      }
+    ],
+    "requirements_per_job": [
+      {
+        "job": "h_j01_guidewire_claimcenter_developer",
+        "gold": 18,
+        "predicted": 21,
+        "matched": 18,
+        "priority_correct": 18,
+        "min_years_gold": 7,
+        "min_years_app": 7,
+        "title_ok": true
+      },
+      {
+        "job": "h_j02_data_scientist",
+        "gold": 16,
+        "predicted": 16,
+        "matched": 16,
+        "priority_correct": 16,
+        "min_years_gold": 4,
+        "min_years_app": 4,
+        "title_ok": true
+      },
+      {
+        "job": "h_j03_salesforce_developer",
+        "gold": 19,
+        "predicted": 17,
+        "matched": 17,
+        "priority_correct": 16,
+        "min_years_gold": 5,
+        "min_years_app": 5,
+        "title_ok": false
+      },
+      {
+        "job": "h_j04_platform_engineer",
+        "gold": 20,
+        "predicted": 22,
+        "matched": 20,
+        "priority_correct": 20,
+        "min_years_gold": 6,
+        "min_years_app": 6,
+        "title_ok": true
+      },
+      {
+        "job": "h_j05_bi_developer",
+        "gold": 17,
+        "predicted": 18,
+        "matched": 17,
+        "priority_correct": 17,
+        "min_years_gold": 5,
+        "min_years_app": 5,
+        "title_ok": true
+      }
+    ],
+    "requirement_failures": {
+      "not_a_requirement": [
+        {
+          "job": "h_j01_guidewire_claimcenter_developer",
+          "text": "We are looking for a hands-on ClaimCenter developer to join the claims IT team.",
+          "predicted": "required"
+        },
+        {
+          "job": "h_j01_guidewire_claimcenter_developer",
+          "text": "Only W2 candidates.",
+          "predicted": "preferred"
+        },
+        {
+          "job": "h_j01_guidewire_claimcenter_developer",
+          "text": "No C2C or third-party agencies please.",
+          "predicted": "preferred"
+        },
+        {
+          "job": "h_j04_platform_engineer",
+          "text": "Mock Payments, Inc. | Remote, US (Eastern or Central time zones preferred)",
+          "predicted": "preferred"
+        },
+        {
+          "job": "h_j04_platform_engineer",
+          "text": "We welcome applicants of every background and do not discriminate on the basis of any protected characteristic.",
+          "predicted": "preferred"
+        },
+        {
+          "job": "h_j05_bi_developer",
+          "text": "The team supports 14 hospitals and more than 200 clinics with reporting on quality, finance and operations.",
+          "predicted": "context"
+        }
+      ],
+      "not_extracted": [
+        {
+          "job": "h_j03_salesforce_developer",
+          "text": "Experience: 5 - 8 Years",
+          "gold": "required"
+        },
+        {
+          "job": "h_j03_salesforce_developer",
+          "text": "Educational Qualification: B.E./B.Tech/MCA or equivalent",
+          "gold": "required"
+        }
+      ],
+      "priority_errors": [
+        {
+          "job": "h_j03_salesforce_developer",
+          "text": "Take part in requirement discussions with onsite teams and client stakeholders.",
+          "gold": "context",
+          "predicted": "required"
+        }
+      ]
+    },
+    "pairs_per_pair": [
+      {
+        "pair": "h_r01_guidewire_claimcenter x h_j01_guidewire_claimcenter_developer",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 13,
+        "correct": 11
+      },
+      {
+        "pair": "h_r06_mobile_developer x h_j01_guidewire_claimcenter_developer",
+        "fit": "wrong",
+        "format": "pdf_inline",
+        "items": 13,
+        "correct": 11
+      },
+      {
+        "pair": "h_r02_data_scientist x h_j02_data_scientist",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 13,
+        "correct": 8
+      },
+      {
+        "pair": "h_r01_guidewire_claimcenter x h_j02_data_scientist",
+        "fit": "wrong",
+        "format": "pdf_inline",
+        "items": 13,
+        "correct": 9
+      },
+      {
+        "pair": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 14,
+        "correct": 8
+      },
+      {
+        "pair": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+        "fit": "mixed",
+        "format": "pdf_inline",
+        "items": 15,
+        "correct": 7
+      },
+      {
+        "pair": "h_r03_salesforce_developer x h_j04_platform_engineer",
+        "fit": "wrong",
+        "format": "pdf_inline",
+        "items": 15,
+        "correct": 9
+      },
+      {
+        "pair": "h_r05_bi_developer x h_j05_bi_developer",
+        "fit": "mixed",
+        "format": "pdf_inline",
+        "items": 14,
+        "correct": 8
+      },
+      {
+        "pair": "h_r01_guidewire_claimcenter x h_j01_guidewire_claimcenter_developer",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 13,
+        "correct": 11
+      },
+      {
+        "pair": "h_r06_mobile_developer x h_j01_guidewire_claimcenter_developer",
+        "fit": "wrong",
+        "format": "pdf_separate",
+        "items": 13,
+        "correct": 11
+      },
+      {
+        "pair": "h_r02_data_scientist x h_j02_data_scientist",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 13,
+        "correct": 8
+      },
+      {
+        "pair": "h_r01_guidewire_claimcenter x h_j02_data_scientist",
+        "fit": "wrong",
+        "format": "pdf_separate",
+        "items": 13,
+        "correct": 9
+      },
+      {
+        "pair": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 14,
+        "correct": 8
+      },
+      {
+        "pair": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+        "fit": "mixed",
+        "format": "pdf_separate",
+        "items": 15,
+        "correct": 7
+      },
+      {
+        "pair": "h_r03_salesforce_developer x h_j04_platform_engineer",
+        "fit": "wrong",
+        "format": "pdf_separate",
+        "items": 15,
+        "correct": 9
+      },
+      {
+        "pair": "h_r05_bi_developer x h_j05_bi_developer",
+        "fit": "mixed",
+        "format": "pdf_separate",
+        "items": 14,
+        "correct": 8
+      },
+      {
+        "pair": "h_r01_guidewire_claimcenter x h_j01_guidewire_claimcenter_developer",
+        "fit": "strong",
+        "format": "docx",
+        "items": 13,
+        "correct": 11
+      },
+      {
+        "pair": "h_r06_mobile_developer x h_j01_guidewire_claimcenter_developer",
+        "fit": "wrong",
+        "format": "docx",
+        "items": 13,
+        "correct": 11
+      },
+      {
+        "pair": "h_r02_data_scientist x h_j02_data_scientist",
+        "fit": "strong",
+        "format": "docx",
+        "items": 13,
+        "correct": 8
+      },
+      {
+        "pair": "h_r01_guidewire_claimcenter x h_j02_data_scientist",
+        "fit": "wrong",
+        "format": "docx",
+        "items": 13,
+        "correct": 9
+      },
+      {
+        "pair": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+        "fit": "strong",
+        "format": "docx",
+        "items": 14,
+        "correct": 8
+      },
+      {
+        "pair": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+        "fit": "mixed",
+        "format": "docx",
+        "items": 15,
+        "correct": 7
+      },
+      {
+        "pair": "h_r03_salesforce_developer x h_j04_platform_engineer",
+        "fit": "wrong",
+        "format": "docx",
+        "items": 15,
+        "correct": 9
+      },
+      {
+        "pair": "h_r05_bi_developer x h_j05_bi_developer",
+        "fit": "mixed",
+        "format": "docx",
+        "items": 14,
+        "correct": 8
+      }
+    ],
+    "status_errors": [
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r01_guidewire_claimcenter x h_j01_guidewire_claimcenter_developer",
+        "mode": "exact",
+        "text": "Exposure to Guidewire Jutro digital platform",
+        "gold": "gap",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Guidewire": "demonstrated",
+          "Guidewire Digital": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Senior Guidewire ClaimCenter Developer | Jun 2021 – Till Date",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Guidewire via 'Guidewire'"
+          },
+          {
+            "text": "Configured ClaimCenter 10.2 FNOL wizard, exposure and reserve screens using PCF, entity extensions and typelists for auto and property lines.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Guidewire via 'ClaimCenter'"
+          },
+          {
+            "text": "Built REST integrations from ClaimCenter to a vendor appraisal service and a fraud scoring API using Guidewire Integration Gateway.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Guidewire via 'ClaimCenter'"
+          }
+        ],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r01_guidewire_claimcenter x h_j01_guidewire_claimcenter_developer",
+        "mode": "exact",
+        "text": "Knowledge of ISO ClaimSearch or other claims industry integrations",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Built REST integrations from ClaimCenter to a vendor appraisal service and a fraud scoring API using Guidewire Integration Gateway."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r06_mobile_developer x h_j01_guidewire_claimcenter_developer",
+        "mode": "exact",
+        "text": "Experience with TeamCity or Jenkins build pipelines",
+        "gold": "adjacent",
+        "app": "gap",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Jenkins": null,
+          "CI/CD": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Set up Fastlane and Bitrise pipelines for both platforms, with TestFlight and Play Console internal tracks."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r06_mobile_developer x h_j01_guidewire_claimcenter_developer",
+        "mode": "exact",
+        "text": "Knowledge of ISO ClaimSearch or other claims industry integrations",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r02_data_scientist x h_j02_data_scientist",
+        "mode": "exact",
+        "text": "4+ years of experience applying statistics or machine learning in industry",
+        "gold": "direct",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Statistics": "demonstrated",
+          "Machine learning": "listed"
+        },
+        "min_years": 4,
+        "years_found": 3.9,
+        "top_evidence": [
+          {
+            "text": "Graduate Research Assistant – Example State University, Department of Statistics | Aug 2016 – Jun 2020",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Statistics via 'Statistics'"
+          },
+          {
+            "text": "Taught two sections of introductory statistics each year.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Statistics via 'statistics'"
+          },
+          {
+            "text": "Data scientist with six years of industry experience building predictive models and running experiments in healthcare and retail, after a Ph.D. in statistics. I like problems where the model is only half the job and the other half is getting a care team or a merchandiser to trust it.",
+            "section": "summary",
+            "source": "exact",
+            "detail": "Statistics via 'statistics'"
+          }
+        ],
+        "gold_evidence": [
+          "Senior Data Scientist – Sample Health Partners, Austin, TX | Mar 2023 – Present",
+          "Data Scientist – Demo Retail Analytics, Remote | Jul 2020 – Feb 2023"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r02_data_scientist x h_j02_data_scientist",
+        "mode": "exact",
+        "text": "Experience with causal inference methods such as propensity scores, difference-in-differences or uplift modeling",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Estimated the effect of a nurse call program on readmissions with propensity score matching on Medicare Advantage claims data.",
+          "Measured promotion lift with difference-in-differences and synthetic control methods."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r02_data_scientist x h_j02_data_scientist",
+        "mode": "exact",
+        "text": "Experience with medical or pharmacy claims data",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Estimated the effect of a nurse call program on readmissions with propensity score matching on Medicare Advantage claims data."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r02_data_scientist x h_j02_data_scientist",
+        "mode": "exact",
+        "text": "Familiarity with survival analysis",
+        "gold": "partial",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Machine learning: gradient boosting, random forests, survival analysis, time series forecasting, NLP basics"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r02_data_scientist x h_j02_data_scientist",
+        "mode": "exact",
+        "text": "Familiarity with model explainability tools such as SHAP",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Tech stack: Python, pandas, scikit-learn, XGBoost, LightGBM, SHAP, PySpark, Databricks, MLflow, SQL, Tableau"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r01_guidewire_claimcenter x h_j02_data_scientist",
+        "mode": "exact",
+        "text": "Experience with causal inference methods such as propensity scores, difference-in-differences or uplift modeling",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r01_guidewire_claimcenter x h_j02_data_scientist",
+        "mode": "exact",
+        "text": "Experience with medical or pharmacy claims data",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r01_guidewire_claimcenter x h_j02_data_scientist",
+        "mode": "exact",
+        "text": "Familiarity with survival analysis",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r01_guidewire_claimcenter x h_j02_data_scientist",
+        "mode": "exact",
+        "text": "Familiarity with model explainability tools such as SHAP",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+        "mode": "exact",
+        "text": "Experience: 5 - 8 Years",
+        "gold": "direct",
+        "app": "not_extracted",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Salesforce Developer | Sample Cloud Consulting Pvt. Ltd., Bengaluru",
+          "Jan 2022 – Present",
+          "Associate Salesforce Developer | Demo Technologies, Chennai",
+          "Jun'19 – Dec'21"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+        "mode": "exact",
+        "text": "5+ years of hands-on Salesforce development experience",
+        "gold": "direct",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Salesforce": "demonstrated"
+        },
+        "min_years": 5,
+        "years_found": 4.9,
+        "top_evidence": [
+          {
+            "text": "Salesforce Certified Platform Developer I",
+            "section": "certifications",
+            "source": "exact",
+            "detail": "Salesforce via 'Salesforce'"
+          },
+          {
+            "text": "Salesforce Certified Administrator",
+            "section": "certifications",
+            "source": "exact",
+            "detail": "Salesforce via 'Salesforce'"
+          },
+          {
+            "text": "Salesforce Certified Platform App Builder",
+            "section": "certifications",
+            "source": "exact",
+            "detail": "Salesforce via 'Salesforce'"
+          }
+        ],
+        "gold_evidence": [
+          "Salesforce Developer | Sample Cloud Consulting Pvt. Ltd., Bengaluru",
+          "Jan 2022 – Present",
+          "Associate Salesforce Developer | Demo Technologies, Chennai",
+          "Jun'19 – Dec'21"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+        "mode": "exact",
+        "text": "Educational Qualification: B.E./B.Tech/MCA or equivalent",
+        "gold": "direct",
+        "app": "not_extracted",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Bachelor of Engineering (Computer Science)"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+        "mode": "exact",
+        "text": "Salesforce Platform Developer II certification",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Salesforce certification": "demonstrated"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Salesforce Developer | 3x Salesforce Certified",
+            "section": "header",
+            "source": "exact",
+            "detail": "Salesforce certification via 'Salesforce Developer | 3x Salesforce Certified'"
+          },
+          {
+            "text": "Salesforce Certified Platform Developer I",
+            "section": "certifications",
+            "source": "exact",
+            "detail": "Salesforce certification via 'Salesforce Certified Platform Developer I'"
+          },
+          {
+            "text": "Salesforce Certified Administrator",
+            "section": "certifications",
+            "source": "exact",
+            "detail": "Salesforce certification via 'Salesforce Certified Administrator'"
+          }
+        ],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+        "mode": "exact",
+        "text": "Experience with OmniStudio (FlexCards, OmniScripts, Integration Procedures)",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j03_salesforce_developer",
+        "mode": "exact",
+        "text": "Knowledge of PMD or other static code analysis tools for Apex",
+        "gold": "partial",
+        "app": "direct",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "SAST": null,
+          "Apex": "demonstrated"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Wrote Apex triggers on a trigger handler framework, plus batch and queueable Apex for nightly order rollups.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Apex via 'Apex triggers'"
+          },
+          {
+            "text": "Wrote scheduled Apex jobs and SOQL queries for SLA escalation on open cases.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Apex via 'Apex'"
+          },
+          {
+            "text": "Built a SOAP integration with a legacy ticketing system using Apex classes generated from WSDL.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Apex via 'Apex classes'"
+          }
+        ],
+        "gold_evidence": [
+          "Tools: Data Loader, Workbench, VS Code, Jira, PMD"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Deep, hands-on experience running Amazon EKS in production",
+        "gold": "adjacent",
+        "app": "gap",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Amazon EKS": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Built and run the bank's internal developer platform on 11 AKS clusters serving about 150 services."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Experience with AWS networking (VPCs, Transit Gateway, PrivateLink) and IAM",
+        "gold": "adjacent",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "AWS": "demonstrated",
+          "IAM": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Azure, AKS, AWS (EC2, S3), Kubernetes, Docker, Terraform, Bicep, Helm, Kustomize, Flux, Argo CD, Kyverno, Azure Policy, Prometheus, Grafana, Loki, Datadog, Azure DevOps, GitLab CI, Python, Go, Bash, PowerShell, Ansible, Linux",
+            "section": "experience",
+            "source": "exact",
+            "detail": "AWS via 'AWS'"
+          }
+        ],
+        "gold_evidence": [
+          "Moved 60 on-premises applications to Azure with a hub-and-spoke landing zone, ExpressRoute and Azure Firewall.",
+          "Wrote Bicep and Terraform for VNets, private endpoints, Entra ID role assignments and managed identities."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Experience building CI/CD pipelines in GitHub Actions or CircleCI",
+        "gold": "adjacent",
+        "app": "direct",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "CI/CD": "demonstrated",
+          "GitHub Actions": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Azure, AKS, AWS (EC2, S3), Kubernetes, Docker, Terraform, Bicep, Helm, Kustomize, Flux, Argo CD, Kyverno, Azure Policy, Prometheus, Grafana, Loki, Datadog, Azure DevOps, GitLab CI, Python, Go, Bash, PowerShell, Ansible, Linux",
+            "section": "experience",
+            "source": "exact",
+            "detail": "CI/CD via 'GitLab CI'"
+          }
+        ],
+        "gold_evidence": [
+          "Built Azure DevOps YAML pipelines with approval gates for infrastructure and application releases."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Experience with Backstage or another internal developer portal",
+        "gold": "adjacent",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Built and run the bank's internal developer platform on 11 AKS clusters serving about 150 services.",
+          "Wrote Python CLI tools that scaffold a new service with its pipeline, namespace and alerts in one command."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Experience with Crossplane",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Experience with Karpenter or Cluster Autoscaler tuning",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Tuned cluster autoscaler profiles and node pools, cutting AKS compute spend by 22%."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Policy as code with OPA Gatekeeper or Kyverno",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Enforced policy as code with Azure Policy and Kyverno to block privileged pods and public storage accounts."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r04_platform_cloud_engineer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "PCI DSS or SOC 2 environment experience",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Gathered change management and access review evidence for the SOC 2 Type II audit."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Experience building CI/CD pipelines in GitHub Actions or CircleCI",
+        "gold": "adjacent",
+        "app": "gap",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "CI/CD": null,
+          "GitHub Actions": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Moved releases from change sets to Copado pipelines and cut deployment time from a full day to about two hours."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Experience with Backstage or another internal developer portal",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Experience with Crossplane",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Experience with Karpenter or Cluster Autoscaler tuning",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "Policy as code with OPA Gatekeeper or Kyverno",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r03_salesforce_developer x h_j04_platform_engineer",
+        "mode": "exact",
+        "text": "PCI DSS or SOC 2 environment experience",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r05_bi_developer x h_j05_bi_developer",
+        "mode": "exact",
+        "text": "Experience building ETL with SSIS or Azure Data Factory.",
+        "gold": "adjacent",
+        "app": "gap",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "ETL": null,
+          "SSIS": null,
+          "Azure Data Factory": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Developed Informatica PowerCenter mappings that loaded the Oracle enterprise data warehouse nightly."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r05_bi_developer x h_j05_bi_developer",
+        "mode": "exact",
+        "text": "Experience implementing row-level security in Power BI.",
+        "gold": "adjacent",
+        "app": "direct",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Power BI": "demonstrated"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Built Power BI reports with DAX measures for the HR and procurement teams, published to the Power BI service.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Power BI via 'Power BI'"
+          },
+          {
+            "text": "Microsoft Certified: Power BI Data Analyst Associate (PL-300), 2024",
+            "section": "certifications",
+            "source": "exact",
+            "detail": "Power BI via 'Power BI'"
+          },
+          {
+            "text": "Has built Power BI reports for two departments alongside the main Tableau platform.",
+            "section": "summary",
+            "source": "exact",
+            "detail": "Power BI via 'Power BI'"
+          }
+        ],
+        "gold_evidence": [
+          "Built 35 Tableau dashboards on Tableau Server, with user filters and row-level entitlement tables so territory managers see only their accounts."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r05_bi_developer x h_j05_bi_developer",
+        "mode": "exact",
+        "text": "Solid understanding of dimensional modeling (star schemas, slowly changing dimensions).",
+        "gold": "direct",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Data modeling": "listed"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Strong in SQL (Oracle, SQL Server, Snowflake), dimensional modeling and data quality checks.",
+            "section": "summary",
+            "source": "exact",
+            "detail": "Data modeling via 'dimensional modeling'"
+          }
+        ],
+        "gold_evidence": [
+          "Designed Snowflake star schemas for sales, inventory and returns, including Type 2 slowly changing dimensions for customer and product."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r05_bi_developer x h_j05_bi_developer",
+        "mode": "exact",
+        "text": "Experience with Epic Clarity or Caboodle data models.",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r05_bi_developer x h_j05_bi_developer",
+        "mode": "exact",
+        "text": "Experience with Tabular Editor and DAX Studio.",
+        "gold": "gap",
+        "app": "direct",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "DAX": "demonstrated"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Built Power BI reports with DAX measures for the HR and procurement teams, published to the Power BI service.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "DAX via 'DAX'"
+          },
+          {
+            "text": "Power BI | DAX | Tableau | Tableau Prep | Alteryx | Informatica PowerCenter | Snowflake | Oracle PL/SQL | SQL Server | SSRS | Crystal Reports | Python | Excel | Jira",
+            "section": "skills",
+            "source": "exact",
+            "detail": "DAX via 'DAX'"
+          }
+        ],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "h_r05_bi_developer x h_j05_bi_developer",
+        "mode": "exact",
+        "text": "Familiarity with Git-based source control for Power BI projects (PBIP format).",
+        "gold": "gap",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Git": null,
+          "Power BI": "demonstrated"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Built Power BI reports with DAX measures for the HR and procurement teams, published to the Power BI service.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Power BI via 'Power BI'"
+          },
+          {
+            "text": "Microsoft Certified: Power BI Data Analyst Associate (PL-300), 2024",
+            "section": "certifications",
+            "source": "exact",
+            "detail": "Power BI via 'Power BI'"
+          },
+          {
+            "text": "Has built Power BI reports for two departments alongside the main Tableau platform.",
+            "section": "summary",
+            "source": "exact",
+            "detail": "Power BI via 'Power BI'"
+          }
+        ],
+        "gold_evidence": []
+      }
+    ],
+    "factcheck_disagreements": {
+      "holdout": [],
+      "development": []
+    }
+  }
+}

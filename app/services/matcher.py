@@ -15,6 +15,10 @@ Years:
 - "7+ years with Java" keeps the skill rules above, but is at most PARTIAL when
   the roles that mention Java add up to fewer years.
 
+Degrees and certifications ("Bachelor's degree in Computer Science", "AWS Certified
+Solutions Architect") are checked against the education entries and certification
+lines instead (see credentials.py).
+
 Matching by meaning (optional) adds related evidence to every requirement. It never
 changes a requirement that has exact evidence. A requirement that would be GAP or
 NOT_ASSESSED becomes ADJACENT when a related line is found in experience or
@@ -46,9 +50,11 @@ from app.models import (
     Span,
     SpanKind,
 )
+from app.services.credentials import CredentialContext, CredentialResult, combine
 from app.services.semantic import SemanticMatcher
 from app.services.skills import SkillCatalog, phrase_pattern
 from app.services.structure import parse_profile, years_with_spans
+from app.services.versions import shown_version, version_asks, version_note
 
 logger = logging.getLogger("app.matcher")
 
@@ -83,8 +89,12 @@ def _quote(text: str) -> str:
     return f'"{text}"'
 
 
-def _strength(span: Span, has_headings: bool) -> EvidenceStrength:
-    if has_headings:
+def _strength(span: Span, has_headings: bool, role_spans: Collection[str]) -> EvidenceStrength:
+    if span.id in role_spans:
+        # A role header or a line under it, also when the roles were read from a resume
+        # without an experience heading.
+        in_work = True
+    elif has_headings:
         in_work = span.section in DEMONSTRATED_SECTIONS
     else:
         # Without headings, bullets are the best available sign of real work.
@@ -92,16 +102,32 @@ def _strength(span: Span, has_headings: bool) -> EvidenceStrength:
     return EvidenceStrength.DEMONSTRATED if in_work else EvidenceStrength.LISTED
 
 
+def role_span_ids(profile: Profile | None) -> set[str]:
+    """Header and body lines of the experience roles."""
+    if profile is None:
+        return set()
+    return {
+        span_id
+        for role in profile.roles
+        if role.section is Section.EXPERIENCE
+        for span_id in (role.header_span_id, *role.bullet_span_ids)
+    }
+
+
 def _has_headings(resume: ResumeDocument) -> bool:
     return any(span.kind is SpanKind.HEADING for span in resume.spans)
 
 
 def index_evidence(
-    resume: ResumeDocument, skills: Iterable[str], catalog: SkillCatalog
+    resume: ResumeDocument,
+    skills: Iterable[str],
+    catalog: SkillCatalog,
+    role_spans: Collection[str] = (),
 ) -> dict[str, list[Evidence]]:
     """Evidence per skill. Catalog skills match through their catalog terms. A skill
     the catalog doesn't know (a free-text skill from the Claude parser) matches as a
-    case-insensitive whole phrase."""
+    case-insensitive whole phrase. `role_spans` are lines that belong to a role and so
+    count as work, wherever they are."""
     wanted = set(skills)
     free_text = {skill: phrase_pattern(skill) for skill in wanted if not catalog.knows(skill)}
     has_headings = _has_headings(resume)
@@ -115,7 +141,7 @@ def index_evidence(
                 section=span.section,
                 page=span.page,
                 matched_term=term,
-                strength=_strength(span, has_headings),
+                strength=_strength(span, has_headings, role_spans),
             )
         )
 
@@ -256,13 +282,23 @@ def match_requirement(
     related: Sequence[RelatedEvidence] = (),
     work_span_ids: Collection[str] | None = None,
     semantic: bool = False,
+    credentials: CredentialContext | None = None,
+    catalog: SkillCatalog | None = None,
 ) -> RequirementMatch:
     """Match one requirement.
 
     `related` is the output of matching by meaning for this requirement.
     `work_span_ids` lists the spans that count as real work for an ADJACENT result;
-    when None, spans in experience and projects count.
+    when None, spans in experience and projects count. With `credentials`, degree and
+    certification requirements are checked against the education and certification
+    lines. With `catalog`, a minimum version ("Angular 12 or later") must be shown.
     """
+    if credentials is not None and (ask := credentials.ask(requirement.text)) is not None:
+        result = credentials.match(ask)
+        others = credentials.other_skills(requirement.text, ask)
+        return _credential_match(
+            requirement, result, others, index, profile=profile, related=related
+        )
     skill_matches: list[SkillMatch] = []
     for skill in requirement.skills:
         evidence = index.get(skill, [])
@@ -278,6 +314,13 @@ def match_requirement(
     else:
         status = _skill_status(requirement, skill_matches)
         action = _skill_action(requirement, status, skill_matches)
+        if status is MatchStatus.DIRECT and catalog is not None:
+            asks = version_asks(requirement.text, catalog)
+            missing = [a for a in asks if not shown_version(index.get(a.skill, []), a, catalog)]
+            any_shown = requirement.match_mode is MatchMode.ANY and len(missing) < len(asks)
+            if missing and not any_shown:
+                status = MatchStatus.PARTIAL
+                action = version_note(missing[0])
         if requirement.min_years and status in (MatchStatus.DIRECT, MatchStatus.PARTIAL):
             years_found, deciding_skill = _skill_years(requirement, index, profile)
             action = _with_years_note(requirement, status, action, years_found, deciding_skill)
@@ -318,6 +361,39 @@ def match_requirement(
         related_evidence=related_evidence,
         years_found=years_found,
         next_action=action,
+    )
+
+
+def _credential_match(
+    requirement: Requirement,
+    result: CredentialResult,
+    other_skills: list[str],
+    index: dict[str, list[Evidence]],
+    *,
+    profile: Profile | None,
+    related: Sequence[RelatedEvidence],
+) -> RequirementMatch:
+    """A degree or certification requirement. Skills or years it also asks for ("a
+    degree and 5+ years of Java") are matched as usual and the statuses combined."""
+    statuses = [result.status]
+    actions = [result.action]
+    skills = [result.skill]
+    years_found: float | None = None
+    rest = requirement.model_copy(update={"skills": other_skills})
+    if other_skills or requirement.min_years:
+        part = match_requirement(rest, index, profile=profile)
+        statuses.append(part.status)
+        actions.append(part.next_action)
+        skills.extend(part.skills)
+        years_found = part.years_found
+    exact_ids = {e.span_id for skill in skills for e in skill.evidence}
+    return RequirementMatch(
+        requirement=requirement,
+        status=combine(statuses),
+        skills=skills,
+        related_evidence=[r for r in related if r.span_id not in exact_ids],
+        years_found=years_found,
+        next_action=" ".join(actions),
     )
 
 
@@ -381,10 +457,10 @@ def _warnings(resume: ResumeDocument, job: JobDescription) -> list[str]:
     return warnings
 
 
-def _work_span_ids(resume: ResumeDocument) -> set[str]:
+def _work_span_ids(resume: ResumeDocument, role_spans: set[str]) -> set[str]:
     if _has_headings(resume):
-        return {s.id for s in resume.spans if s.section in ADJACENT_SECTIONS}
-    return {s.id for s in resume.spans if s.kind is SpanKind.BULLET}
+        return {s.id for s in resume.spans if s.section in ADJACENT_SECTIONS} | role_spans
+    return {s.id for s in resume.spans if s.kind is SpanKind.BULLET} | role_spans
 
 
 def build_report(
@@ -396,8 +472,10 @@ def build_report(
     today: date | None = None,
 ) -> AnalysisReport:
     profile = parse_profile(resume, today)
+    credentials = CredentialContext(resume, profile, catalog)
+    role_spans = role_span_ids(profile)
     all_skills = {skill for r in job.requirements for skill in r.skills}
-    index = index_evidence(resume, all_skills, catalog)
+    index = index_evidence(resume, all_skills, catalog, role_spans)
     warnings = _warnings(resume, job)
 
     related: dict[str, list[RelatedEvidence]] = {}
@@ -413,7 +491,7 @@ def build_report(
             logger.exception("matching by meaning failed")
             warnings.append(SEMANTIC_FAILED_WARNING)
 
-    work_ids = _work_span_ids(resume)
+    work_ids = _work_span_ids(resume, role_spans)
     matches = [
         match_requirement(
             r,
@@ -422,6 +500,8 @@ def build_report(
             related=related.get(r.id, []),
             work_span_ids=work_ids,
             semantic=semantic_ran,
+            credentials=credentials,
+            catalog=catalog,
         )
         for r in job.requirements
     ]

@@ -141,3 +141,72 @@ def test_rejects_corrupt_pdf() -> None:
     with pytest.raises(ExtractionError) as err:
         extract_resume(b"%PDF-1.7\nthis is not really a pdf")
     assert err.value.code in {"corrupt_file", "no_text"}
+
+
+# ---------------------------------------------------------------------------
+# v0.5: lines that start a new span
+# ---------------------------------------------------------------------------
+
+
+def _full_width_line(prefix: str = "Environment: Guidewire, Gosu, Angular") -> str:
+    """A plain line that runs to the right margin of a builder PDF without wrapping."""
+    font, size, width = pymupdf.Font("helv"), PdfStyle().font_size, 612 - 2 * 54
+    text, i = prefix, 0
+    while font.text_length(f"{text}, Tool{i}", fontsize=size) <= width - 4:
+        text, i = f"{text}, Tool{i}", i + 1
+    return text
+
+
+FULL_WIDTH = _full_width_line()
+
+
+def _lines(data: bytes) -> list[str]:
+    return [s.text for s in extract_resume(data).spans]
+
+
+def test_bold_role_header_after_a_full_width_line_is_its_own_span() -> None:
+    markup = f"# Pat Example\n## Experience\n{FULL_WIDTH}\n### Software Engineer, Demo Labs\n"
+    lines = _lines(build_pdf(markup))
+    assert "Software Engineer, Demo Labs" in lines
+    assert not any(line.endswith("Demo Labs") and "Environment" in line for line in lines)
+
+
+def test_dated_line_after_a_full_width_line_is_its_own_span() -> None:
+    # Both lines in the regular font: the date range is what separates them.
+    markup = (
+        "# Pat Example\n## Experience\n"
+        f"{FULL_WIDTH}\nSoftware Engineer, Demo Labs | Jul 2018 - Dec 2019\n"
+    )
+    lines = _lines(build_pdf(markup))
+    assert "Software Engineer, Demo Labs | Jul 2018 - Dec 2019" in lines
+
+
+def test_wrapped_paragraph_with_a_date_range_mid_sentence_stays_whole() -> None:
+    text = (
+        "Led the migration of the claims warehouse to a new platform with three teams over "
+        "two years, from early planning in 2019 - 2021 through rollout and support"
+    )
+    lines = _lines(build_pdf(f"# Pat Example\n## Experience\n{text}\n"))
+    assert text in lines
+
+
+def test_short_lines_on_a_sparse_last_page_are_not_joined(data_engineer_markup: str) -> None:
+    filler = "\n".join(
+        f"- Project {i} built a reporting pipeline in Python for a fictional client."
+        for i in range(52)
+    )
+    markup = (
+        f"{data_engineer_markup}\n## Projects\n{filler}\n## Education\n"
+        "### M.S. Information Technology, Example University, 2013\n"
+        "### B.Tech Electronics, Sample Institute of Technology, 2011\n"
+    )
+    doc = extract_resume(build_pdf(markup))
+    assert doc.page_count == 2
+    education = [s.text for s in doc.spans if s.section is Section.EDUCATION]
+    assert "M.S. Information Technology, Example University, 2013" in education
+    assert "B.Tech Electronics, Sample Institute of Technology, 2011" in education
+
+
+def test_builder_pdfs_keep_the_en_dash() -> None:
+    markup = "# Pat Example\n## Experience\n### Engineer at Example Corp, Mar 2022 \u2013 Present\n"
+    assert "Engineer at Example Corp, Mar 2022 \u2013 Present" in _lines(build_pdf(markup))

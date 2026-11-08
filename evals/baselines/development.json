@@ -1,0 +1,205 @@
+{
+  "_comment": [
+    "Earlier default runs of python -m evals.run on the development set (evals/data), kept so REPORT.md can show the numbers before and after v0.5.",
+    "Each run's metrics are copied from its latest.json, by the same dotted paths as thresholds.json. A new row needs a new run, never an edited number."
+  ],
+  "dataset": "development",
+  "runs": [
+    {
+      "label": "v0.4.0",
+      "pipeline_version": "0.4.0-exact",
+      "git_commit": "6b763ac",
+      "note": "The committed v0.4 code at 6b763ac, run before any v0.5 change.",
+      "metrics": {
+        "structure.overall.role_precision": {
+          "rate": 0.9318,
+          "count": 82,
+          "total": 88
+        },
+        "structure.overall.role_recall": {
+          "rate": 0.781,
+          "count": 82,
+          "total": 105
+        },
+        "structure.overall.start_month_accuracy": {
+          "rate": 0.9268,
+          "count": 76,
+          "total": 82
+        },
+        "structure.overall.end_month_accuracy": {
+          "rate": 0.9512,
+          "count": 78,
+          "total": 82
+        },
+        "structure.overall.total_years_within_half": {
+          "rate": 0.7222,
+          "count": 26,
+          "total": 36
+        },
+        "structure.overall.education_recall": {
+          "rate": 0.8889,
+          "count": 40,
+          "total": 45
+        },
+        "requirements.rules.extraction_precision": {
+          "rate": 0.8832,
+          "count": 121,
+          "total": 137
+        },
+        "requirements.rules.extraction_recall": {
+          "rate": 1.0,
+          "count": 121,
+          "total": 121
+        },
+        "requirements.rules.priority_accuracy": {
+          "rate": 0.9091,
+          "count": 110,
+          "total": 121
+        },
+        "pairs.exact.overall.status_accuracy": {
+          "rate": 0.6856,
+          "count": 362,
+          "total": 528
+        },
+        "pairs.exact.overall.false_proven_rate": {
+          "rate": 0.0,
+          "count": 0,
+          "total": 174
+        },
+        "pairs.exact.overall.overclaim_rate": {
+          "rate": 0.0385,
+          "count": 9,
+          "total": 234
+        },
+        "pairs.exact.overall.gap_precision": {
+          "rate": 0.8718,
+          "count": 102,
+          "total": 117
+        },
+        "pairs.exact.overall.gap_recall": {
+          "rate": 0.6939,
+          "count": 102,
+          "total": 147
+        },
+        "pairs.exact.overall.evidence_recall_at_1": {
+          "rate": 0.5339,
+          "count": 189,
+          "total": 354
+        },
+        "pairs.exact.overall.evidence_recall_at_3": {
+          "rate": 0.5763,
+          "count": 204,
+          "total": 354
+        },
+        "factcheck.holdout.accuracy": {
+          "rate": 0.975,
+          "count": 39,
+          "total": 40
+        },
+        "factcheck.holdout.false_pass_rate": {
+          "rate": 0.0,
+          "count": 0,
+          "total": 20
+        }
+      }
+    },
+    {
+      "label": "v0.4.0 app, v0.5 PDF builder",
+      "pipeline_version": "0.4.0-exact",
+      "git_commit": "6b763ac",
+      "note": "The v0.4 app with only the tests/builders.py fix, so en dashes reach the app. This separates the builder fix from the app changes.",
+      "metrics": {
+        "structure.overall.role_precision": {
+          "rate": 0.9318,
+          "count": 82,
+          "total": 88
+        },
+        "structure.overall.role_recall": {
+          "rate": 0.781,
+          "count": 82,
+          "total": 105
+        },
+        "structure.overall.start_month_accuracy": {
+          "rate": 1.0,
+          "count": 82,
+          "total": 82
+        },
+        "structure.overall.end_month_accuracy": {
+          "rate": 1.0,
+          "count": 82,
+          "total": 82
+        },
+        "structure.overall.total_years_within_half": {
+          "rate": 0.7778,
+          "count": 28,
+          "total": 36
+        },
+        "structure.overall.education_recall": {
+          "rate": 0.8889,
+          "count": 40,
+          "total": 45
+        },
+        "requirements.rules.extraction_precision": {
+          "rate": 0.8832,
+          "count": 121,
+          "total": 137
+        },
+        "requirements.rules.extraction_recall": {
+          "rate": 1.0,
+          "count": 121,
+          "total": 121
+        },
+        "requirements.rules.priority_accuracy": {
+          "rate": 0.9091,
+          "count": 110,
+          "total": 121
+        },
+        "pairs.exact.overall.status_accuracy": {
+          "rate": 0.6932,
+          "count": 366,
+          "total": 528
+        },
+        "pairs.exact.overall.false_proven_rate": {
+          "rate": 0.0,
+          "count": 0,
+          "total": 174
+        },
+        "pairs.exact.overall.overclaim_rate": {
+          "rate": 0.0385,
+          "count": 9,
+          "total": 234
+        },
+        "pairs.exact.overall.gap_precision": {
+          "rate": 0.8718,
+          "count": 102,
+          "total": 117
+        },
+        "pairs.exact.overall.gap_recall": {
+          "rate": 0.6939,
+          "count": 102,
+          "total": 147
+        },
+        "pairs.exact.overall.evidence_recall_at_1": {
+          "rate": 0.5339,
+          "count": 189,
+          "total": 354
+        },
+        "pairs.exact.overall.evidence_recall_at_3": {
+          "rate": 0.5763,
+          "count": 204,
+          "total": 354
+        },
+        "factcheck.holdout.accuracy": {
+          "rate": 0.975,
+          "count": 39,
+          "total": 40
+        },
+        "factcheck.holdout.false_pass_rate": {
+          "rate": 0.0,
+          "count": 0,
+          "total": 20
+        }
+      }
+    }
+  ]
+}

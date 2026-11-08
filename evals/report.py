@@ -63,7 +63,15 @@ def _run_section(results: dict[str, Any]) -> list[str]:
             return f"skipped: {section['reason']}"
         return str(section["status"])
 
+    dataset = meta["dataset"]
+    fact_cases = (
+        f"{labels['factcheck_holdout']} held-out and {labels['factcheck_development']} "
+        "development fact-check cases"
+        if dataset["factcheck_labels"]
+        else "no fact-check cases"
+    )
     rows = [
+        ("Dataset", f"{dataset['name']} (`{dataset['source']}`)"),
         ("Pipeline version", meta["pipeline_version"]),
         ("Git commit", commit),
         ("Labels as of", f"{meta['as_of']}, passed to the app as today"),
@@ -81,9 +89,7 @@ def _run_section(results: dict[str, Any]) -> list[str]:
             f"{labels['resumes']} resumes ({labels['roles']} roles, "
             f"{labels['education_entries']} education entries), {labels['jobs']} jobs "
             f"({labels['job_requirements']} requirement lines), {labels['pairs']} pairs "
-            f"({labels['pair_labels']} requirement labels), "
-            f"{labels['factcheck_holdout']} held-out and {labels['factcheck_development']} "
-            "development fact-check cases",
+            f"({labels['pair_labels']} requirement labels), {fact_cases}",
         ),
     ]
     lines = ["## Run", "", *table(["Setting", "Value"], rows)]
@@ -372,6 +378,14 @@ def _factcheck_table(result: dict[str, Any]) -> list[str]:
 
 
 def _factcheck_section(results: dict[str, Any]) -> list[str]:
+    if not results["meta"]["dataset"]["factcheck_labels"]:
+        return [
+            "## Fact checker",
+            "",
+            "This set has no fact-check labels (labels/factcheck.json and "
+            "labels/factcheck_holdout.json), so the fact checker wasn't measured on it.",
+            "",
+        ]
     sets = results["metrics"]["factcheck"]
     holdout, dev = sets["holdout"], sets["development"]
     metric_rows = [
@@ -426,6 +440,43 @@ def _factcheck_section(results: dict[str, Any]) -> list[str]:
             ]
     if not any_listed:
         lines += ["The checker agrees with every label in both sets.", ""]
+    return lines
+
+
+def _comparison_section(results: dict[str, Any]) -> list[str]:
+    compared = results.get("comparison")
+    if not compared:
+        return []
+    dataset = results["meta"]["dataset"]
+    runs = compared["runs"]
+    current = f"This run ({results['meta']['pipeline_version']})"
+    if dataset["development"]:
+        heading = (
+            "## Before and after, development set (used to find and fix these failures, so "
+            "these numbers are optimistic)"
+        )
+        lead = (
+            "v0.5 was built by reading this set's failures, so its gains here are optimistic. "
+            "The held-out numbers in the README come from a set that wasn't used for v0.5. "
+        )
+    else:
+        heading = f"## Before and after, {dataset['name']} set"
+        lead = ""
+    lines = [
+        heading,
+        "",
+        f"{lead}Each earlier run is kept in `evals/baselines/{dataset['name']}.json`.",
+        "",
+    ]
+    lines += [f"- {run['label']}: {run['note']}" for run in runs]
+    lines.append("")
+    lines += table(
+        ["Metric", *(run["label"] for run in runs), current],
+        [
+            [row["metric"], *(rate(value) for value in row["before"]), rate(row["now"])]
+            for row in compared["rows"]
+        ],
+    )
     return lines
 
 
@@ -591,53 +642,87 @@ def _error_section(results: dict[str, Any]) -> list[str]:
     return lines
 
 
-_WEAKNESSES = [
-    "The sample is small: 12 resumes, 8 job descriptions, 16 pairs with 176 requirement "
-    "labels, and 100 fact-check cases. One item moves a per-format pair rate by about half a "
-    "point and a per-job rate by several points, and the three formats read the same resumes, "
-    "so pooling them doesn't add independent evidence.",
-    "The labels were written by the project team, alongside the fictional resumes and job "
-    "descriptions, by people who know how the app works. The resumes are cleaner and more "
-    "regular than real ones, and the labeling conventions in evals/data/README.md decide many "
-    "borderline items (for example that every soft-skill line is needs_check and that an "
-    "Environment line counts as work experience).",
-    "The fact checker's development set was used while the checker was built, so its numbers "
-    "are optimistic. The held-out set is the primary result, but it has 40 cases and was "
-    "written by the same team.",
-    "Matching by meaning and the Claude parser and rewrites are not run in CI, and were not "
-    "run for this report unless the run table says so. Exact mode can't produce adjacent, and "
-    "the Claude path is only exercised against a fake client in the tests.",
-    "Every PDF comes from one builder (tests/builders.py) with a base-14 font that can only "
-    "encode Latin-1 characters, so an en dash is written into the PDF as a middle dot. Real "
-    "exports from Word, Google Docs or LaTeX, two-column layouts, tables and text boxes are "
-    "not covered.",
-    "The evaluation's own matching rules (a fuzzy ratio of 0.85, containment for requirement "
-    "texts, strict title and employer matching for roles) are choices. Other rules would move "
-    "some role and requirement matches.",
-]
+def _weaknesses(results: dict[str, Any]) -> list[str]:
+    meta = results["meta"]
+    labels, dataset = meta["labels"], meta["dataset"]
+    cases = labels["factcheck_holdout"] + labels["factcheck_development"]
+    items = [
+        f"The sample is small: {labels['resumes']} resumes, {labels['jobs']} job descriptions, "
+        f"{labels['pairs']} pairs with {labels['pair_labels']} requirement labels, and "
+        f"{cases} fact-check cases. One item moves a per-format pair rate by about half a "
+        "point and a per-job rate by several points, and the three formats read the same "
+        "resumes, so pooling them doesn't add independent evidence.",
+    ]
+    if dataset["development"]:
+        items += [
+            "The labels were written by the project team, alongside the fictional resumes and "
+            "job descriptions, by people who know how the app works. The resumes are cleaner "
+            "and more regular than real ones, and the labeling conventions in "
+            "evals/data/README.md decide many borderline items (for example that every "
+            "soft-skill line is needs_check and that an Environment line counts as work "
+            "experience).",
+            "v0.5 fixed the failure patterns this set showed: role layouts, job-description "
+            "headings and boilerplate, catalog skills, and degree and certification "
+            "requirements. The fixes were written as general rules, but they were checked "
+            "against this set, so its numbers are optimistic. A held-out set is the fair test.",
+        ]
+    else:
+        items.append(
+            f"The labels of the {dataset['name']} set follow the conventions in "
+            "evals/data/README.md. How far it differs from the development set in wording and "
+            "layout decides how much this run says about real resumes."
+        )
+    if dataset["factcheck_labels"]:
+        items.append(
+            "The fact checker's development set was used while the checker was built, so its "
+            "numbers are optimistic. The held-out set is the primary result, but it has "
+            f"{labels['factcheck_holdout']} cases and was written by the same team."
+        )
+    items += [
+        "Matching by meaning and the Claude parser and rewrites are not run in CI, and were "
+        "not run for this report unless the run table says so. Exact mode can't produce "
+        "adjacent, and the Claude path is only exercised against a fake client in the tests.",
+        "Every PDF comes from one builder (tests/builders.py). Since v0.5 it embeds the font "
+        "file, so characters such as the en dash reach the app as written. Real exports from "
+        "Word, Google Docs or LaTeX, two-column layouts, tables and text boxes are not "
+        "covered.",
+        "The evaluation's own matching rules (a fuzzy ratio of 0.85, containment for "
+        "requirement texts, strict title and employer matching for roles) are choices. Other "
+        "rules would move some role and requirement matches.",
+    ]
+    return items
 
 
-def _weaknesses_section() -> list[str]:
+def _weaknesses_section(results: dict[str, Any]) -> list[str]:
     return [
         "## Known weaknesses of this evaluation",
         "",
-        *(f"- {item}" for item in _WEAKNESSES),
+        *(f"- {item}" for item in _weaknesses(results)),
         "",
     ]
 
 
 def render_report(results: dict[str, Any]) -> str:
+    dataset = results["meta"]["dataset"]
+    if dataset["development"]:
+        note = (
+            " This is the development set, which was used to find and fix the failures v0.5 "
+            "addresses, so its numbers are optimistic."
+        )
+    else:
+        note = ""
     lines = [
-        "# Evaluation report",
+        f"# Evaluation report: {dataset['name']} set",
         "",
         f"Run date: {results['meta']['date']}",
         "",
         "Written by `python -m evals.run` from `latest.json` in this folder. Every number "
-        "comes from the hand-labeled fictional set in `evals/data/`, read through the app's own "
-        "pipeline. Each rate is shown with its counts, as (count/total).",
+        f"comes from the hand-labeled fictional set in `{dataset['source']}/`, read through the "
+        f"app's own pipeline. Each rate is shown with its counts, as (count/total).{note}",
         "",
         *_run_section(results),
         *_headline_section(results),
+        *_comparison_section(results),
         *_structure_section(results),
         *_requirements_section(results),
         *_pairs_section(results),
@@ -645,7 +730,7 @@ def render_report(results: dict[str, Any]) -> str:
         *_semantic_section(results),
         *_llm_section(results),
         *_error_section(results),
-        *_weaknesses_section(),
+        *_weaknesses_section(results),
     ]
     while lines and not lines[-1]:
         lines.pop()

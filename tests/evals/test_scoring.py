@@ -2,6 +2,8 @@
 
 from datetime import date
 
+import pymupdf
+
 from app.models import (
     Evidence,
     EvidenceStrength,
@@ -22,7 +24,7 @@ from evals import errors, pairs, requirements, resume_structure
 from evals.dataset import FactCase, GoldJob, GoldRequirement, GoldResume, GoldRole
 from evals.factcheck import evaluate_cases
 from evals.pairs import ItemOutcome, evidence_lines, summarize
-from tests.builders import PdfStyle, build_docx, build_pdf
+from tests.builders import build_docx
 
 AS_OF = date(2026, 11, 1)
 
@@ -215,11 +217,13 @@ def test_fact_checker_scoring_and_disagreements(catalog: SkillCatalog) -> None:
     assert by_category["num"]["accuracy"] == {"rate": 0.5, "count": 1, "total": 2}
 
 
+# Two layouts the app still reads wrongly: no separator between the title and the
+# employer, and a role written as a sentence.
 MARKUP = """# Pat Example
 ## Experience
-### Data Engineer, Example Corp, Austin, TX | Mar 2022 - Present
+### Data Engineer Example Corp | Mar 2022 - Present
 - Built Python pipelines.
-### Demo Labs: Analyst, Jan 2019 - Feb 2022
+Worked as an Analyst at Demo Labs from Jan 2019 - Feb 2022.
 - Wrote SQL reports.
 ### Intern, Sample Co | 2018 - 2018
 - Fixed bugs.
@@ -249,7 +253,7 @@ def test_structure_scoring_and_diagnoses() -> None:
     assert result.start_correct == result.end_correct == 1
     causes = {item.gold["employer"]: item.cause for item in result.missed_roles}
     assert causes == {"Example Corp": "fields_differ", "Demo Labs": "not_a_header"}
-    assert result.extra_roles[0]["predicted"]["employer"] == "Example Corp, Austin, TX"
+    assert result.extra_roles[0]["predicted"]["title"] == "Data Engineer Example Corp"
     assert result.years_error is not None
     # Education isn't labeled for this resume, so the parsed degree is an extra entry.
     summary = resume_structure.summarize([result])
@@ -263,7 +267,13 @@ def test_structure_diagnoses_changed_characters_in_pdf_dates() -> None:
     gold = GoldResume(
         "r", markup, AS_OF, (GoldRole("Engineer", "Example Corp", "2022-03", None),), 4.7, ()
     )
-    document = extract_resume(build_pdf(markup, PdfStyle()))
+    # tests/builders.py keeps the en dash since v0.5, so this PDF is written with a
+    # base-14 font, which turns it into a middle dot, as the builder used to.
+    pdf = pymupdf.open()
+    page = pdf.new_page()
+    for y, line in ((72, "Pat Example"), (100, "EXPERIENCE"), (120, markup.splitlines()[2][4:])):
+        page.insert_text((72, y), line, fontname="helv", fontsize=10.5)
+    document = extract_resume(pdf.tobytes())
     profile = parse_profile(document, today=AS_OF)
     result = resume_structure.evaluate_resume(gold, document, profile, "pdf_inline")
     assert result.matched_roles == 1

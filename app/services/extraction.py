@@ -4,6 +4,7 @@ Files are parsed in memory and never written to disk.
 """
 
 import io
+import re
 import zipfile
 from dataclasses import dataclass, field
 
@@ -13,6 +14,7 @@ from docx.table import Table
 from docx.text.paragraph import Paragraph
 
 from app.models import FileType, ResumeDocument, Section, Span, SpanKind
+from app.services.structure import RANGE_RE
 from app.services.text import (
     BULLET_ONLY_RE,
     PAGE_FOOTER_RE,
@@ -112,6 +114,7 @@ class _PdfLine:
     x1: float
     y0: float
     y1: float
+    bold: bool = False  # every character on the line is in a bold font
 
 
 @dataclass
@@ -124,6 +127,17 @@ class _OpenBlock:
     last_x1: float  # right edge of the most recent line
     y1: float
     height: float
+    bold: bool = False  # the most recent line is bold
+
+
+_BOLD_FLAG = 16  # PyMuPDF's span flag for a bold font
+_BOLD_NAME = re.compile(r"bold|black|heavy|semibold|demibold", re.IGNORECASE)
+
+
+def _is_bold(span: dict[str, object]) -> bool:
+    flags = span.get("flags", 0)
+    bold_flag = isinstance(flags, int) and bool(flags & _BOLD_FLAG)
+    return bold_flag or bool(_BOLD_NAME.search(str(span.get("font", ""))))
 
 
 def _pdf_lines(page: "pymupdf.Page") -> list[_PdfLine]:
@@ -138,7 +152,9 @@ def _pdf_lines(page: "pymupdf.Page") -> list[_PdfLine]:
             if not text.strip():
                 continue
             x0, y0, x1, y1 = line["bbox"]
-            lines.append(_PdfLine(text=text, x0=x0, x1=x1, y0=y0, y1=y1))
+            written = [span for span in line["spans"] if span["text"].strip()]
+            bold = bool(written) and all(_is_bold(span) for span in written)
+            lines.append(_PdfLine(text=text, x0=x0, x1=x1, y0=y0, y1=y1, bold=bold))
     return _merge_split_bullets(lines)
 
 
@@ -155,11 +171,24 @@ def _merge_split_bullets(lines: list[_PdfLine]) -> list[_PdfLine]:
             and line.x0 > prev.x0
         ):
             merged[-1] = _PdfLine(
-                f"{prev.text.strip()} {line.text}", prev.x0, line.x1, prev.y0, line.y1
+                f"{prev.text.strip()} {line.text}", prev.x0, line.x1, prev.y0, line.y1, line.bold
             )
         else:
             merged.append(line)
     return merged
+
+
+_MAX_HEADER_WORDS = 14
+
+
+def _starts_new_line_block(block: _OpenBlock, line: _PdfLine, text: str, right_edge: float) -> bool:
+    """A short line that a paragraph above it doesn't wrap into: a line in bold after
+    a regular one (or the other way round), as role headers are, or a short line with
+    a date range ("Software Engineer, Example Corp | Jul 2018 - Dec 2019")."""
+    if line.bold != block.bold:
+        return True
+    short = line.x1 < right_edge - 36 and len(text.split()) <= _MAX_HEADER_WORDS
+    return short and not text[:1].islower() and RANGE_RE.search(text) is not None
 
 
 def _continues(block: _OpenBlock, line: _PdfLine, text: str, right_edge: float) -> bool:
@@ -171,6 +200,8 @@ def _continues(block: _OpenBlock, line: _PdfLine, text: str, right_edge: float) 
     if block.kind is SpanKind.BULLET:
         # Wrapped bullet lines are indented past the glyph.
         return line.x0 > block.x0 + 2 or mid_sentence
+    if not mid_sentence and _starts_new_line_block(block, line, text, right_edge):
+        return False
     # A paragraph wraps when the previous line ran to the right margin and the
     # next one starts at the same left edge.
     same_left = abs(line.x0 - block.x0) <= 2
@@ -194,10 +225,13 @@ def extract_pdf(data: bytes, limits: ExtractionLimits) -> ResumeDocument:
             )
 
         builder = _Builder()
-        for page_index in range(doc.page_count):
+        pages = [_pdf_lines(doc[page_index]) for page_index in range(doc.page_count)]
+        # The right margin is measured over the whole document: on a page with only
+        # short lines (the end of an education section) every line would otherwise
+        # look full width and be joined to the one before it.
+        right_edge = max((line.x1 for lines in pages for line in lines), default=0.0)
+        for page_index, lines in enumerate(pages):
             page_no = page_index + 1
-            lines = _pdf_lines(doc[page_index])
-            right_edge = max((line.x1 for line in lines), default=0.0)
             block: _OpenBlock | None = None
 
             def flush(page_no: int = page_no) -> None:
@@ -218,15 +252,20 @@ def extract_pdf(data: bytes, limits: ExtractionLimits) -> ResumeDocument:
                     builder.add(text, SpanKind.HEADING, page_no)
                 elif is_bullet:
                     flush()
-                    block = _OpenBlock(SpanKind.BULLET, text, line.x0, line.x1, line.y1, height)
+                    block = _OpenBlock(
+                        SpanKind.BULLET, text, line.x0, line.x1, line.y1, height, line.bold
+                    )
                 elif block is not None and _continues(block, line, text, right_edge):
                     joiner = "" if block.text.endswith("-") else " "
                     block.text = f"{block.text}{joiner}{text}"
                     block.last_x1 = line.x1
                     block.y1 = line.y1
+                    block.bold = line.bold
                 else:
                     flush()
-                    block = _OpenBlock(SpanKind.LINE, text, line.x0, line.x1, line.y1, height)
+                    block = _OpenBlock(
+                        SpanKind.LINE, text, line.x0, line.x1, line.y1, height, line.bold
+                    )
             flush()
 
         page_count = doc.page_count

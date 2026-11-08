@@ -1,0 +1,762 @@
+[
+  {
+    "resume": "h_r01_guidewire_claimcenter",
+    "job": "h_j01_guidewire_claimcenter_developer",
+    "fit": "strong",
+    "requirements": [
+      {
+        "text": "7+ years of overall IT experience",
+        "status": "direct",
+        "evidence": [
+          "Senior Guidewire ClaimCenter Developer | Jun 2021 \u2013 Till Date",
+          "Guidewire Developer | Aug 2018 \u2013 May 2021",
+          "Java Developer | Jul 2016 \u2013 Jul 2018"
+        ]
+      },
+      {
+        "text": "4+ years of Guidewire ClaimCenter configuration experience",
+        "status": "direct",
+        "evidence": [
+          "Senior Guidewire ClaimCenter Developer | Jun 2021 \u2013 Till Date",
+          "Guidewire Developer | Aug 2018 \u2013 May 2021",
+          "Configured ClaimCenter 10.2 FNOL wizard, exposure and reserve screens using PCF, entity extensions and typelists for auto and property lines.",
+          "Developed ClaimCenter 9.0 configurations for commercial auto claims, including new exposure types and assignment rules."
+        ]
+      },
+      {
+        "text": "Strong Gosu programming skills",
+        "status": "direct",
+        "evidence": [
+          "Wrote Gosu Pre-Update and Validation rules for coverage verification and reserve limits.",
+          "Wrote batch processes in Gosu for automatic diary creation and claim closure."
+        ]
+      },
+      {
+        "text": "Experience with ClaimCenter 10 or Guidewire Cloud Platform",
+        "status": "direct",
+        "evidence": [
+          "Configured ClaimCenter 10.2 FNOL wizard, exposure and reserve screens using PCF, entity extensions and typelists for auto and property lines.",
+          "Took part in the ClaimCenter 10.2 to Guidewire Cloud Platform migration, merging custom code and fixing 200+ defects found in SIT and UAT."
+        ]
+      },
+      {
+        "text": "Experience with SOAP or REST web service integrations",
+        "status": "direct",
+        "evidence": [
+          "Built REST integrations from ClaimCenter to a vendor appraisal service and a fraud scoring API using Guidewire Integration Gateway.",
+          "Built SOAP web services and messaging destinations to send claim payments to the client's check printing system."
+        ]
+      },
+      {
+        "text": "Working knowledge of SQL on Oracle or SQL Server",
+        "status": "direct",
+        "evidence": [
+          "Wrote SQL queries on SQL Server to research production data issues and support month-end reports."
+        ]
+      },
+      {
+        "text": "Excellent verbal and written communication skills",
+        "status": "needs_check",
+        "evidence": []
+      },
+      {
+        "text": "Guidewire ClaimCenter Configuration certification",
+        "status": "direct",
+        "evidence": [
+          "Guidewire Certified Associate \u2013 ClaimCenter Configuration"
+        ]
+      },
+      {
+        "text": "Experience with Guidewire Integration Gateway or Apache Camel",
+        "status": "direct",
+        "evidence": [
+          "Built REST integrations from ClaimCenter to a vendor appraisal service and a fraud scoring API using Guidewire Integration Gateway.",
+          "Built Apache Camel routes to load third-party adjuster contacts into ContactManager."
+        ]
+      },
+      {
+        "text": "Exposure to Guidewire Jutro digital platform",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Apache Kafka",
+        "status": "partial",
+        "evidence": [
+          "SOAP, REST, Guidewire Integration Gateway, Apache Camel, Kafka"
+        ]
+      },
+      {
+        "text": "Experience with TeamCity or Jenkins build pipelines",
+        "status": "direct",
+        "evidence": [
+          "GUnit, Git, Bitbucket, TeamCity, Oracle 19c, Jira",
+          "SQL Server 2016, SVN, Jenkins, Jira"
+        ]
+      },
+      {
+        "text": "Knowledge of ISO ClaimSearch or other claims industry integrations",
+        "status": "direct",
+        "evidence": [
+          "Built REST integrations from ClaimCenter to a vendor appraisal service and a fraud scoring API using Guidewire Integration Gateway."
+        ]
+      }
+    ]
+  },
+  {
+    "resume": "h_r06_mobile_developer",
+    "job": "h_j01_guidewire_claimcenter_developer",
+    "fit": "wrong",
+    "requirements": [
+      {
+        "text": "7+ years of overall IT experience",
+        "status": "direct",
+        "evidence": [
+          "Senior Mobile Engineer @ Mock Fitness Labs | May 2022 - Present",
+          "Android Developer @ Sample Ride Share Co. | Oct 2019 - Apr 2022",
+          "Mobile Developer Intern @ Demo Media Group | Jun 2019 - Aug 2019"
+        ]
+      },
+      {
+        "text": "4+ years of Guidewire ClaimCenter configuration experience",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Strong Gosu programming skills",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with ClaimCenter 10 or Guidewire Cloud Platform",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with SOAP or REST web service integrations",
+        "status": "direct",
+        "evidence": [
+          "Worked with the backend team to define REST and GraphQL APIs for trip tracking."
+        ]
+      },
+      {
+        "text": "Working knowledge of SQL on Oracle or SQL Server",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Excellent verbal and written communication skills",
+        "status": "needs_check",
+        "evidence": []
+      },
+      {
+        "text": "Guidewire ClaimCenter Configuration certification",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Guidewire Integration Gateway or Apache Camel",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Exposure to Guidewire Jutro digital platform",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Apache Kafka",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with TeamCity or Jenkins build pipelines",
+        "status": "adjacent",
+        "evidence": [
+          "Set up Fastlane and Bitrise pipelines for both platforms, with TestFlight and Play Console internal tracks."
+        ]
+      },
+      {
+        "text": "Knowledge of ISO ClaimSearch or other claims industry integrations",
+        "status": "gap",
+        "evidence": []
+      }
+    ]
+  },
+  {
+    "resume": "h_r02_data_scientist",
+    "job": "h_j02_data_scientist",
+    "fit": "strong",
+    "requirements": [
+      {
+        "text": "4+ years of experience applying statistics or machine learning in industry",
+        "status": "direct",
+        "evidence": [
+          "Senior Data Scientist \u2013 Sample Health Partners, Austin, TX | Mar 2023 \u2013 Present",
+          "Data Scientist \u2013 Demo Retail Analytics, Remote | Jul 2020 \u2013 Feb 2023"
+        ]
+      },
+      {
+        "text": "Master's or PhD in Statistics, Biostatistics, Computer Science or a related quantitative field",
+        "status": "direct",
+        "evidence": [
+          "Ph.D. in Statistics, Example State University, 2020"
+        ]
+      },
+      {
+        "text": "Expert Python skills, including pandas and scikit-learn",
+        "status": "direct",
+        "evidence": [
+          "Tech stack: Python, pandas, scikit-learn, XGBoost, LightGBM, SHAP, PySpark, Databricks, MLflow, SQL, Tableau"
+        ]
+      },
+      {
+        "text": "Strong SQL skills",
+        "status": "direct",
+        "evidence": [
+          "Built customer churn and lifetime value models and wrote the feature pipelines in SQL on Snowflake."
+        ]
+      },
+      {
+        "text": "Experience designing and analyzing A/B tests or randomized controlled trials",
+        "status": "direct",
+        "evidence": [
+          "Designed and analyzed randomized A/B tests of care outreach messages, including power analysis and CUPED variance reduction."
+        ]
+      },
+      {
+        "text": "Experience with causal inference methods such as propensity scores, difference-in-differences or uplift modeling",
+        "status": "direct",
+        "evidence": [
+          "Estimated the effect of a nurse call program on readmissions with propensity score matching on Medicare Advantage claims data.",
+          "Measured promotion lift with difference-in-differences and synthetic control methods."
+        ]
+      },
+      {
+        "text": "Experience deploying models to production with MLflow, SageMaker or a similar platform",
+        "status": "direct",
+        "evidence": [
+          "Deployed models as weekly batch scoring jobs on Databricks, with experiment tracking and the model registry in MLflow."
+        ]
+      },
+      {
+        "text": "Ability to explain technical results to non-technical audiences",
+        "status": "needs_check",
+        "evidence": []
+      },
+      {
+        "text": "Experience with medical or pharmacy claims data",
+        "status": "direct",
+        "evidence": [
+          "Estimated the effect of a nurse call program on readmissions with propensity score matching on Medicare Advantage claims data."
+        ]
+      },
+      {
+        "text": "Familiarity with survival analysis",
+        "status": "partial",
+        "evidence": [
+          "Machine learning: gradient boosting, random forests, survival analysis, time series forecasting, NLP basics"
+        ]
+      },
+      {
+        "text": "Experience with Databricks",
+        "status": "direct",
+        "evidence": [
+          "Deployed models as weekly batch scoring jobs on Databricks, with experiment tracking and the model registry in MLflow."
+        ]
+      },
+      {
+        "text": "Familiarity with model explainability tools such as SHAP",
+        "status": "direct",
+        "evidence": [
+          "Tech stack: Python, pandas, scikit-learn, XGBoost, LightGBM, SHAP, PySpark, Databricks, MLflow, SQL, Tableau"
+        ]
+      },
+      {
+        "text": "Experience with NLP on clinical notes using spaCy or Hugging Face Transformers",
+        "status": "partial",
+        "evidence": [
+          "NLP basics"
+        ]
+      }
+    ]
+  },
+  {
+    "resume": "h_r01_guidewire_claimcenter",
+    "job": "h_j02_data_scientist",
+    "fit": "wrong",
+    "requirements": [
+      {
+        "text": "4+ years of experience applying statistics or machine learning in industry",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Master's or PhD in Statistics, Biostatistics, Computer Science or a related quantitative field",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Expert Python skills, including pandas and scikit-learn",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Strong SQL skills",
+        "status": "direct",
+        "evidence": [
+          "Wrote SQL queries on SQL Server to research production data issues and support month-end reports."
+        ]
+      },
+      {
+        "text": "Experience designing and analyzing A/B tests or randomized controlled trials",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with causal inference methods such as propensity scores, difference-in-differences or uplift modeling",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience deploying models to production with MLflow, SageMaker or a similar platform",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Ability to explain technical results to non-technical audiences",
+        "status": "needs_check",
+        "evidence": []
+      },
+      {
+        "text": "Experience with medical or pharmacy claims data",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Familiarity with survival analysis",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Databricks",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Familiarity with model explainability tools such as SHAP",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with NLP on clinical notes using spaCy or Hugging Face Transformers",
+        "status": "gap",
+        "evidence": []
+      }
+    ]
+  },
+  {
+    "resume": "h_r03_salesforce_developer",
+    "job": "h_j03_salesforce_developer",
+    "fit": "strong",
+    "requirements": [
+      {
+        "text": "Experience: 5 - 8 Years",
+        "status": "direct",
+        "evidence": [
+          "Salesforce Developer | Sample Cloud Consulting Pvt. Ltd., Bengaluru",
+          "Jan 2022 \u2013 Present",
+          "Associate Salesforce Developer | Demo Technologies, Chennai",
+          "Jun'19 \u2013 Dec'21"
+        ]
+      },
+      {
+        "text": "5+ years of hands-on Salesforce development experience",
+        "status": "direct",
+        "evidence": [
+          "Salesforce Developer | Sample Cloud Consulting Pvt. Ltd., Bengaluru",
+          "Jan 2022 \u2013 Present",
+          "Associate Salesforce Developer | Demo Technologies, Chennai",
+          "Jun'19 \u2013 Dec'21"
+        ]
+      },
+      {
+        "text": "Strong expertise in Apex (triggers, batch, queueable, schedulable) and SOQL",
+        "status": "direct",
+        "evidence": [
+          "Wrote Apex triggers on a trigger handler framework, plus batch and queueable Apex for nightly order rollups.",
+          "Wrote scheduled Apex jobs and SOQL queries for SLA escalation on open cases."
+        ]
+      },
+      {
+        "text": "Hands-on experience with Lightning Web Components",
+        "status": "direct",
+        "evidence": [
+          "Built 20+ Lightning Web Components for the dealer portal on Experience Cloud and for sales rep dashboards."
+        ]
+      },
+      {
+        "text": "Experience with Salesforce integrations using REST and SOAP APIs",
+        "status": "direct",
+        "evidence": [
+          "Integrated Salesforce with the client's SAP ERP through REST callouts using Named Credentials.",
+          "Built a SOAP integration with a legacy ticketing system using Apex classes generated from WSDL."
+        ]
+      },
+      {
+        "text": "Experience with Salesforce DevOps tools such as Copado, Gearset or Salesforce DX",
+        "status": "direct",
+        "evidence": [
+          "Moved releases from change sets to Copado pipelines and cut deployment time from a full day to about two hours."
+        ]
+      },
+      {
+        "text": "Salesforce Platform Developer I certification",
+        "status": "direct",
+        "evidence": [
+          "Salesforce Certified Platform Developer I"
+        ]
+      },
+      {
+        "text": "Good communication skills and ability to work with US clients",
+        "status": "needs_check",
+        "evidence": []
+      },
+      {
+        "text": "Educational Qualification: B.E./B.Tech/MCA or equivalent",
+        "status": "direct",
+        "evidence": [
+          "Bachelor of Engineering (Computer Science)"
+        ]
+      },
+      {
+        "text": "Salesforce Platform Developer II certification",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with OmniStudio (FlexCards, OmniScripts, Integration Procedures)",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Financial Services Cloud or Health Cloud",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Knowledge of PMD or other static code analysis tools for Apex",
+        "status": "partial",
+        "evidence": [
+          "Tools: Data Loader, Workbench, VS Code, Jira, PMD"
+        ]
+      },
+      {
+        "text": "Exposure to MuleSoft Anypoint Platform",
+        "status": "partial",
+        "evidence": [
+          "MuleSoft (basics)"
+        ]
+      }
+    ]
+  },
+  {
+    "resume": "h_r04_platform_cloud_engineer",
+    "job": "h_j04_platform_engineer",
+    "fit": "mixed",
+    "requirements": [
+      {
+        "text": "6+ years in infrastructure, DevOps, SRE or platform engineering roles",
+        "status": "direct",
+        "evidence": [
+          "Demo Savings Bank \u2013 Senior Platform Engineer (09/2022 \u2013 Current)",
+          "Placeholder Lending Co. \u2013 Cloud Engineer (02/2019 \u2013 08/2022)",
+          "Sample Hosting Co. \u2013 Systems Engineer (06/2016 \u2013 06/2018)"
+        ]
+      },
+      {
+        "text": "Deep, hands-on experience running Amazon EKS in production",
+        "status": "adjacent",
+        "evidence": [
+          "Built and run the bank's internal developer platform on 11 AKS clusters serving about 150 services."
+        ]
+      },
+      {
+        "text": "Strong Terraform skills, including writing reusable modules",
+        "status": "direct",
+        "evidence": [
+          "Wrote reusable Terraform modules for AKS, Azure Front Door, Key Vault and private networking, published to an internal module registry."
+        ]
+      },
+      {
+        "text": "Experience with AWS networking (VPCs, Transit Gateway, PrivateLink) and IAM",
+        "status": "adjacent",
+        "evidence": [
+          "Moved 60 on-premises applications to Azure with a hub-and-spoke landing zone, ExpressRoute and Azure Firewall.",
+          "Wrote Bicep and Terraform for VNets, private endpoints, Entra ID role assignments and managed identities."
+        ]
+      },
+      {
+        "text": "Proficiency in Go or Python",
+        "status": "direct",
+        "evidence": [
+          "Wrote Python CLI tools that scaffold a new service with its pipeline, namespace and alerts in one command."
+        ]
+      },
+      {
+        "text": "Experience with GitOps tooling such as Argo CD or Flux",
+        "status": "direct",
+        "evidence": [
+          "Rolled out GitOps with Flux and Kustomize, replacing hand-run kubectl and Helm deploys."
+        ]
+      },
+      {
+        "text": "Experience building CI/CD pipelines in GitHub Actions or CircleCI",
+        "status": "adjacent",
+        "evidence": [
+          "Built Azure DevOps YAML pipelines with approval gates for infrastructure and application releases."
+        ]
+      },
+      {
+        "text": "Experience with observability stacks such as Prometheus, Grafana, Datadog or Honeycomb",
+        "status": "direct",
+        "evidence": [
+          "Built Prometheus, Grafana and Loki dashboards and SLO alerts for platform services."
+        ]
+      },
+      {
+        "text": "A bias for writing things down and helping other engineers succeed",
+        "status": "needs_check",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Backstage or another internal developer portal",
+        "status": "adjacent",
+        "evidence": [
+          "Built and run the bank's internal developer platform on 11 AKS clusters serving about 150 services.",
+          "Wrote Python CLI tools that scaffold a new service with its pipeline, namespace and alerts in one command."
+        ]
+      },
+      {
+        "text": "Experience with Crossplane",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Karpenter or Cluster Autoscaler tuning",
+        "status": "direct",
+        "evidence": [
+          "Tuned cluster autoscaler profiles and node pools, cutting AKS compute spend by 22%."
+        ]
+      },
+      {
+        "text": "Policy as code with OPA Gatekeeper or Kyverno",
+        "status": "direct",
+        "evidence": [
+          "Enforced policy as code with Azure Policy and Kyverno to block privileged pods and public storage accounts."
+        ]
+      },
+      {
+        "text": "PCI DSS or SOC 2 environment experience",
+        "status": "direct",
+        "evidence": [
+          "Gathered change management and access review evidence for the SOC 2 Type II audit."
+        ]
+      },
+      {
+        "text": "Certified Kubernetes Administrator (CKA)",
+        "status": "direct",
+        "evidence": [
+          "Certified Kubernetes Administrator (CKA), 2024"
+        ]
+      }
+    ]
+  },
+  {
+    "resume": "h_r03_salesforce_developer",
+    "job": "h_j04_platform_engineer",
+    "fit": "wrong",
+    "requirements": [
+      {
+        "text": "6+ years in infrastructure, DevOps, SRE or platform engineering roles",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Deep, hands-on experience running Amazon EKS in production",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Strong Terraform skills, including writing reusable modules",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with AWS networking (VPCs, Transit Gateway, PrivateLink) and IAM",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Proficiency in Go or Python",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with GitOps tooling such as Argo CD or Flux",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience building CI/CD pipelines in GitHub Actions or CircleCI",
+        "status": "adjacent",
+        "evidence": [
+          "Moved releases from change sets to Copado pipelines and cut deployment time from a full day to about two hours."
+        ]
+      },
+      {
+        "text": "Experience with observability stacks such as Prometheus, Grafana, Datadog or Honeycomb",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "A bias for writing things down and helping other engineers succeed",
+        "status": "needs_check",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Backstage or another internal developer portal",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Crossplane",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Karpenter or Cluster Autoscaler tuning",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Policy as code with OPA Gatekeeper or Kyverno",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "PCI DSS or SOC 2 environment experience",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Certified Kubernetes Administrator (CKA)",
+        "status": "gap",
+        "evidence": []
+      }
+    ]
+  },
+  {
+    "resume": "h_r05_bi_developer",
+    "job": "h_j05_bi_developer",
+    "fit": "mixed",
+    "requirements": [
+      {
+        "text": "Bachelor's degree in Information Systems, Computer Science, Statistics or a related field, or four additional years of relevant experience in place of a degree.",
+        "status": "direct",
+        "evidence": [
+          "Bachelor of Technology, Computer Science",
+          "Master of Science, Information Systems"
+        ]
+      },
+      {
+        "text": "At least 5 years of experience in business intelligence, data warehousing or reporting development.",
+        "status": "direct",
+        "evidence": [
+          "Lead BI Developer, Sample Pharma Distributors",
+          "Columbus, OH | April 2021 \u2013 Present",
+          "BI Developer, Demo Retail Corp, Cincinnati, OH",
+          "2017 \u2013 2021",
+          "Junior SQL Developer, Example Info Systems, Hyderabad, India",
+          "Jun 2012 \u2013 Nov 2014"
+        ]
+      },
+      {
+        "text": "Advanced DAX and Power Query skills, including performance tuning of large semantic models.",
+        "status": "partial",
+        "evidence": [
+          "Built Power BI reports with DAX measures for the HR and procurement teams, published to the Power BI service."
+        ]
+      },
+      {
+        "text": "Expert T-SQL, including stored procedures, window functions and query tuning.",
+        "status": "direct",
+        "evidence": [
+          "Wrote T-SQL queries and stored procedures for an insurance broker's policy and commission system.",
+          "Wrote and tuned Snowflake SQL with window functions for monthly rebate calculations.",
+          "Wrote PL/SQL stored procedures and tuned slow queries for store sales and labor reports."
+        ]
+      },
+      {
+        "text": "Experience building ETL with SSIS or Azure Data Factory.",
+        "status": "adjacent",
+        "evidence": [
+          "Developed Informatica PowerCenter mappings that loaded the Oracle enterprise data warehouse nightly."
+        ]
+      },
+      {
+        "text": "Experience implementing row-level security in Power BI.",
+        "status": "adjacent",
+        "evidence": [
+          "Built 35 Tableau dashboards on Tableau Server, with user filters and row-level entitlement tables so territory managers see only their accounts."
+        ]
+      },
+      {
+        "text": "Solid understanding of dimensional modeling (star schemas, slowly changing dimensions).",
+        "status": "direct",
+        "evidence": [
+          "Designed Snowflake star schemas for sales, inventory and returns, including Type 2 slowly changing dimensions for customer and product."
+        ]
+      },
+      {
+        "text": "Strong customer service orientation and the ability to manage competing priorities.",
+        "status": "needs_check",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Epic Clarity or Caboodle data models.",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Microsoft Fabric lakehouses or Direct Lake semantic models.",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Experience with Tabular Editor and DAX Studio.",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Familiarity with Git-based source control for Power BI projects (PBIP format).",
+        "status": "gap",
+        "evidence": []
+      },
+      {
+        "text": "Microsoft Certified: Power BI Data Analyst Associate (PL-300).",
+        "status": "direct",
+        "evidence": [
+          "Microsoft Certified: Power BI Data Analyst Associate (PL-300), 2024"
+        ]
+      },
+      {
+        "text": "Experience with Tableau or Qlik.",
+        "status": "direct",
+        "evidence": [
+          "Built 35 Tableau dashboards on Tableau Server, with user filters and row-level entitlement tables so territory managers see only their accounts."
+        ]
+      }
+    ]
+  }
+]

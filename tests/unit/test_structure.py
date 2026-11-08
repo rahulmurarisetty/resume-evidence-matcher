@@ -9,6 +9,7 @@ from app.services.structure import (
     merged_months,
     parse_profile,
     split_title_employer,
+    strip_location,
     to_years,
 )
 from tests.builders import build_docx, build_pdf
@@ -396,3 +397,203 @@ def test_metrics_only_from_work_bullets_unless_there_are_no_headings() -> None:
     assert parse_profile(with_headings, today=TODAY).metric_bullets == ["s1"]
     without = _resume(("Cut costs by 20%", Section.HEADER, B), ("Python", Section.HEADER, L))
     assert parse_profile(without, today=TODAY).metric_bullets == ["s0"]
+
+
+# ---------------------------------------------------------------------------
+# v0.5: more role layouts
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("header", "title", "employer"),
+    [
+        # "Employer: Title"
+        (
+            "Northwind Freight: Platform Engineer, Feb 2020 - present",
+            "Platform Engineer",
+            "Northwind Freight",
+        ),
+        # "Employer \u2014 Title", with or without spaces around the dash
+        (
+            "Northwind Freight \u2014 Platform Engineer | Feb 2020 - Present",
+            "Platform Engineer",
+            "Northwind Freight",
+        ),
+        (
+            "Northwind Freight\u2014Platform Engineer, Feb 2020 \u2013 Present",
+            "Platform Engineer",
+            "Northwind Freight",
+        ),
+        (
+            "Platform Engineer \u2013 Northwind Freight (Feb 2020 - Present)",
+            "Platform Engineer",
+            "Northwind Freight",
+        ),
+        # A city and state, a state name, a country or a work mode after the employer
+        ("QA Lead, Harbor Mutual, Orlando, FL | Feb 2020 - Present", "QA Lead", "Harbor Mutual"),
+        ("QA Lead, Harbor Mutual - Austin, Texas | Feb 2020 - Present", "QA Lead", "Harbor Mutual"),
+        ("QA Lead | Harbor Mutual, New York, NY | Feb 2020 - Present", "QA Lead", "Harbor Mutual"),
+        ("QA Lead, Harbor Mutual (Remote) | Feb 2020 - Present", "QA Lead", "Harbor Mutual"),
+        ("QA Lead at Harbor Mutual, Pune, India, Feb 2020 - Present", "QA Lead", "Harbor Mutual"),
+        ("Harbor Mutual, Orlando, FL - QA Lead | 2019 - 2021", "QA Lead", "Harbor Mutual"),
+        # A state on its own is dropped, but the employer before it is kept.
+        ("QA Lead, Harbor Mutual, Washington | 2019 - 2021", "QA Lead", "Harbor Mutual"),
+    ],
+)
+def test_more_header_variants(header: str, title: str, employer: str) -> None:
+    role = _one_role(header)
+    assert (role.title, role.employer) == (title, employer)
+    assert role.start is not None
+
+
+@pytest.mark.parametrize(
+    "lines",
+    [
+        # Title, then employer with the dates
+        [("Platform Engineer", L), ("Northwind Freight | Feb 2020 - Present", L)],
+        # Employer, then title with the dates
+        [("Northwind Freight", L), ("Platform Engineer | Feb 2020 - Present", L)],
+        # Employer with a place, then title, then the dates on their own line
+        [("Northwind Freight, Reno, NV", L), ("Platform Engineer", L), ("Feb 2020 - Present", L)],
+        # Title and employer, then a place and the dates
+        [("Platform Engineer, Northwind Freight", L), ("Reno, NV | Feb 2020 - Present", L)],
+        # Consulting layout: the client with the dates, then the role
+        [
+            ("Client: Northwind Freight, Reno, NV | Feb 2020 - Present", L),
+            ("Role: Platform Engineer", L),
+        ],
+        [
+            ("Client: Northwind Freight", L),
+            ("Role: Platform Engineer", L),
+            ("Duration: Feb 2020 - Present", L),
+        ],
+    ],
+)
+def test_header_parts_on_separate_lines(lines: list[tuple[str, SpanKind]]) -> None:
+    profile = parse_profile(_experience(*lines, ("Built things", B)), today=TODAY)
+    [role] = profile.roles
+    assert (role.title, role.employer, role.start, role.end) == (
+        "Platform Engineer",
+        "Northwind Freight",
+        "2020-02",
+        None,
+    )
+    assert role.header_span_id == "s1"
+    # Every line of the header and the bullet belong to the role.
+    assert role.bullet_span_ids == [f"s{i}" for i in range(2, len(lines) + 2)]
+
+
+def test_body_text_before_a_header_is_not_part_of_it() -> None:
+    profile = parse_profile(
+        _experience(
+            ("Data Engineer, Example Corp | Jan 2020 - Dec 2021", L),
+            ("Built dashboards in Tableau", L),
+            ("Environment: Python, SQL, Airflow", L),
+            ("Analyst Jan 2018 - Dec 2019", L),
+        ),
+        today=TODAY,
+    )
+    first, second = profile.roles
+    assert first.bullet_span_ids == ["s2", "s3"]
+    # A title without an employer stays that way rather than taking a body line.
+    assert (second.title, second.employer) == ("Analyst", None)
+
+
+def test_split_title_employer_and_location_helpers() -> None:
+    assert split_title_employer("Example Corp, Tampa, FL") == ("Example Corp", None)
+    assert split_title_employer("Client: Example Bank") == (None, "Example Bank")
+    assert split_title_employer("Role: Developer") == ("Developer", None)
+    assert strip_location("Accenture, Chicago, IL") == "Accenture"
+    assert strip_location("Example Corp (Tampa, FL)") == "Example Corp"
+    assert strip_location("Example Corp - Remote") == "Example Corp"
+    assert strip_location("Tampa, FL") == "Tampa, FL"  # only a place: left alone
+    assert strip_location("Example Group, Inc.") == "Example Group, Inc."
+
+
+def test_resume_without_headings_reads_roles_from_date_ranges() -> None:
+    resume = _resume(
+        ("Sam Placeholder", Section.HEADER, L),
+        ("Backend Developer | sam@example.com | (555) 010-0199", Section.HEADER, L),
+        ("Backend developer who builds APIs.", Section.HEADER, L),
+        ("Backend Developer, Northwind Freight | Feb 2023 - Present", Section.HEADER, L),
+        ("Built Python services.", Section.HEADER, B),
+        ("Lake Tech Studio", Section.HEADER, L),
+        ("Junior Developer | Jul 2020 - Jan 2023", Section.HEADER, L),
+        ("Fixed bugs in client sites.", Section.HEADER, B),
+        ("Python, SQL, Docker", Section.HEADER, L),
+        ("B.S. Computer Science, Sample University, 2016 - 2020", Section.HEADER, L),
+    )
+    profile = parse_profile(resume, today=TODAY)
+    assert [(r.title, r.employer, r.start, r.end) for r in profile.roles] == [
+        ("Backend Developer", "Northwind Freight", "2023-02", None),
+        ("Junior Developer", "Lake Tech Studio", "2020-07", "2023-01"),
+    ]
+    assert all(r.section is Section.EXPERIENCE for r in profile.roles)
+    # The skills line ends the last role; the degree line is education, not a role.
+    assert profile.roles[1].bullet_span_ids == ["s6", "s7"]
+    assert profile.total_years == 6.4
+    assert [(e.degree, e.school, e.year) for e in profile.education] == [
+        ("B.S. Computer Science", "Sample University", 2020)
+    ]
+    assert any("No experience heading was found" in w for w in profile.warnings)
+    assert profile.metric_bullets == []
+
+
+def test_resume_without_headings_or_dates_still_warns() -> None:
+    resume = _resume(("Sam Placeholder", Section.HEADER, L), ("Built things", Section.HEADER, B))
+    profile = parse_profile(resume, today=TODAY)
+    assert profile.roles == []
+    assert any("No experience section was found" in w for w in profile.warnings)
+
+
+def test_roles_under_a_summary_heading_are_read_when_there_is_no_experience_heading() -> None:
+    resume = _resume(
+        ("SUMMARY", Section.SUMMARY, H),
+        ("Engineer with five years of experience.", Section.SUMMARY, L),
+        ("Data Engineer, Example Corp | Jan 2021 - Dec 2025", Section.SUMMARY, L),
+        ("Cut load time by 40%", Section.SUMMARY, B),
+        ("SKILLS", Section.SKILLS, H),
+        ("Python, SQL", Section.SKILLS, L),
+    )
+    profile = parse_profile(resume, today=TODAY)
+    [role] = profile.roles
+    assert (role.title, role.months) == ("Data Engineer", 60)
+    assert profile.metric_bullets == ["s3"]  # role bullets count as work
+
+
+def test_employer_on_the_line_after_the_title_and_dates() -> None:
+    profile = parse_profile(
+        _experience(
+            ("Platform Engineer Feb 2020 - Present", L),
+            ("Northwind Freight, Reno, NV", L),
+            ("Built things", B),
+            ("Data Analyst Jun 2017 - Jan 2020", L),
+            ("Key Projects", L),
+            ("Wrote reports", B),
+        ),
+        today=TODAY,
+    )
+    assert [(r.title, r.employer) for r in profile.roles] == [
+        ("Platform Engineer", "Northwind Freight"),
+        ("Data Analyst", None),  # a sub-heading is not an employer
+    ]
+    assert profile.roles[0].bullet_span_ids == ["s2", "s3"]
+
+
+def test_several_titles_under_one_employer_line() -> None:
+    profile = parse_profile(
+        _experience(
+            ("NORTHWIND FREIGHT, Reno, NV", L),
+            ("Senior Platform Engineer | Feb 2022 - Present", L),
+            ("Built things", B),
+            ("Platform Engineer | Feb 2020 - Jan 2022", L),
+            ("Built more things", B),
+            ("Analyst, Lake Tech Studio | 2018 - 2019", L),
+        ),
+        today=TODAY,
+    )
+    assert [(r.title, r.employer) for r in profile.roles] == [
+        ("Senior Platform Engineer", "NORTHWIND FREIGHT"),
+        ("Platform Engineer", "NORTHWIND FREIGHT"),
+        ("Analyst", "Lake Tech Studio"),
+    ]

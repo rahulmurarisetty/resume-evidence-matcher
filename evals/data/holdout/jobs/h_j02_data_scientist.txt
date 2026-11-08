@@ -1,0 +1,32 @@
+Data Scientist II, Care Analytics
+Placeholder Health Plan - Remote (US) or Nashville, TN
+
+About the team
+The Care Analytics team builds models that help nurses and care managers reach members before a health problem turns into a hospital stay. We are a group of 14 data scientists, engineers and clinicians.
+
+What you'll do
+You will own predictive models from problem framing through deployment and monitoring. You will design experiments to measure whether outreach programs actually change member outcomes. You will present findings to clinical and business leaders who are not data scientists.
+
+What we're looking for
+- 4+ years of experience applying statistics or machine learning in industry
+- Master's or PhD in Statistics, Biostatistics, Computer Science or a related quantitative field
+- Expert Python skills, including pandas and scikit-learn
+- Strong SQL skills
+- Experience designing and analyzing A/B tests or randomized controlled trials
+- Experience with causal inference methods such as propensity scores, difference-in-differences or uplift modeling
+- Experience deploying models to production with MLflow, SageMaker or a similar platform
+- Ability to explain technical results to non-technical audiences
+
+Bonus points
+- Experience with medical or pharmacy claims data
+- Familiarity with survival analysis
+- Experience with Databricks
+- Familiarity with model explainability tools such as SHAP
+- Experience with NLP on clinical notes using spaCy or Hugging Face Transformers
+
+Compensation and benefits
+The base salary range for this role is $138,000 to $172,000, plus an annual incentive. We offer medical, dental and vision coverage starting on day one, a 401(k) with a 6% match, and 20 days of PTO.
+
+Placeholder Health Plan is unable to sponsor or take over sponsorship of employment visas for this position.
+
+We are an equal opportunity employer and value diversity at our company. We do not discriminate on the basis of race, religion, color, national origin, sex, sexual orientation, gender identity, age, veteran status or disability status.

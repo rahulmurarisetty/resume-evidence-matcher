@@ -98,6 +98,41 @@ class SkillCatalog:
     def skills_in(self, text: str) -> list[str]:
         return [hit.skill for hit in self.find(text)]
 
+    def mentions(self, text: str) -> list[SkillHit]:
+        """Every mention of every catalog skill, in order of appearance."""
+        hits = [
+            SkillHit(pattern.skill, match.group(pattern.group), *match.span(pattern.group))
+            for pattern in self._patterns
+            for match in pattern.regex.finditer(text)
+        ]
+        return sorted(hits, key=lambda h: (h.start, -h.end))
+
+    def requirement_skills(self, text: str) -> list[str]:
+        """The skills a requirement asks for, in order of first mention.
+
+        A skill is left out when every mention of it sits inside a longer term of
+        another skill: "GitHub Actions" doesn't also ask for Git, "SQL Server" doesn't
+        ask for SQL and "Azure DevOps" doesn't ask for Azure. Resume evidence still
+        uses every mention (see `find`).
+        """
+        hits = self.mentions(text)
+
+        def nested(hit: SkillHit) -> bool:
+            return any(
+                other.skill != hit.skill
+                and other.start <= hit.start
+                and hit.end <= other.end
+                and other.end - other.start > hit.end - hit.start
+                for other in hits
+            )
+
+        first: dict[str, int] = {}
+        for hit in hits:
+            if hit.skill in first or nested(hit):
+                continue
+            first[hit.skill] = hit.start
+        return sorted(first, key=lambda skill: first[skill])
+
 
 def load_catalog_entries() -> list[dict[str, object]]:
     raw = resources.files("app.data").joinpath("skills.json").read_text(encoding="utf-8")

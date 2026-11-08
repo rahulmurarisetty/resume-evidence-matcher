@@ -25,6 +25,14 @@ def load_thresholds(path: Path) -> Thresholds:
     )
 
 
+def without_prefix(thresholds: Thresholds, prefix: str) -> Thresholds:
+    """The thresholds without the metrics under `prefix` ("factcheck.")."""
+    return Thresholds(
+        floors={k: v for k, v in thresholds.floors.items() if not k.startswith(prefix)},
+        ceilings={k: v for k, v in thresholds.ceilings.items() if not k.startswith(prefix)},
+    )
+
+
 def lookup(metrics: dict[str, Any], path: str) -> float | None:
     node: Any = metrics
     for part in path.split("."):

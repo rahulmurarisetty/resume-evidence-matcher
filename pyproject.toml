@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "resume-evidence-matcher"
-version = "0.4.0"
+version = "0.5.0"
 description = "Maps job-description requirements to evidence in a resume, shows gaps, and never invents experience."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -57,6 +57,9 @@ filterwarnings = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# Labeled evaluation data, never code. A held-out set may be dropped into evals/data/
+# by someone else, and the linters must not open it.
+extend-exclude = ["evals/data"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
@@ -65,6 +68,7 @@ ignore = ["B008"]  # FastAPI uses function calls in argument defaults (File(...)
 [tool.mypy]
 python_version = "3.11"
 strict = true
+exclude = ["^evals/data/"]
 ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
 

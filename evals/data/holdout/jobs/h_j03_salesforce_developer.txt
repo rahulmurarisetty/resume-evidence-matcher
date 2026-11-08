@@ -1,0 +1,38 @@
+Job Opening: Senior Salesforce Developer
+Company: Demo Cloud Solutions Pvt. Ltd.
+Location: Bengaluru / Hyderabad (Hybrid)
+Experience: 5 - 8 Years
+CTC: INR 18 - 26 LPA
+Notice Period: Immediate to 30 days
+
+About Demo Cloud Solutions
+Demo Cloud Solutions is a Salesforce consulting partner with 600+ consultants working with banking, insurance and healthcare clients in the US and Europe.
+
+Key Responsibilities:
+• Design and develop custom solutions on Sales Cloud and Service Cloud using Apex, LWC and Flows.
+• Build integrations between Salesforce and external systems using REST/SOAP APIs and Platform Events.
+• Take part in requirement discussions with onsite teams and client stakeholders.
+• Perform code reviews and guide junior developers.
+• Manage deployments across sandboxes using the team's DevOps tooling.
+
+Required Skills:
+• 5+ years of hands-on Salesforce development experience
+• Strong expertise in Apex (triggers, batch, queueable, schedulable) and SOQL
+• Hands-on experience with Lightning Web Components
+• Experience with Salesforce integrations using REST and SOAP APIs
+• Experience with Salesforce DevOps tools such as Copado, Gearset or Salesforce DX
+• Salesforce Platform Developer I certification
+• Good communication skills and ability to work with US clients
+
+Good to Have:
+• Salesforce Platform Developer II certification
+• Experience with OmniStudio (FlexCards, OmniScripts, Integration Procedures)
+• Experience with Financial Services Cloud or Health Cloud
+• Knowledge of PMD or other static code analysis tools for Apex
+• Exposure to MuleSoft Anypoint Platform
+
+Educational Qualification: B.E./B.Tech/MCA or equivalent
+
+Interested candidates can share their updated resume at careers@example.com with the subject line "Senior Salesforce Developer".
+
+Demo Cloud Solutions is an equal opportunity employer.

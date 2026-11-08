@@ -110,7 +110,7 @@ def _skills(
     A skill counts as named when the catalog finds it in the text, or when Claude's
     term appears in the text as a whole phrase.
     """
-    in_text = catalog.skills_in(text)
+    in_text = catalog.requirement_skills(text)
     skills: list[str] = []
     free_text: list[str] = []
     dropped = 0
@@ -124,7 +124,7 @@ def _skills(
         if not name:
             continue
         found = phrase_pattern(name).search(text)
-        mapped = catalog.skills_in(name)
+        mapped = catalog.requirement_skills(name)
         if mapped:
             grounded = [skill for skill in mapped if skill in in_text or found is not None]
             for skill in grounded:

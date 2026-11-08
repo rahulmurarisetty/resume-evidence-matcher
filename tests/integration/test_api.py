@@ -39,7 +39,7 @@ def test_create_get_delete(
     assert created.headers["Location"] == f"/api/v1/analyses/{analysis_id}"
     # v0.2: "5+ years of experience" is now checked against the role dates.
     assert body["report"]["coverage"]["required"]["direct"] == 5
-    assert body["report"]["pipeline_version"] == "0.4.0-exact"
+    assert body["report"]["pipeline_version"] == "0.5.0-exact"
     assert body["report"]["matching_mode"] == "exact"
 
     fetched = client.get(f"/api/v1/analyses/{analysis_id}")

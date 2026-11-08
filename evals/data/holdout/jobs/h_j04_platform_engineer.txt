@@ -1,0 +1,34 @@
+Senior Platform Engineer
+Mock Payments, Inc. | Remote, US (Eastern or Central time zones preferred)
+
+Mock Payments moves money for 9,000 small businesses. Our platform team builds the paved road that 80 product engineers use to ship services safely, and we are hiring our fifth platform engineer.
+
+The role:
+* Own our multi-account AWS foundation and the EKS clusters that run every production workload
+* Build self-service templates in Backstage so teams can create a new service in under an hour
+* Manage infrastructure as code with Terraform and Crossplane
+* Improve deploy safety with Argo Rollouts, progressive delivery and automated rollback
+* Join a follow-the-sun on-call rotation (one week in six)
+
+You might be a fit if you have:
+* 6+ years in infrastructure, DevOps, SRE or platform engineering roles
+* Deep, hands-on experience running Amazon EKS in production
+* Strong Terraform skills, including writing reusable modules
+* Experience with AWS networking (VPCs, Transit Gateway, PrivateLink) and IAM
+* Proficiency in Go or Python
+* Experience with GitOps tooling such as Argo CD or Flux
+* Experience building CI/CD pipelines in GitHub Actions or CircleCI
+* Experience with observability stacks such as Prometheus, Grafana, Datadog or Honeycomb
+* A bias for writing things down and helping other engineers succeed
+
+Extra credit:
+* Experience with Backstage or another internal developer portal
+* Experience with Crossplane
+* Experience with Karpenter or Cluster Autoscaler tuning
+* Policy as code with OPA Gatekeeper or Kyverno
+* PCI DSS or SOC 2 environment experience
+* Certified Kubernetes Administrator (CKA)
+
+Compensation: $172,000 - $205,000 base, plus equity. Benefits include fully paid medical for you and your dependents, a $1,500 home office stipend and 16 weeks of paid parental leave.
+
+Mock Payments is an equal opportunity employer. We welcome applicants of every background and do not discriminate on the basis of any protected characteristic. We are able to sponsor H-1B transfers for this role.

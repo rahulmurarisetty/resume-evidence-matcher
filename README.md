@@ -12,7 +12,7 @@ This is a tool for a person improving their own application. It doesn't rank or 
 2. The app reads the resume and splits it into sections (summary, experience, skills, education), keeping every bullet and the page it came from.
 3. It reads each job's title, employer and dates, adds up your years of experience, and marks bullets with a measurable result such as "40+" or "5 hours to 90 minutes".
 4. It reads the job description and pulls out each requirement, labeling it required, preferred or a job duty. Benefits, the company intro and legal boilerplate are skipped.
-5. For each requirement it finds the skills named in it and looks for them in the resume. Requirements that ask for years are checked against the role dates.
+5. For each requirement it finds the skills named in it and looks for them in the resume. Requirements that ask for years are checked against the role dates, and degree or certification requirements against the education and certification lines.
 6. If matching by meaning is on, it also looks for resume lines that say the same thing in other words.
 7. Each requirement gets a result and a next step: proven in work experience, only listed in the skills section, related but worth checking, missing, or needs a person to check.
 8. With a Claude key, Claude reads the job description instead of the rules. Every requirement it returns must appear word for word in the job description, or it is dropped. If Claude fails, the rules take over and the report says so.
@@ -49,23 +49,24 @@ What it never does: add skills, jobs, dates or numbers the person doesn't have, 
 
 ## Status
 
-Version 0.4 (see [roadmap](#roadmap)). What works today:
+Version 0.5 (see [roadmap](#roadmap)). What works today:
 
-- PDF and DOCX extraction that keeps each heading, bullet and line with its section and page. Wrapped bullets and paragraphs come back whole. Word skills tables are read row by row.
-- Role parsing: title, employer, start and end month for each job, in several date formats, with "Present", "Current", "Now" and "Till date" for current roles. Total years of experience count overlapping jobs once.
-- Education entries (degree, school, year) and measurable results (counts, percentages, money, durations, multipliers) in work bullets.
-- A rule-based job-description parser that labels each line required, preferred or context, and picks up the title, seniority and years asked for.
+- PDF and DOCX extraction that keeps each heading, bullet and line with its section and page. Wrapped bullets and paragraphs come back whole, and a bold line or a short line with a date range after a full-width line starts a new line of its own. Word skills tables are read row by row.
+- Role parsing: title, employer, start and end month for each job, in many layouts ("Title, Employer | dates", "Employer: Title", "Employer - Title", the title and employer on separate lines, the dates on the next line, several titles under one employer, "Client:" and "Role:" lines). A city, state, country or "Remote" after the employer is dropped. A resume without an experience heading has its roles read from the lines with date ranges. "Present", "Current", "Now" and "Till date" mark current roles. Total years of experience count overlapping jobs once.
+- Education entries (degree, school, year), also without an education heading, and measurable results (counts, percentages, money, durations, multipliers) in work bullets.
+- A rule-based job-description parser that labels each line required, preferred or context, and picks up the title, seniority and years asked for. It knows the common headings ("What you'll need", "Bonus points", "Our stack"), treats any short line ending in a colon or written in capitals as a heading, and drops benefit, pay, legal and logistics lines (salary ranges, 401(k), PTO, equal opportunity, visa sponsorship, background checks, how to apply) with or without a heading.
 - A Claude-based job-description parser behind the same interface, with checks on everything it returns and a fallback to the rules. Skills outside the catalog are kept as free-text skills and matched as whole phrases.
-- Exact skill matching against a catalog of 107 skills, with care for terms that are also ordinary words (REST, Excel, React, Go, R).
-- Years requirements: "5+ years of experience" is checked against the role dates, and "7+ years with Java" against the roles that mention Java.
+- Exact skill matching against a catalog of 328 skills, with care for terms that are also ordinary words (REST, Excel, React, Go, R, Jest, Helm, Swift). A requirement for "GitHub Actions" asks for GitHub Actions, not also for Git.
+- Degree and certification requirements ("Bachelor's degree in Computer Science or a related field", "AWS Certified Solutions Architect") checked against the education and certification lines.
+- Years requirements: "5+ years of experience" is checked against the role dates, and "7+ years with Java" against the roles that mention Java. Version requirements ("Angular 12 or later") need a version in the bullet.
 - Optional matching by meaning with sentence-transformers: an embedding model finds candidate lines and a cross-encoder reranks them. A requirement with no exact evidence but a related work bullet is marked `adjacent`.
 - A report linking every requirement to resume evidence or marking it as a gap, with a next step written for that requirement.
 - Rewrite suggestions from Claude for the bullets that support a requirement, each one passed through a deterministic fact checker, with a cap per analysis.
 - Corrections of lines the app read wrongly, a gap question for each missing or adjacent requirement, a Word export and a list of every change.
 - A FastAPI service with storage, deletion, automatic expiry after 24 hours, JSON logs and upload limits.
 - A Streamlit screen, and a docker compose file that runs it next to the API.
-- An evaluation against a hand-labeled set of fictional resumes and job descriptions (`python -m evals.run`), with its results in [evals/results/REPORT.md](evals/results/REPORT.md) and a check in CI that fails when a metric drops below its threshold. See [Evaluation](#evaluation).
-- 455 tests (one needs Streamlit and is skipped without it), 99% line coverage of `app/`, strict type checking of `app/` and `evals/`, CI, and a Dockerfile with an optional CPU-only ML build. No test calls the Anthropic API.
+- An evaluation against a hand-labeled set of fictional resumes and job descriptions (`python -m evals.run`), with its results in [evals/results/REPORT.md](evals/results/REPORT.md) and a check in CI that fails when a metric drops below its threshold. The same runner measures any other labeled set with `--data-dir`. See [Evaluation](#evaluation).
+- 636 passing tests (one more needs Streamlit and is skipped without it), 98% line coverage of `app/`, strict type checking of `app/` and `evals/`, CI, and a Dockerfile with an optional CPU-only ML build. No test calls the Anthropic API.
 
 ## Quick start
 
@@ -106,7 +107,7 @@ pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -e ".[dev,ml]"
 ```
 
-With `SEMANTIC_MATCHING=auto` (the default), the app turns matching by meaning on when sentence-transformers is installed. The first start downloads the two models from Hugging Face, about 180 MB in all, and later starts load them from the local cache. Each report says which mode it used, in `matching_mode` and in `pipeline_version` ("0.4.0-semantic" or "0.4.0-exact").
+With `SEMANTIC_MATCHING=auto` (the default), the app turns matching by meaning on when sentence-transformers is installed. The first start downloads the two models from Hugging Face, about 180 MB in all, and later starts load them from the local cache. Each report says which mode it used, in `matching_mode` and in `pipeline_version` ("0.5.0-semantic" or "0.5.0-exact").
 
 ### Turning on Claude
 
@@ -214,7 +215,7 @@ Analyses made by v0.2 didn't store their lines, so their spans, export and sugge
 From the sample data engineer resume against the sample data engineer job, with exact matching:
 
 ```json
-"pipeline_version": "0.4.0-exact",
+"pipeline_version": "0.5.0-exact",
 "matching_mode": "exact",
 "job_parser": { "name": "rules", "prompt_version": null, "model": null, "fallback_reason": null, "dropped_requirements": 0 },
 "coverage": {
@@ -305,17 +306,17 @@ flowchart LR
     H --> X[Corrections and accepted rewrites applied to a Word file]
 ```
 
-A skill counts as demonstrated when it appears in an experience, project or certification line. It counts as listed when it appears only in the skills section, summary or header. Requirements then get one of five statuses:
+A skill counts as demonstrated when it appears in an experience, project or certification line, or in a role read from a resume that has no experience heading. It counts as listed when it appears only in the skills section, summary or header. Requirements then get one of five statuses:
 
 | Status | Meaning |
 | --- | --- |
-| `direct` | Every skill the requirement names is demonstrated. For "X or Y" requirements, one is enough. For "5+ years of experience", the dated roles add up to at least that. |
-| `partial` | Some skills are missing or appear only in the skills list, or the roles that mention a skill add up to fewer years than the requirement asks for (or have no dates the app can read). |
+| `direct` | Every skill the requirement names is demonstrated. For "X or Y" requirements, one is enough. For "5+ years of experience", the dated roles add up to at least that. For a degree or certification, the education or certification lines show it. |
+| `partial` | Some skills are missing or appear only in the skills list, the roles that mention a skill add up to fewer years than the requirement asks for (or have no dates the app can read), or the version a requirement asks for ("Angular 12 or later") isn't shown. |
 | `adjacent` | No exact evidence, but matching by meaning found a related line in experience or projects. A person has to confirm it. |
-| `gap` | None of the skills appear anywhere in the resume, or the dated roles add up to fewer years than asked for. |
-| `not_assessed` | The requirement names no skill the catalog knows ("Excellent communication skills") and nothing related was found, or it asks for years and no role dates could be read. A person has to check it. |
+| `gap` | None of the skills appear anywhere in the resume, the dated roles add up to fewer years than asked for, or no degree at the asked level or certification line for the asked certification is listed. |
+| `not_assessed` | The requirement names no skill the catalog knows ("Excellent communication skills") and nothing related was found, it asks for years and no role dates could be read, or it asks for a degree or certification the app can't judge on its own. A person has to check it. |
 
-The skill catalog is `app/data/skills.json`. Each skill has terms that match case-insensitively, terms that match only with exact capitals (so "the rest of the team" isn't REST), and very short names that count only inside a list ("Python, Go, SQL" but not "go to the office").
+The skill catalog is `app/data/skills.json`. Each skill has terms that match case-insensitively, terms that match only with exact capitals (so "the rest of the team" isn't REST and "it was said in jest" isn't Jest), and very short names that count only inside a list ("Python, Go, SQL" but not "go to the office"). A term can count for two skills: "EKS" is both Kubernetes and Amazon EKS, and "Terraform" is both Terraform and infrastructure as code. In a requirement, a skill whose every mention sits inside a longer term of another skill is left out, so "Experience with GitHub Actions" asks for GitHub Actions and not also for Git, and "SQL Server" doesn't ask for SQL. Resume evidence still counts every mention.
 
 ### Roles and years
 
@@ -324,16 +325,41 @@ In the experience section, a line that isn't a bullet and holds a date range is 
 ```
 Senior Data Engineer, Example Mutual Insurance | Mar 2022 - Present
 Example Corp - Data Analyst (2019 - 2021)
-Data Analyst at Example Corp, Jun 2019 to Feb 2022
+Example Corp: Data Analyst, Jun 2019 - Feb 2022
+Data Analyst at Example Corp, Tampa, FL, Jun 2019 to Feb 2022
 Data Analyst, Example Corp
 03/2019 - 2021-12
 ```
 
-The last one is a title line followed by a line with only the dates. Dates can be written "Mar 2022", "March 2022", "03/2022", "2022-03" or "2019", joined by a hyphen, an en dash or "to". The bullets that follow belong to that role until the next header or section. A projects section counts as roles only when it has dated headers, and projects never add to years of experience.
+The fifth one is a title line followed by a line with only the dates. The title and employer can also sit on separate lines before the dates ("Example Corp", then "Data Analyst | Jun 2019 - Feb 2022"), the employer can come on the line after a title with dates, several titles can follow one employer line, and consulting resumes can use "Client: Example Bank" with "Role: Developer". A city and state, a state, a country or a work mode ("Remote") after the employer is dropped, so "Example Mutual, Jacksonville, FL" is Example Mutual. A city is only dropped together with the state after it, and "Washington" alone is read as a state, so the employer before it stays.
+
+Dates can be written "Mar 2022", "March 2022", "03/2022", "2022-03" or "2019", joined by a hyphen, an en dash, an em dash or "to". The bullets that follow belong to that role until the next header or section. A projects section counts as roles only when it has dated headers, and projects never add to years of experience.
+
+A resume with no experience heading has its roles read from the lines that hold a date range, starting at the first such line and leaving out degree lines, and its degrees from the lines that name one. The profile says so in a warning, because this is less certain than a resume with headings.
 
 A role's months include both the start and the end month, so Jun 2019 to Feb 2022 is 33 months. Overlapping roles are merged before the months are added up, and the total is rounded to one decimal. "Present" is counted up to the current month. A date the app can't read becomes a warning in the profile, never a guess.
 
 A requirement such as "5+ years of experience" is proven when the total reaches it and missing when it doesn't. "7+ years with Java" keeps the skill rules above, but when the roles that mention Java add up to less than 7 years it is partial at most, and the next step gives the number the resume shows.
+
+### Degrees, certifications and versions
+
+A requirement that asks for a degree or a certification is checked against the education entries and the certification lines, never against skills used at work. A Python bullet doesn't prove "AWS Certified Solutions Architect", and a degree in the skills list doesn't count.
+
+| Requirement | Resume | Result |
+| --- | --- | --- |
+| Bachelor's degree in Computer Science | B.S. Computer Science, or a higher degree in it | Proven |
+| Bachelor's degree in Computer Science or a related field | B.S. Information Systems | Proven: a computing field |
+| A master's degree or PhD in a quantitative field | M.S. Data Science | Proven |
+| Bachelor's degree in Computer Science | B.A. History | Needs a check: the field is for the person or employer to judge |
+| A master's degree or PhD | Only a bachelor's degree, or no education at all | Missing |
+| Bachelor's degree or equivalent experience | No education | Needs a check |
+| Certified Kubernetes Administrator (CKA) or similar certification | Any Kubernetes certification | Proven |
+| AWS Certified Solutions Architect | AWS Certified Developer | Needs a check: another certification from the same vendor |
+| AWS Certified Solutions Architect | No AWS certification line | Missing |
+
+Degree levels count upward: a master's degree meets a bachelor's requirement. Fields are compared by their words ("Computer Science" in "M.S. Computer Science and Engineering"), and "related", "technical" or "quantitative" fields accept a degree from a matching family (computing, engineering, mathematics and statistics, sciences, business). A field the rules don't know is never guessed to match. Gap questions for these ask whether the person has the degree or certification and where to add it.
+
+A requirement that names a minimum version ("Angular 12 or later", "Java 11+") is proven only when a work bullet that names the skill also gives a version at least that high. Without one it is partial, and the next step asks the person to add the version if it is true.
 
 ### Matching by meaning
 
@@ -382,30 +408,49 @@ The Word file is rebuilt from the lines the app read, in their original order, w
 
 ## Evaluation
 
-`python -m evals.run` measures the app against a hand-labeled set in `evals/data/`: 12 fictional resumes, 8 fictional job descriptions and 16 resume and job pairs with 176 requirement labels, plus 100 labeled fact-check cases. Each resume is rendered into a PDF in two bullet layouts and a DOCX file, and goes through the app's own pipeline with the labels' date (2026-11-01) as today. These are the default-mode results (exact matching and the rule parser) from [evals/results/REPORT.md](evals/results/REPORT.md), which has the tables per format, the confusion matrices and the error analysis:
+`python -m evals.run` measures the app against a hand-labeled set in `evals/data/`: 12 fictional resumes, 8 fictional job descriptions and 16 resume and job pairs with 176 requirement labels, plus 100 labeled fact-check cases. Each resume is rendered into a PDF in two bullet layouts and a DOCX file, and goes through the app's own pipeline with the labels' date (2026-11-01) as today. The full results, with tables per format, confusion matrices and the error analysis, are in [evals/results/REPORT.md](evals/results/REPORT.md).
 
-| What is measured | Result |
-| --- | --- |
-| Roles found, title and employer matching the label (all formats) | 78.1% (82/105) |
-| Total years of experience within 0.5 of the label | 72.2% (26/36) |
-| Labeled requirement lines the parser found | 100.0% (121/121) |
-| Extracted lines that are labeled requirements | 88.3% (121/137) |
-| Priority right on the lines found | 90.9% (110/121) |
-| Requirement status matches the label (all formats) | 68.6% (362/528) |
-| Marked proven where the label says gap or needs a check | 0.0% (0/174) |
-| A labeled evidence line among the first three the report cites | 57.6% (204/354) |
-| Fact checker accuracy, held-out set | 97.5% (39/40) |
-| Rewrites that add a fact but pass the fact checker, held-out set | 0.0% (0/20) |
+v0.4 measured this set and listed the failure patterns it found. v0.5 fixed those patterns with general rules (role layouts, PDF line joining, job-description headings and boilerplate, the skill catalog, degree and certification requirements), and the PDF builder now keeps en dashes. These are the default-mode results (exact matching and the rule parser) before and after, on the development set (used to find and fix these failures, so these numbers are optimistic):
 
-Every rate shows its counts. "All formats" pools the same 12 resumes read in three formats, so it isn't three times the evidence.
+| What is measured | v0.4 | v0.5 |
+| --- | --- | --- |
+| Roles found, title and employer matching the label (all formats) | 78.1% (82/105) | 100.0% (105/105) |
+| Total years of experience within 0.5 of the label | 72.2% (26/36) | 100.0% (36/36) |
+| Labeled requirement lines the parser found | 100.0% (121/121) | 100.0% (121/121) |
+| Extracted lines that are labeled requirements | 88.3% (121/137) | 100.0% (121/121) |
+| Priority right on the lines found | 90.9% (110/121) | 100.0% (121/121) |
+| Requirement status matches the label (all formats) | 68.6% (362/528) | 90.3% (477/528) |
+| Marked proven where the label says gap or needs a check | 0.0% (0/174) | 0.0% (0/174) |
+| Marked proven where the label says anything else | 3.9% (9/234) | 2.6% (6/234) |
+| Gap recall | 69.4% (102/147) | 95.9% (141/147) |
+| A labeled evidence line among the first three the report cites | 57.6% (204/354) | 74.6% (264/354) |
+| Fact checker accuracy, held-out set | 97.5% (39/40) | 97.5% (39/40) |
+| Rewrites that add a fact but pass the fact checker, held-out set | 0.0% (0/20) | 0.0% (0/20) |
 
-What the run shows:
+### Held-out results
 
-- The app rarely overclaims. It never called a requirement proven where the label says gap or needs a check, and 95.9% (212/221) of its "proven" results match the label. The other 9 are 3 requirements in each of the three formats, proven through a broader catalog skill or without checking a version: Git for "Azure DevOps or GitHub Actions", JUnit for "Jest or a similar framework", and "Angular 12 or later". Most errors run the other way.
-- The largest source of wrong statuses is the skill catalog. 35 labeled requirements name a tool, domain, degree or certification the catalog doesn't know (Next.js, Prometheus, Cucumber, a master's degree), so the rule parser finds no skill in them and they come back as needs a check, whether the resume proves them or not. Of the 139 needs-a-check results, 27 match the label.
-- Some role layouts lose roles, and then years requirements fail. "Demo Logistics: Senior Software Engineer, May 2021 - present" is read as body text, a resume with no section headings yields no roles, and a city and state after the employer stay in the employer. One resume's 10.5 labeled years are read as 1.3, so "5+ years" becomes a gap.
-- The job-description parser finds every labeled line but keeps 16 that aren't requirements: benefits, salary and equal opportunity lines after a heading it doesn't know ("What we offer"), two such headings themselves, and company or posting lines. It labels 10 of the 56 required lines as context or preferred, mostly prose sentences ("You should...") and the list under "What we need:".
-- Years requirements cite no lines in the report, so they can never count in evidence recall. Without them, a labeled line is among the first three cited for 65.4% (204/312).
+The numbers above come from data the fixes were written against. The fair test is `evals/data/holdout/`: 6 more fictional resumes, 5 job descriptions and 8 pairs with 110 requirement labels, written by someone who never saw the app's code, its results or the development labels. The fixes were built without access to it. Both versions were run on it once, after v0.5 was finished, with the same corrected PDF builder:
+
+| What is measured, held-out set | v0.4 | v0.5 |
+| --- | --- | --- |
+| Roles found, title and employer matching the label (all formats) | 44.4% (24/54) | 77.8% (42/54) |
+| Labeled requirement lines the parser found | 97.8% (88/90) | 97.8% (88/90) |
+| Extracted lines that are labeled requirements | 83.0% (88/106) | 93.6% (88/94) |
+| Requirement status matches the label (all formats) | 50.9% (168/330) | 64.5% (213/330) |
+| Marked proven where the label says gap or needs a check | 4.0% (6/150) | 2.0% (3/150) |
+| A labeled evidence line among the first three the report cites | 36.7% (66/180) | 53.3% (96/180) |
+
+The fixes carried over to new data, but the held-out numbers sit well below the development ones, which is the honest picture of how the app does on resumes and postings it hasn't seen. The remaining overclaim is one requirement counted in each format: "Experience with Tabular Editor and DAX Studio" was marked proven by a bullet about DAX measures, because the catalog treats a tool and the language it works with as one skill. v0.4's two overclaims on this set had the same cause ("Guidewire Jutro" proven by other Guidewire work, a "Platform Developer II" certification proven by "Platform Developer I"); v0.5's certification matching fixed the second. The full report is in [evals/results/holdout/REPORT.md](evals/results/holdout/REPORT.md). The held-out set has no fact-check cases of its own; the fact checker's held-out result is the 40-case set above.
+
+Every rate shows its counts. "All formats" pools the same 12 resumes read in three formats, so it isn't three times the evidence. The builder fix alone (the v0.4 app with en dashes in its PDFs) moves status accuracy from 362 to 366 of 528 and the years within 0.5 from 26 to 28 of 36; the report has that run as a third column.
+
+What the development run shows:
+
+- The rules now read every labeled role, date and degree in this set and every labeled requirement line with its priority. That is the set the fixes were written against, so it says little about new resumes and postings. The held-out table above is the fair measure.
+- The app still doesn't overclaim: no requirement labeled gap or needs a check is called proven. Six of the 282 proven results (two requirements in each format) disagree with a label of partial or adjacent: JUnit counted for "Jest or a similar framework", and a bullet that integrated a payments provider counted for "Experience in payments or financial services".
+- Most remaining errors need matching by meaning, which wasn't run: GitLab CI for GitHub Actions, Java for C#, "Production experience with Kubernetes" from an ECS bullet. In exact mode the app never returns adjacent, so the 9 adjacent labels always count as wrong here.
+- A few need wording the catalog doesn't hold, such as "statistics and model evaluation" shown by a bullet about cross-validation, or "relational databases such as PostgreSQL or Oracle" shown by a SQLite project.
+- Years requirements cite no lines in the report, so they can never count in evidence recall. Without them, a labeled line is among the first three cited for 84.6% (264/312).
 - The fact checker passed no rewrite that adds a fact in either set. It rejected one faithful rewrite in each: "K8s" written as "Kubernetes", and "ran" changed to "led".
 
 To run it:
@@ -414,19 +459,21 @@ To run it:
 python -m evals.run              # default mode: a few seconds, no network
 python -m evals.run --check      # and exit 1 if a metric is past evals/thresholds.json (CI runs this)
 python -m evals.run --formats docx
+python -m evals.run --data-dir path/to/set   # another labeled set with the same layout
 python -m evals.run --semantic   # also matching by meaning: needs the ml extra and the model download
 python -m evals.run --llm        # also the Claude parser and rewrites: needs ANTHROPIC_API_KEY
 ```
 
-Without sentence-transformers or a key, `--semantic` and `--llm` are skipped with a message that says how to run them. With them, the report shows exact and semantic results side by side with a sweep of reranker thresholds, and the Claude rewrites go to `evals/results/llm_candidates.json` with the fact checker's verdict and reasons for each. [evals/README.md](evals/README.md) has the details, and [evals/data/README.md](evals/data/README.md) the labeling conventions.
+`--data-dir` takes any folder with `resumes/`, `jobs/` and `labels/` laid out like `evals/data/`, and writes its results to `evals/results/<folder name>/` unless `--out` is given, so it never overwrites the development results. The fact-check labels are optional there. Without sentence-transformers or a key, `--semantic` and `--llm` are skipped with a message that says how to run them. With them, the report shows exact and semantic results side by side with a sweep of reranker thresholds, and the Claude rewrites go to `evals/results/llm_candidates.json` with the fact checker's verdict and reasons for each. [evals/README.md](evals/README.md) has the details, and [evals/data/README.md](evals/data/README.md) the labeling conventions.
 
 Read the numbers with these limits in mind:
 
+- The development numbers are optimistic. v0.5 was written by reading this set's failures, even though every fix is a general rule and none names a string, person or company from it.
 - The set is small. One item moves a per-format status rate by about half a point and a per-job rate by several.
 - The labels were written by the project team, alongside the fictional resumes and job descriptions, which are cleaner and more regular than real ones.
-- `factcheck.json` was used while the fact checker was built, so the report gives it separately as a development set (98.3%, 59/60), labeled optimistic. The held-out 40 cases are the primary result.
-- Matching by meaning and Claude weren't run for these numbers. They don't run in CI, and the model downloads and the Anthropic API weren't available while building v0.4. In exact mode the app never returns adjacent, so the 9 adjacent labels always count as wrong here, and the threshold of 0.5 is still untuned.
-- Every PDF comes from one builder (`tests/builders.py`). Its base-14 font can't encode an en dash and writes a middle dot instead, which is why one resume's PDF dates aren't read. Real Word or Google Docs exports, two-column layouts and text boxes aren't covered.
+- `factcheck.json` was used while the fact checker was built, so the report gives it separately as a development set (98.3%, 59/60), labeled optimistic. The held-out 40 cases are the primary result for the fact checker.
+- Matching by meaning and Claude weren't run for these numbers. They don't run in CI, and the model downloads and the Anthropic API weren't available while building v0.4 or v0.5, so the threshold of 0.5 is still untuned.
+- Every PDF comes from one builder (`tests/builders.py`). Since v0.5 it embeds its font, so an en dash reaches the app as written. Real Word or Google Docs exports, two-column layouts and text boxes aren't covered.
 
 ## Configuration
 
@@ -479,7 +526,7 @@ python scripts/make_samples.py   # rebuild samples/generated from samples/resume
 
 The tests never load a real model and never call the Anthropic API. `tests/fakes.py` has a deterministic encoder (hashed word stems with a small synonym table) and reranker (the share of the requirement's words a line covers), and a scriptable Claude client that replays set answers and records every call. The test settings set `SEMANTIC_MATCHING=off` and `LLM_ENABLED=off`, and a fixture removes `ANTHROPIC_API_KEY` from the environment for every test, so a key on your machine is never used. The Anthropic client is tested against the real SDK with httpx2's mock transport, which checks the request it builds and the responses it parses without a network. The Streamlit screen test runs only when Streamlit is installed.
 
-The fact checker's unit tests don't use the labeled cases in `evals/data/labels/`. `factcheck.json` was used while the checker was built, so the evaluation reports it separately as a development set, and `factcheck_holdout.json` is the held-out result. The evaluation's own tests in `tests/evals/` check its matching and metric functions on small hand-made inputs and run it on two pairs, with the fake models and the fake Claude client. The full evaluation runs in CI as `python -m evals.run --check`. When a change moves a number on purpose, rerun it and commit `evals/results/` and `evals/thresholds.json` with the change.
+The fact checker's unit tests don't use the labeled cases in `evals/data/labels/`. `factcheck.json` was used while the checker was built, so the evaluation reports it separately as a development set, and `factcheck_holdout.json` is the held-out result. The evaluation's own tests in `tests/evals/` check its matching and metric functions on small hand-made inputs, run it on two pairs with the fake models and the fake Claude client, and run `--data-dir` on a tiny labeled set written to a temporary folder. The full evaluation runs in CI as `python -m evals.run --check`. When a change moves a number on purpose, rerun it and commit `evals/results/` and `evals/thresholds.json` with the change. Ruff and mypy skip `evals/data/`, which holds labeled data and never code.
 
 Dependencies are pinned with hashes in `requirements.lock` (runtime) and `requirements-dev.lock` (dev). After changing `pyproject.toml`, regenerate them:
 
@@ -498,7 +545,8 @@ app/
                 versioned prompt files
   services/     extraction, job-description parsing (rules and Claude), skill catalog,
                 structure (roles, years, education, measurable results), matching,
-                matching by meaning, rewrites, fact checker, gap questions, Word export
+                degree and certification checks, version checks, matching by meaning,
+                rewrites, fact checker, gap questions, Word export
   storage/      database setup and repository
   data/         skills.json
   models.py     data contracts shared by the pipeline and the API
@@ -510,31 +558,37 @@ tests/
   fakes.py      deterministic stand-ins for the embedding model, reranker and Claude
 samples/        fictional resumes and job descriptions
 scripts/        sample generation
-evals/          the evaluation: runner, thresholds, data/ (the labeled set) and results/
+evals/          the evaluation: runner, thresholds, data/ (the labeled development set),
+                baselines/ (earlier runs for before and after tables) and results/
 docker-compose.yml   the API and the Streamlit screen together
 ```
 
-The database tables are created with `create_all`, which adds missing tables and leaves existing ones alone. v0.3 only adds tables (`analysis_resumes`, `suggestions`, `suggestion_runs`, `span_corrections`, `gap_answers`) and doesn't change `analyses`, so a v0.2 database file starts without any manual step. v0.4 doesn't change the tables. Alembic migrations arrive in v1.0.
+The database tables are created with `create_all`, which adds missing tables and leaves existing ones alone. v0.3 only adds tables (`analysis_resumes`, `suggestions`, `suggestion_runs`, `span_corrections`, `gap_answers`) and doesn't change `analyses`, so a v0.2 database file starts without any manual step. v0.4 and v0.5 don't change the tables. Alembic migrations arrive in v1.0.
 
 ## Limitations
 
 - Matching by meaning needs the ml extra and about 180 MB of model downloads on first start. Both default models were trained on English text, so they do little for resumes in other languages.
 - The real models never run in CI. The tests use a fake encoder and reranker, and the evaluation's threshold sweep (`python -m evals.run --semantic`) hasn't been run with the real models yet, so the default threshold of 0.5 is still untuned.
 - Without the ml extra, matching is exact. "Built REST endpoints" counts for REST APIs, but "designed services other teams call" doesn't count for anything.
-- With the rule parser, skills outside the 107-skill catalog are marked `not_assessed` (or `adjacent` with matching by meaning), not as gaps. In the evaluation this is the largest source of wrong statuses: 35 labeled requirements came back as needs a check, including ones the resume plainly proves ("Experience with Next.js" against a Next.js bullet). The Claude parser keeps such skills as free-text skills, which are matched only by their exact words.
-- Some catalog terms cover several tools: GitHub, GitLab and Bitbucket count as Git, and JUnit counts as Unit testing. A requirement such as "Azure DevOps or GitHub Actions" can be marked proven by a line that names Git, and a version ("Angular 12 or later") isn't checked.
+- With the rule parser, skills outside the 328-skill catalog are marked `not_assessed` (or `adjacent` with matching by meaning), not as gaps. General wording such as "relational databases" or "statistics and model evaluation" isn't matched to the tools or methods a resume names. The Claude parser keeps skills outside the catalog as free-text skills, which are matched only by their exact words.
+- Some catalog terms cover several tools: GitHub, GitLab and Bitbucket count as Git, and JUnit and NUnit count as Unit testing. A requirement that names the broad skill ("unit tests with Jest or a similar framework") can be proven by a line that names another tool.
+- Product names that are also company or place names (Swift, Flutter, Apex, Cypress) count wherever they appear with a capital, including an employer's name in a role header.
+- A version requirement is checked only when it says "or later", "or newer", "and above" or "+" right after the skill ("Angular 12 or later", "Java 11+"). "Angular 12" alone isn't read as a minimum.
+- Degree fields are compared by their words and a few families (computing, engineering, mathematics and statistics, sciences, business). A field outside them, or a foreign degree name the rules don't know, is left for a person to check, and a degree listed only in a summary sentence isn't read. Certifications are matched by the vendor or skill they name and their title words, so a certification written without either ("SnowPro Core") counts only when it also names the vendor.
 - Total years count every dated role in the experience section, whatever the field. Five years of any work meets "5+ years of experience in data engineering", which is why the next step asks the person to check the kind of work.
-- A role is found only when a date range sits on its header line or on the line right after it. Layouts with the employer on its own line or the dates above the title can lose the employer or title, and roles without dates aren't counted. A year without a month counts from January of the start year to December of the end year, with a warning.
-- The evaluation found more role layouts that fail. A header that starts with the employer and a colon ("Demo Logistics: Senior Software Engineer, May 2021 - present") is read as body text, a city and state after the employer stay in the employer, and a resume without section headings yields no roles, so no years. A lost role makes years requirements fail: one resume's 10.5 years were read as 1.3, so "5+ years" came back as a gap.
+- A role is found only when a date range sits on its header line, or on the line after the one to three short lines that hold its title and employer. Dates above the title, a title and employer with no separator between them ("Data Engineer Example Corp"), or an employer and city separated only by a tab can lose or mix up the employer, and roles without dates aren't counted. A year without a month counts from January of the start year to December of the end year, with a warning.
+- Places are recognized from a fixed list: US states and their codes, Canadian provinces, the larger Indian states, about 40 countries and the work modes ("Remote", "Hybrid"). A city is dropped only together with one of them.
+- In a resume without an experience heading, roles are read from the lines with date ranges. A dated line that isn't a job (a course, an award) can become a role there, and a role whose dates can't be read is lost.
+- Years requirements cite no resume lines in the report, only the years counted, so a reader has to look at the role list to see where they came from.
 - Measurable results are found with patterns. Numbers written as words ("two teams") are missed, and a number right after a capitalized word ("Python 3", "Tier 1") is skipped as a likely version.
 - Education parsing is best effort. It looks for words such as "University", "College", "B.S." or "Master".
 - The Streamlit screen's helpers are tested against the API, but the screen itself only gets a smoke test when Streamlit is installed, and CI doesn't install it.
 - The ml extra isn't hash-locked, so an image built with `INSTALL_ML=true` gets whatever versions are current at build time.
 - Two-column PDFs are read in the order the PDF stores its text. That's usually column by column, but not always.
-- PDF extraction joins a line to the paragraph above it when the line above runs to the right margin, and on a page with only short lines it can join any two. In the evaluation this merged a role header into the full-width "Environment:" line above it, and two education lines on a sparse second page.
+- PDF extraction joins a line to the paragraph above it when the line above runs to the right margin. A line in bold after a regular one, or a short line with a date range, starts a new line instead, but a regular header without dates after a full-width line can still be joined to it.
 - Scanned resumes (images of text) and old `.doc` files are rejected with a message saying why.
-- The job-description parser is rule-based. Unusual layouts can put a line in the wrong category. A heading it doesn't know doesn't end the section above it, so benefits, salary and equal opportunity lines after "What we offer" are kept as preferred requirements. Required lines written as prose sentences ("You should understand...") or under "What we need:" are labeled context.
-- No real API calls were made while building v0.3 or v0.4, in development or in CI. Both prompts, the structured output and the token limits are tested only against a fake client and a mocked SDK transport, so the first real runs may show prompt problems the tests can't.
+- The job-description parser is rule-based. A heading with no known word that neither ends in a colon nor is written in capitals doesn't end the section above it, and benefit or legal wording that isn't on its lists is kept as a requirement. A prose sentence about the company that names a tool, or that addresses the candidate, is kept as context.
+- No real API calls were made while building v0.3, v0.4 or v0.5, in development or in CI. Both prompts, the structured output and the token limits are tested only against a fake client and a mocked SDK transport, so the first real runs may show prompt problems the tests can't.
 - The quality of rewrite suggestions depends on the model. The fact checker only removes rewrites that add facts; it can't make a weak rewrite good.
 - The fact checker is rule-based. It rejects some good rewrites, for example "ran the team's design reviews" becoming "led the team's design reviews", because "led" is on its list of bigger claims, "AKS" spelled out as "Azure Kubernetes Service", or "K8s" written as "Kubernetes" (the catalog files K8s and AKS under Kubernetes). It also misses some changes: it compares numbers, dates, names, skills, certifications and a fixed list of scope words, so a changed ordinary word ("claims" becoming "policies") or an added lowercase tool outside the catalog passes.
 - Claude's job-description output is only accepted when each requirement is copied word for word. A model that paraphrases loses those requirements, and when none is left the rules take over.
@@ -550,7 +604,8 @@ The database tables are created with `create_all`, which adds missing tables and
 | 0.1 | Extraction, job-description parsing, exact matching, API, tests, CI (done) |
 | 0.2 | Matching by meaning with sentence-transformers (search, then rerank) and the adjacent status. Each job's title, employer, dates and measurable results, years of experience, and years requirements. Streamlit screen and docker compose. (done) |
 | 0.3 | Claude-based job-description parsing and bullet rewrites behind the same interfaces. A fact checker that rejects any rewrite adding a number, date, employer or tool not in the source line. Side-by-side edits, correction of extraction mistakes, gap questions and DOCX export. (done) |
-| 0.4 | Hand-labeled evaluation set of fictional resumes and job descriptions, and a runner (`python -m evals.run`) that measures role and date extraction, requirement extraction and priorities, statuses, gap precision and recall, the false proven rate, evidence recall at 1 and 3, and the fact checker on a held-out set. Results record the pipeline version so runs can be compared across versions, and CI fails when a metric drops below its threshold. (done, this release. The threshold sweep for matching by meaning and the Claude measurements are built but haven't been run with the real models or API, so the threshold is still untuned.) |
+| 0.4 | Hand-labeled evaluation set of fictional resumes and job descriptions, and a runner (`python -m evals.run`) that measures role and date extraction, requirement extraction and priorities, statuses, gap precision and recall, the false proven rate, evidence recall at 1 and 3, and the fact checker on a held-out set. Results record the pipeline version so runs can be compared across versions, and CI fails when a metric drops below its threshold. (done. The threshold sweep for matching by meaning and the Claude measurements are built but haven't been run with the real models or API, so the threshold is still untuned.) |
+| 0.5 | Fixes for the failure patterns found by the evaluation: more role header layouts, places after the employer, roles and degrees in resumes without headings, PDF lines joined to the line above, job-description headings and boilerplate, 221 more catalog skills, degree and certification requirements, and version requirements. The PDF builder keeps en dashes, and `--data-dir` runs the evaluation on another labeled set. (done, this release. Development-set numbers are optimistic, and the held-out run is still to come.) |
 | 1.0 | Live deployment of the CPU-only ML image: login, Postgres with migrations, Azure hosting, malware scanning, rate limits, demo video. |
 
 ## License

@@ -140,8 +140,7 @@ def _diagnose_role(
         return (
             "outside_section",
             span.text,
-            f"The line is in the {span.section.value} section, and roles are only read from "
-            "an experience section.",
+            f"The line is in the {span.section.value} section and wasn't read as a role there.",
         )
     difference = _line_difference(source, span.text)
     if difference == "joined":
@@ -198,8 +197,7 @@ def _diagnose_education(
         return (
             "outside_section",
             span.text,
-            f"The line is in the {span.section.value} section, and education is only read "
-            "from an education section.",
+            f"The line is in the {span.section.value} section and wasn't read as a degree there.",
         )
     if _line_difference(source, span.text) == "joined":
         return (

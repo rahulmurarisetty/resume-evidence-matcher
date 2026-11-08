@@ -1,0 +1,122 @@
+{
+  "h_j01_guidewire_claimcenter_developer": {
+    "title": "Guidewire ClaimCenter Developer (Configuration/Integration)",
+    "min_years": 7,
+    "requirements": [
+      {"text": "Configure ClaimCenter PCF screens, typelists, entity extensions and business rules for FNOL, exposures, reserves and payments", "priority": "context"},
+      {"text": "Build and maintain inbound and outbound integrations using Guidewire Integration Gateway, REST APIs and messaging", "priority": "context"},
+      {"text": "Support upgrade and cloud migration activities, including code merge and defect fixing", "priority": "context"},
+      {"text": "Write GUnit tests and participate in code reviews", "priority": "context"},
+      {"text": "Work with business analysts and QA in two-week sprints", "priority": "context"},
+      {"text": "7+ years of overall IT experience", "priority": "required"},
+      {"text": "4+ years of Guidewire ClaimCenter configuration experience", "priority": "required"},
+      {"text": "Strong Gosu programming skills", "priority": "required"},
+      {"text": "Experience with ClaimCenter 10 or Guidewire Cloud Platform", "priority": "required"},
+      {"text": "Experience with SOAP or REST web service integrations", "priority": "required"},
+      {"text": "Working knowledge of SQL on Oracle or SQL Server", "priority": "required"},
+      {"text": "Excellent verbal and written communication skills", "priority": "required"},
+      {"text": "Guidewire ClaimCenter Configuration certification", "priority": "preferred"},
+      {"text": "Experience with Guidewire Integration Gateway or Apache Camel", "priority": "preferred"},
+      {"text": "Exposure to Guidewire Jutro digital platform", "priority": "preferred"},
+      {"text": "Experience with Apache Kafka", "priority": "preferred"},
+      {"text": "Experience with TeamCity or Jenkins build pipelines", "priority": "preferred"},
+      {"text": "Knowledge of ISO ClaimSearch or other claims industry integrations", "priority": "preferred"}
+    ]
+  },
+  "h_j02_data_scientist": {
+    "title": "Data Scientist II, Care Analytics",
+    "min_years": 4,
+    "requirements": [
+      {"text": "You will own predictive models from problem framing through deployment and monitoring.", "priority": "context"},
+      {"text": "You will design experiments to measure whether outreach programs actually change member outcomes.", "priority": "context"},
+      {"text": "You will present findings to clinical and business leaders who are not data scientists.", "priority": "context"},
+      {"text": "4+ years of experience applying statistics or machine learning in industry", "priority": "required"},
+      {"text": "Master's or PhD in Statistics, Biostatistics, Computer Science or a related quantitative field", "priority": "required"},
+      {"text": "Expert Python skills, including pandas and scikit-learn", "priority": "required"},
+      {"text": "Strong SQL skills", "priority": "required"},
+      {"text": "Experience designing and analyzing A/B tests or randomized controlled trials", "priority": "required"},
+      {"text": "Experience with causal inference methods such as propensity scores, difference-in-differences or uplift modeling", "priority": "required"},
+      {"text": "Experience deploying models to production with MLflow, SageMaker or a similar platform", "priority": "required"},
+      {"text": "Ability to explain technical results to non-technical audiences", "priority": "required"},
+      {"text": "Experience with medical or pharmacy claims data", "priority": "preferred"},
+      {"text": "Familiarity with survival analysis", "priority": "preferred"},
+      {"text": "Experience with Databricks", "priority": "preferred"},
+      {"text": "Familiarity with model explainability tools such as SHAP", "priority": "preferred"},
+      {"text": "Experience with NLP on clinical notes using spaCy or Hugging Face Transformers", "priority": "preferred"}
+    ]
+  },
+  "h_j03_salesforce_developer": {
+    "title": "Senior Salesforce Developer",
+    "min_years": 5,
+    "requirements": [
+      {"text": "Experience: 5 - 8 Years", "priority": "required"},
+      {"text": "Design and develop custom solutions on Sales Cloud and Service Cloud using Apex, LWC and Flows.", "priority": "context"},
+      {"text": "Build integrations between Salesforce and external systems using REST/SOAP APIs and Platform Events.", "priority": "context"},
+      {"text": "Take part in requirement discussions with onsite teams and client stakeholders.", "priority": "context"},
+      {"text": "Perform code reviews and guide junior developers.", "priority": "context"},
+      {"text": "Manage deployments across sandboxes using the team's DevOps tooling.", "priority": "context"},
+      {"text": "5+ years of hands-on Salesforce development experience", "priority": "required"},
+      {"text": "Strong expertise in Apex (triggers, batch, queueable, schedulable) and SOQL", "priority": "required"},
+      {"text": "Hands-on experience with Lightning Web Components", "priority": "required"},
+      {"text": "Experience with Salesforce integrations using REST and SOAP APIs", "priority": "required"},
+      {"text": "Experience with Salesforce DevOps tools such as Copado, Gearset or Salesforce DX", "priority": "required"},
+      {"text": "Salesforce Platform Developer I certification", "priority": "required"},
+      {"text": "Good communication skills and ability to work with US clients", "priority": "required"},
+      {"text": "Salesforce Platform Developer II certification", "priority": "preferred"},
+      {"text": "Experience with OmniStudio (FlexCards, OmniScripts, Integration Procedures)", "priority": "preferred"},
+      {"text": "Experience with Financial Services Cloud or Health Cloud", "priority": "preferred"},
+      {"text": "Knowledge of PMD or other static code analysis tools for Apex", "priority": "preferred"},
+      {"text": "Exposure to MuleSoft Anypoint Platform", "priority": "preferred"},
+      {"text": "Educational Qualification: B.E./B.Tech/MCA or equivalent", "priority": "required"}
+    ]
+  },
+  "h_j04_platform_engineer": {
+    "title": "Senior Platform Engineer",
+    "min_years": 6,
+    "requirements": [
+      {"text": "Own our multi-account AWS foundation and the EKS clusters that run every production workload", "priority": "context"},
+      {"text": "Build self-service templates in Backstage so teams can create a new service in under an hour", "priority": "context"},
+      {"text": "Manage infrastructure as code with Terraform and Crossplane", "priority": "context"},
+      {"text": "Improve deploy safety with Argo Rollouts, progressive delivery and automated rollback", "priority": "context"},
+      {"text": "Join a follow-the-sun on-call rotation (one week in six)", "priority": "context"},
+      {"text": "6+ years in infrastructure, DevOps, SRE or platform engineering roles", "priority": "required"},
+      {"text": "Deep, hands-on experience running Amazon EKS in production", "priority": "required"},
+      {"text": "Strong Terraform skills, including writing reusable modules", "priority": "required"},
+      {"text": "Experience with AWS networking (VPCs, Transit Gateway, PrivateLink) and IAM", "priority": "required"},
+      {"text": "Proficiency in Go or Python", "priority": "required"},
+      {"text": "Experience with GitOps tooling such as Argo CD or Flux", "priority": "required"},
+      {"text": "Experience building CI/CD pipelines in GitHub Actions or CircleCI", "priority": "required"},
+      {"text": "Experience with observability stacks such as Prometheus, Grafana, Datadog or Honeycomb", "priority": "required"},
+      {"text": "A bias for writing things down and helping other engineers succeed", "priority": "required"},
+      {"text": "Experience with Backstage or another internal developer portal", "priority": "preferred"},
+      {"text": "Experience with Crossplane", "priority": "preferred"},
+      {"text": "Experience with Karpenter or Cluster Autoscaler tuning", "priority": "preferred"},
+      {"text": "Policy as code with OPA Gatekeeper or Kyverno", "priority": "preferred"},
+      {"text": "PCI DSS or SOC 2 environment experience", "priority": "preferred"},
+      {"text": "Certified Kubernetes Administrator (CKA)", "priority": "preferred"}
+    ]
+  },
+  "h_j05_bi_developer": {
+    "title": "Business Intelligence Developer III",
+    "min_years": 5,
+    "requirements": [
+      {"text": "In this role you will design and publish Power BI semantic models and reports used by clinical and finance leaders.", "priority": "context"},
+      {"text": "You will build and maintain SSIS and Azure Data Factory pipelines that load our SQL Server and Azure Synapse data warehouse.", "priority": "context"},
+      {"text": "You will work with report requesters to turn loosely defined questions into clear metrics with agreed definitions.", "priority": "context"},
+      {"text": "Bachelor's degree in Information Systems, Computer Science, Statistics or a related field, or four additional years of relevant experience in place of a degree.", "priority": "required"},
+      {"text": "At least 5 years of experience in business intelligence, data warehousing or reporting development.", "priority": "required"},
+      {"text": "Advanced DAX and Power Query skills, including performance tuning of large semantic models.", "priority": "required"},
+      {"text": "Expert T-SQL, including stored procedures, window functions and query tuning.", "priority": "required"},
+      {"text": "Experience building ETL with SSIS or Azure Data Factory.", "priority": "required"},
+      {"text": "Experience implementing row-level security in Power BI.", "priority": "required"},
+      {"text": "Solid understanding of dimensional modeling (star schemas, slowly changing dimensions).", "priority": "required"},
+      {"text": "Strong customer service orientation and the ability to manage competing priorities.", "priority": "required"},
+      {"text": "Experience with Epic Clarity or Caboodle data models.", "priority": "preferred"},
+      {"text": "Experience with Microsoft Fabric lakehouses or Direct Lake semantic models.", "priority": "preferred"},
+      {"text": "Experience with Tabular Editor and DAX Studio.", "priority": "preferred"},
+      {"text": "Familiarity with Git-based source control for Power BI projects (PBIP format).", "priority": "preferred"},
+      {"text": "Microsoft Certified: Power BI Data Analyst Associate (PL-300).", "priority": "preferred"},
+      {"text": "Experience with Tableau or Qlik.", "priority": "preferred"}
+    ]
+  }
+}

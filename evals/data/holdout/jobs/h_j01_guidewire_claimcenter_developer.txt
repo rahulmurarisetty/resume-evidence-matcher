@@ -1,0 +1,36 @@
+Guidewire ClaimCenter Developer (Configuration/Integration)
+Sample Staffing Partners | Client: Example Casualty Group
+Location: Hartford, CT (Hybrid, 3 days onsite)
+Duration: 12 months, contract to hire
+Rate: $70 - $78/hr on W2
+
+Job Description:
+Our client, a regional property and casualty carrier, is moving its claims platform from ClaimCenter 9 on premises to Guidewire Cloud. We are looking for a hands-on ClaimCenter developer to join the claims IT team.
+
+Responsibilities:
+- Configure ClaimCenter PCF screens, typelists, entity extensions and business rules for FNOL, exposures, reserves and payments
+- Build and maintain inbound and outbound integrations using Guidewire Integration Gateway, REST APIs and messaging
+- Support upgrade and cloud migration activities, including code merge and defect fixing
+- Write GUnit tests and participate in code reviews
+- Work with business analysts and QA in two-week sprints
+
+Must Have:
+1. 7+ years of overall IT experience
+2. 4+ years of Guidewire ClaimCenter configuration experience
+3. Strong Gosu programming skills
+4. Experience with ClaimCenter 10 or Guidewire Cloud Platform
+5. Experience with SOAP or REST web service integrations
+6. Working knowledge of SQL on Oracle or SQL Server
+7. Excellent verbal and written communication skills
+
+Nice to Have:
+- Guidewire ClaimCenter Configuration certification
+- Experience with Guidewire Integration Gateway or Apache Camel
+- Exposure to Guidewire Jutro digital platform
+- Experience with Apache Kafka
+- Experience with TeamCity or Jenkins build pipelines
+- Knowledge of ISO ClaimSearch or other claims industry integrations
+
+Only W2 candidates. US citizens, green card holders and candidates on H1B transfer are welcome to apply. No C2C or third-party agencies please.
+
+Sample Staffing Partners is an equal opportunity employer.

@@ -1,4 +1,10 @@
-"""Load the labeled evaluation set in evals/data/ into typed records."""
+"""Load a labeled evaluation set into typed records.
+
+The default set is the development set in evals/data/. Any other folder with the same
+layout (resumes/, jobs/ and labels/ with resumes.json, jobs.json and pairs.json) can be
+loaded the same way. The fact-check labels (labels/factcheck.json and
+labels/factcheck_holdout.json) are optional in another folder.
+"""
 
 import json
 from dataclasses import dataclass, replace
@@ -7,6 +13,8 @@ from pathlib import Path
 from typing import Any
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
+ROOT = DATA_DIR.parent.parent
+DEVELOPMENT = "development"
 
 
 @dataclass(frozen=True)
@@ -86,6 +94,18 @@ class Dataset:
     pairs: tuple[GoldPair, ...]
     factcheck_dev: tuple[FactCase, ...]
     factcheck_holdout: tuple[FactCase, ...]
+    # "development" for evals/data, otherwise the folder's name.
+    name: str = DEVELOPMENT
+    # The folder, relative to the project when it is inside it.
+    source: str = "evals/data"
+
+    @property
+    def is_development(self) -> bool:
+        return self.name == DEVELOPMENT
+
+    @property
+    def has_factcheck(self) -> bool:
+        return bool(self.factcheck_dev or self.factcheck_holdout)
 
     @property
     def as_of(self) -> date:
@@ -94,6 +114,13 @@ class Dataset:
         if len(dates) != 1:
             raise ValueError(f"expected one as_of date in the labels, found {dates}")
         return dates[0]
+
+    @property
+    def as_of_text(self) -> str:
+        """The labels' dates for the report. Each resume is read with its own date, so
+        a set may use more than one."""
+        dates = sorted({resume.as_of.isoformat() for resume in self.resumes.values()})
+        return ", ".join(dates)
 
     def limited(self, pair_count: int) -> "Dataset":
         """The first `pair_count` pairs and only the resumes and jobs they use. Used by
@@ -169,7 +196,9 @@ def _pairs(data_dir: Path) -> tuple[GoldPair, ...]:
     )
 
 
-def _fact_cases(path: Path) -> tuple[FactCase, ...]:
+def _fact_cases(path: Path, required: bool) -> tuple[FactCase, ...]:
+    if not required and not path.is_file():
+        return ()
     return tuple(
         FactCase(
             id=case["id"],
@@ -183,13 +212,34 @@ def _fact_cases(path: Path) -> tuple[FactCase, ...]:
     )
 
 
+def dataset_name(data_dir: Path) -> str:
+    """ "development" for evals/data, otherwise the folder's own name."""
+    resolved = data_dir.resolve()
+    return DEVELOPMENT if resolved == DATA_DIR else resolved.name
+
+
+def _source(data_dir: Path) -> str:
+    resolved = data_dir.resolve()
+    try:
+        return resolved.relative_to(ROOT).as_posix()
+    except ValueError:
+        return resolved.as_posix()
+
+
 def load_dataset(data_dir: Path = DATA_DIR) -> Dataset:
+    """Load the set in `data_dir`. The development set must have its fact-check
+    labels; another set may leave them out."""
+    name = dataset_name(data_dir)
+    required = name == DEVELOPMENT
+    labels = data_dir / "labels"
     dataset = Dataset(
         resumes=_resumes(data_dir),
         jobs=_jobs(data_dir),
         pairs=_pairs(data_dir),
-        factcheck_dev=_fact_cases(data_dir / "labels" / "factcheck.json"),
-        factcheck_holdout=_fact_cases(data_dir / "labels" / "factcheck_holdout.json"),
+        factcheck_dev=_fact_cases(labels / "factcheck.json", required),
+        factcheck_holdout=_fact_cases(labels / "factcheck_holdout.json", required),
+        name=name,
+        source=_source(data_dir),
     )
     _check(dataset)
     return dataset

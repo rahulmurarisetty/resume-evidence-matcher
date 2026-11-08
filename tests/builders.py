@@ -11,10 +11,38 @@ Used by the tests and by scripts/make_samples.py. Markup:
 
 import io
 from dataclasses import dataclass
+from functools import cache
 
 import pymupdf
 from docx import Document
 from docx.shared import Pt
+
+# The PDF base-14 fonts, used by name, are written with a one-byte encoding that has
+# no en dash, so "Mar 2022 \u2013 Present" came out of the PDF as "Mar 2022 \u00b7
+# Present". MuPDF ships the same fonts (Nimbus Sans, with Helvetica's metrics) as
+# font files, and a font file embedded in the page keeps every character it has a
+# glyph for, so lines are written with the embedded copy.
+_EMBEDDED = {"helv": "REMHelv", "hebo": "REMHelvBold"}
+
+
+@cache
+def _font(name: str) -> pymupdf.Font:
+    return pymupdf.Font(name)
+
+
+def _font_for(text: str, base: str) -> tuple[str, str]:
+    """The font name to write `text` with, and the text to write.
+
+    The embedded font is used when it has a glyph for every character. A line it
+    can't write (the private-use bullet glyphs Word's Symbol font produces) falls back
+    to the base-14 font, as before. Only then, with no font available that has an en
+    dash, is an en dash written as a hyphen, which the app reads the same way in a
+    date range. MuPDF's Nimbus Sans has the en dash, so in practice it survives.
+    """
+    font = _font(base)
+    if all(font.has_glyph(ord(char)) for char in text if not char.isspace()):
+        return _EMBEDDED[base], text
+    return base, text.replace("\u2013", "-")
 
 
 @dataclass(frozen=True)
@@ -35,7 +63,7 @@ def _wrap(text: str, width: float, fontname: str, size: float) -> list[str]:
     current = ""
     for word in words:
         candidate = f"{current} {word}".strip()
-        if pymupdf.get_text_length(candidate, fontname=fontname, fontsize=size) <= width:
+        if _font(fontname).text_length(candidate, fontsize=size) <= width:
             current = candidate
         else:
             if current:
@@ -55,14 +83,22 @@ def build_pdf(markup: str, style: PdfStyle | None = None) -> bytes:
     leading = style.font_size * 1.35
     y = style.margin
 
+    def add_fonts(target: pymupdf.Page) -> None:
+        for base, embedded in _EMBEDDED.items():
+            target.insert_font(fontname=embedded, fontbuffer=_font(base).buffer)
+
+    add_fonts(page)
+
     def ensure_room(lines: int = 1) -> None:
         nonlocal page, y
         if y + leading * lines > style.page_height - style.margin:
             page = doc.new_page(width=style.page_width, height=style.page_height)
+            add_fonts(page)
             y = style.margin
 
     def write(x: float, text: str, font: str = "helv", size: float | None = None) -> None:
-        page.insert_text((x, y), text, fontname=font, fontsize=size or style.font_size)
+        fontname, written = _font_for(text, font)
+        page.insert_text((x, y), written, fontname=fontname, fontsize=size or style.font_size)
 
     for raw in markup.splitlines():
         line = raw.rstrip()

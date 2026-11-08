@@ -73,3 +73,90 @@ def test_catalog_entries_are_valid(catalog: SkillCatalog) -> None:
     assert all(catalog.skills_in(name) or name in {"Go", "R"} for name in names), (
         "every skill name should match itself"
     )
+
+
+# ---------------------------------------------------------------------------
+# v0.5: catalog additions with tricky aliases
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("text", "skill"),
+    [
+        ("Wrote unit tests with Jest", "Jest"),
+        ("Packaged services as Helm charts", "Helm"),
+        ("Built iOS apps in Swift and SwiftUI", "Swift"),
+        ("Alerting with Prometheus and Grafana", "Prometheus"),
+        ("Shipped a Flutter app", "Flutter"),
+        ("End-to-end tests in Cypress", "Cypress"),
+        ("ETL jobs in AWS Glue", "AWS Glue"),
+        ("Serverless APIs on Lambda", "AWS Lambda"),
+        ("Queried logs in Athena", "Amazon Athena"),
+        ("Tables in Apache Iceberg format", "Apache Iceberg"),
+        ("Built Apex triggers and LWC components", "Apex"),
+        ("Configured Workday integrations", "Workday"),
+        ("API tests in Postman", "Postman"),
+        ("Rewrote the parser in Rust", "Rust"),
+        ("Background jobs with Celery", "Celery"),
+        ("Styled pages with Tailwind", "Tailwind CSS"),
+        ("Next.js marketing pages", "Next.js"),
+        ("Deployed to EKS", "Amazon EKS"),
+        ("Instrumented services with OTel", "OpenTelemetry"),
+        ("Fixed WCAG 2.1 AA issues", "Web accessibility"),
+        ("ISTQB Certified Tester", "ISTQB"),
+        ("Configured PCF screens", "PCF"),
+        ("Duck Creek Policy configuration", "Duck Creek"),
+    ],
+)
+def test_new_terms_are_found(catalog: SkillCatalog, text: str, skill: str) -> None:
+    assert skill in catalog.skills_in(text)
+
+
+@pytest.mark.parametrize(
+    ("text", "skill"),
+    [
+        ("It was said in jest", "Jest"),
+        ("Took the helm of a struggling project", "Helm"),
+        ("Made a swift decision", "Swift"),
+        ("Butterflies flutter by", "Flutter"),
+        ("Wrote glue code between services", "AWS Glue"),
+        ("Used lambda expressions in pandas", "AWS Lambda"),
+        ("Only the tip of the iceberg", "Apache Iceberg"),
+        ("Reached the apex of the season", "Apex"),
+        ("A typical workday starts at nine", "Workday"),
+        ("Waited for the postman", "Postman"),
+        ("Removed rust from old parts", "Rust"),
+        ("Bought celery and carrots", "Celery"),
+        ("Gained a tailwind from new demand", "Tailwind CSS"),
+        ("Planned the next sprint", "Next.js"),
+        ("Bootstrapped a side project", "Bootstrap"),
+        ("Improved the accessibility of reports for analysts", "Web accessibility"),
+    ],
+)
+def test_ordinary_words_are_not_the_new_skills(
+    catalog: SkillCatalog, text: str, skill: str
+) -> None:
+    assert skill not in catalog.skills_in(text)
+
+
+def test_one_term_can_count_for_two_skills(catalog: SkillCatalog) -> None:
+    assert {"Kubernetes", "Amazon EKS"} <= set(catalog.skills_in("Ran workloads on EKS"))
+    assert {"Terraform", "Infrastructure as code"} <= set(
+        catalog.skills_in("Wrote Terraform modules")
+    )
+    assert {"Guidewire", "PolicyCenter"} <= set(catalog.skills_in("Configured PolicyCenter"))
+
+
+def test_requirement_skills_drop_terms_inside_longer_ones(catalog: SkillCatalog) -> None:
+    assert catalog.requirement_skills("Experience with GitHub Actions") == ["GitHub Actions"]
+    assert catalog.requirement_skills("Git and GitHub Actions") == ["Git", "GitHub Actions"]
+    assert catalog.requirement_skills("SQL Server experience") == ["SQL Server"]
+    assert catalog.requirement_skills("Azure Data Factory") == ["Azure Data Factory"]
+    # Two skills with the same term are both kept.
+    assert catalog.requirement_skills("PySpark") == ["Spark", "PySpark"]
+    # Resume evidence still sees every skill.
+    assert "Git" in catalog.skills_in("Experience with GitHub Actions")
+
+
+def test_catalog_size(catalog: SkillCatalog) -> None:
+    assert len(catalog.skill_names) == 328

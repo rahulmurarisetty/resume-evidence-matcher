@@ -272,12 +272,27 @@ def test_a_different_product_in_the_same_family_fails(catalog: SkillCatalog) -> 
 
 
 def test_free_text_tool_fails_as_a_name(catalog: SkillCatalog) -> None:
+    # Soda Core isn't in the catalog, so it is caught as a capitalized name.
     result = check_rewrite(
         "Wrote Python data checks that run before each load.",
-        "Wrote Python and Great Expectations data checks that run before each load.",
+        "Wrote Python and Soda Core data checks that run before each load.",
         catalog,
     )
-    assert [(f.kind, f.text) for f in result.added] == [(FactKind.NAME, "Great Expectations")]
+    assert [(f.kind, f.text) for f in result.added] == [(FactKind.NAME, "Soda Core")]
+
+
+def test_catalog_tools_fail_as_skills(catalog: SkillCatalog) -> None:
+    # v0.5 added these to the catalog, so they are reported as skills, not names.
+    result = check_rewrite(
+        "Wrote Python data checks that run before each load.",
+        "Wrote Python and Great Expectations data checks on S3 and EC2 before each load.",
+        catalog,
+    )
+    assert [(f.kind, f.text) for f in result.added] == [
+        (FactKind.SKILL, "Great Expectations"),
+        (FactKind.SKILL, "S3"),
+        (FactKind.SKILL, "EC2"),
+    ]
 
 
 # -- names -----------------------------------------------------------------------
@@ -292,7 +307,7 @@ def test_free_text_tool_fails_as_a_name(catalog: SkillCatalog) -> None:
             ["Example Mutual", "Placeholder Bank"],
         ),
         ("Built Demo Health's quoting engine in Python.", ["Demo Health"]),
-        ("Built the quoting engine in Python on S3 and EC2.", ["S3", "EC2"]),
+        ("Built the quoting engine in Python on R2 and B2.", ["R2", "B2"]),
     ],
 )
 def test_added_names_fail(catalog: SkillCatalog, rewrite: str, names: list[str]) -> None:
@@ -664,8 +679,8 @@ def test_equivalent_names_still_pass(catalog: SkillCatalog, source: str, rewrite
 def test_spelling_out_an_acronym_in_capitals_fails(catalog: SkillCatalog) -> None:
     # The checker can't tell a true expansion from an invented one, so it rejects both.
     assert FactKind.NAME in _kinds(
-        "Deployed services to AKS with Helm.",
-        "Deployed services to Azure Kubernetes Service with Helm.",
+        "Deployed services to ACA with Helm.",
+        "Deployed services to Azure Container Apps with Helm.",
         catalog,
     )
 

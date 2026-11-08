@@ -84,8 +84,11 @@ def test_report_has_every_section_and_follows_the_prose_rules(
 ) -> None:
     report = render_report(default_results)
     for heading in (
-        "# Evaluation report",
+        # v0.5: the title names the dataset.
+        "# Evaluation report: development set",
         "## Headline numbers",
+        "## Before and after, development set (used to find and fix these failures, so these "
+        "numbers are optimistic)",
         "## Resume structure",
         "## Requirement extraction",
         "## Evidence and status per pair",
@@ -125,7 +128,8 @@ def test_cli_writes_outputs_and_check_fails_past_a_threshold(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    monkeypatch.setattr(run, "load_dataset", lambda: subset)
+    # v0.5: main passes --data-dir to load_dataset.
+    monkeypatch.setattr(run, "load_dataset", lambda data_dir: subset)
     out = tmp_path / "results"
     assert run.main(["--formats", "docx", "--out", str(out)]) == 0
     assert (out / "latest.json").is_file() and (out / "REPORT.md").is_file()
@@ -268,3 +272,168 @@ def test_llm_mode_with_a_fake_client(subset: Dataset, tmp_path: Path) -> None:
         "| Pair | Bullets chosen | Candidates | Kept | Rejected | Rejected for | Unchanged |"
         in report
     )
+
+
+# ---------------------------------------------------------------------------
+# --data-dir: another labeled set with the same layout
+# ---------------------------------------------------------------------------
+
+TINY_RESUME = """# Sam Placeholder
+## Experience
+### Data Engineer, Example Corp | Mar 2022 - Present
+- Built Python pipelines on Databricks.
+## Education
+### B.S. Computer Science, Example University, 2021
+"""
+TINY_JOB = """Data Engineer
+
+Requirements
+- Strong Python skills
+- Experience with Kafka
+- Bachelor's degree in Computer Science or a related field
+
+Benefits
+- 401(k) with a match
+"""
+
+
+@pytest.fixture
+def tiny_dataset(tmp_path: Path) -> Path:
+    """A one-resume, one-job set with no fact-check labels, written to a temporary
+    folder in the same layout as evals/data."""
+    root = tmp_path / "tiny_set"
+    for folder in ("resumes", "jobs", "labels"):
+        (root / folder).mkdir(parents=True)
+    (root / "resumes" / "t01.md").write_text(TINY_RESUME, encoding="utf-8")
+    (root / "jobs" / "j01.txt").write_text(TINY_JOB, encoding="utf-8")
+    labels = {
+        "resumes.json": {
+            "t01": {
+                "as_of": "2026-11-01",
+                "roles": [
+                    {
+                        "title": "Data Engineer",
+                        "employer": "Example Corp",
+                        "start": "2022-03",
+                        "end": None,
+                    }
+                ],
+                "total_years": 4.7,
+                "education": [
+                    {
+                        "degree": "B.S. Computer Science",
+                        "school": "Example University",
+                        "year": 2021,
+                    }
+                ],
+            }
+        },
+        "jobs.json": {
+            "j01": {
+                "title": "Data Engineer",
+                "min_years": None,
+                "requirements": [
+                    {"text": "Strong Python skills", "priority": "required"},
+                    {"text": "Experience with Kafka", "priority": "required"},
+                    {
+                        "text": "Bachelor's degree in Computer Science or a related field",
+                        "priority": "required",
+                    },
+                ],
+            }
+        },
+        "pairs.json": [
+            {
+                "resume": "t01",
+                "job": "j01",
+                "fit": "strong",
+                "requirements": [
+                    {
+                        "text": "Strong Python skills",
+                        "status": "direct",
+                        "evidence": ["Built Python pipelines on Databricks."],
+                    },
+                    {"text": "Experience with Kafka", "status": "gap"},
+                    {
+                        "text": "Bachelor's degree in Computer Science or a related field",
+                        "status": "direct",
+                        "evidence": ["B.S. Computer Science, Example University, 2021"],
+                    },
+                ],
+            }
+        ],
+    }
+    for name, value in labels.items():
+        (root / "labels" / name).write_text(json.dumps(value), encoding="utf-8")
+    return root
+
+
+def test_another_data_dir_loads_without_fact_check_labels(tiny_dataset: Path) -> None:
+    dataset = load_dataset(tiny_dataset)
+    assert dataset.name == "tiny_set"
+    assert not dataset.is_development
+    assert not dataset.has_factcheck
+    assert dataset.source == tiny_dataset.resolve().as_posix()
+    assert (len(dataset.resumes), len(dataset.jobs), len(dataset.pairs)) == (1, 1, 1)
+    assert load_dataset().name == "development"
+
+
+def test_cli_runs_on_another_data_dir(
+    tiny_dataset: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    out = tmp_path / "tiny_results"
+    argv = ["--data-dir", str(tiny_dataset), "--formats", "docx", "--out", str(out)]
+    assert run.main(argv) == 0
+    printed = capsys.readouterr().out
+    assert "on the tiny_set set" in printed
+    results = json.loads((out / "latest.json").read_text(encoding="utf-8"))
+    assert results["meta"]["dataset"] == {
+        "name": "tiny_set",
+        "source": tiny_dataset.resolve().as_posix(),
+        "development": False,
+        "factcheck_labels": False,
+    }
+    assert results["comparison"] is None  # no baseline for this set
+    pairs_overall = results["metrics"]["pairs"]["exact"]["overall"]
+    assert pairs_overall["status_accuracy"] == {"rate": 1.0, "count": 3, "total": 3}
+    assert results["metrics"]["requirements"]["rules"]["extraction_precision"]["rate"] == 1.0
+    assert results["metrics"]["structure"]["overall"]["role_recall"]["rate"] == 1.0
+
+    report = (out / "REPORT.md").read_text(encoding="utf-8")
+    assert report.startswith("# Evaluation report: tiny_set set\n")
+    assert "This set has no fact-check labels" in report
+    assert "## Before and after" not in report
+    assert "optimistic" not in report.split("## Known weaknesses")[0]
+
+    # --check compares with the development thresholds and leaves out the fact checker.
+    assert run.main([*argv, "--check"]) in (0, 1)
+    printed = capsys.readouterr().out
+    assert "thresholds were set on the development set" in printed
+    assert "no fact-check labels" in printed
+    assert "factcheck." not in printed
+
+
+def test_output_folder_depends_on_the_data_dir(tiny_dataset: Path, tmp_path: Path) -> None:
+    assert run.output_dir(run.DATA_DIR, None) == run.RESULTS_DIR
+    assert run.output_dir(tiny_dataset, None) == run.RESULTS_DIR / "tiny_set"
+    assert run.output_dir(tiny_dataset, tmp_path) == tmp_path
+    assert run.parse_args([]).data_dir == run.DATA_DIR
+    assert run.parse_args(["--data-dir", str(tiny_dataset)]).data_dir == tiny_dataset
+
+
+def test_comparison_lists_earlier_runs_on_the_development_set(
+    default_results: dict[str, object], tmp_path: Path
+) -> None:
+    compared = default_results["comparison"]
+    assert isinstance(compared, dict)
+    assert [r["label"] for r in compared["runs"]] == ["v0.4.0", "v0.4.0 app, v0.5 PDF builder"]
+    paths = [row["path"] for row in compared["rows"]]
+    assert "pairs.exact.overall.status_accuracy" in paths
+    assert all(len(row["before"]) == 2 for row in compared["rows"])
+    report = render_report(default_results)
+    assert "| Metric | v0.4.0 | v0.4.0 app, v0.5 PDF builder | This run (" in report
+
+    # A set without a baseline file has no comparison.
+    metrics = default_results["metrics"]
+    assert isinstance(metrics, dict)
+    assert run.comparison(load_dataset().limited(1), metrics, tmp_path) is None

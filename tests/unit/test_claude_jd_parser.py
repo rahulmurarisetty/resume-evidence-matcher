@@ -29,8 +29,8 @@ What you'll do
 Requirements
 - 5+ years of experience in data engineering
 - Strong Python and SQL
-- Experience with Apache Kafka or Kinesis
-- Experience with Great Expectations for data quality
+- Experience with Apache Kafka or Pulsar
+- Experience with Soda Core for data quality
 
 Benefits
 - 401(k) with 4% match
@@ -58,15 +58,15 @@ VALID = {
         _req("5+ years of experience in data engineering", "required", [], min_years=5),
         _req("Strong Python and SQL", "required", ["Python", "SQL"]),
         _req(
-            "Experience with Apache Kafka or Kinesis",
+            "Experience with Apache Kafka or Pulsar",
             "required",
-            ["Apache Kafka", "Kinesis"],
+            ["Apache Kafka", "Pulsar"],
             match_mode="any",
         ),
         _req(
-            "Experience with Great Expectations for data quality",
+            "Experience with Soda Core for data quality",
             "preferred",
-            ["Great Expectations"],
+            ["Soda Core"],
         ),
     ],
 }
@@ -87,9 +87,7 @@ def test_valid_output_becomes_the_job(catalog: SkillCatalog) -> None:
     assert [r.id for r in job.requirements] == [f"r{i}" for i in range(6)]
     by_text = {r.text: r for r in job.requirements}
     assert by_text["Strong Python and SQL"].priority is Priority.REQUIRED
-    assert by_text["Experience with Great Expectations for data quality"].priority is (
-        Priority.PREFERRED
-    )
+    assert by_text["Experience with Soda Core for data quality"].priority is (Priority.PREFERRED)
     assert by_text["5+ years of experience in data engineering"].min_years == 5
     # Benefits are left out.
     assert all("401(k)" not in r.text for r in job.requirements)
@@ -111,9 +109,9 @@ def test_valid_output_becomes_the_job(catalog: SkillCatalog) -> None:
 def test_skills_map_to_the_catalog(catalog: SkillCatalog) -> None:
     job = _parse(catalog, VALID)[0].job
     kafka = next(r for r in job.requirements if "Kafka" in r.text)
-    # "Apache Kafka" is the catalog's Kafka; Kinesis isn't in the catalog.
-    assert kafka.skills == ["Kafka", "Kinesis"]
-    assert kafka.free_text_skills == ["Kinesis"]
+    # "Apache Kafka" is the catalog's Kafka; Pulsar isn't in the catalog.
+    assert kafka.skills == ["Kafka", "Pulsar"]
+    assert kafka.free_text_skills == ["Pulsar"]
     assert kafka.match_mode is MatchMode.ANY
     python = next(r for r in job.requirements if r.text == "Strong Python and SQL")
     assert python.skills == ["Python", "SQL"]
@@ -124,31 +122,31 @@ def test_free_text_skills_keep_the_requirement_spelling(catalog: SkillCatalog) -
     output = {
         "requirements": [
             _req(
-                "Experience with Great Expectations for data quality",
+                "Experience with Soda Core for data quality",
                 "required",
-                ["great expectations"],
+                ["soda core"],
             ),
         ]
     }
     [req] = _parse(catalog, output)[0].job.requirements
-    assert req.skills == ["Great Expectations"]
-    assert req.free_text_skills == ["Great Expectations"]
+    assert req.skills == ["Soda Core"]
+    assert req.free_text_skills == ["Soda Core"]
 
 
 def test_skills_not_named_in_the_text_are_dropped(catalog: SkillCatalog) -> None:
     output = {
         "requirements": [
             _req(
-                "Experience with Great Expectations for data quality",
+                "Experience with Soda Core for data quality",
                 "required",
-                ["Great Expectations", "Monte Carlo", "dbt"],
+                ["Soda Core", "Monte Carlo", "dbt"],
             ),
         ]
     }
     [req] = _parse(catalog, output)[0].job.requirements
     # Neither a free-text skill nor a catalog skill may be invented.
-    assert req.skills == ["Great Expectations"]
-    assert req.free_text_skills == ["Great Expectations"]
+    assert req.skills == ["Soda Core"]
+    assert req.free_text_skills == ["Soda Core"]
 
 
 def test_catalog_skills_claude_missed_are_added(catalog: SkillCatalog) -> None:
@@ -244,7 +242,7 @@ casey@example.com
 
 ## Experience
 ### Data Engineer, Example Corp | Jan 2018 - Present
-- Wrote great expectations suites in Python and SQL for every nightly load.
+- Wrote soda core suites in Python and SQL for every nightly load.
 - Built Databricks jobs that load claims data into Snowflake.
 """
     client = FakeLLMClient(VALID)
@@ -252,11 +250,11 @@ casey@example.com
     assert report.job_parser.name is JobParserName.CLAUDE
     assert report.job_parser.prompt_version == "jd_parse_v1"
     # The free-text skill is matched in the resume as a phrase, ignoring case.
-    match = next(m for m in report.matches if "Great Expectations" in m.requirement.text)
+    match = next(m for m in report.matches if "Soda Core" in m.requirement.text)
     assert match.status is MatchStatus.DIRECT
-    assert match.skills[0].evidence[0].matched_term == "great expectations"
-    kinesis = next(m for m in report.matches if "Kafka" in m.requirement.text)
-    assert kinesis.status is MatchStatus.GAP
+    assert match.skills[0].evidence[0].matched_term == "soda core"
+    pulsar = next(m for m in report.matches if "Kafka" in m.requirement.text)
+    assert pulsar.status is MatchStatus.GAP
 
     _, fallback = analyze(
         build_pdf(resume), JD, job_parser=ClaudeJobParser(FakeLLMClient(LLMTimeoutError("x")), "m")

@@ -1,0 +1,203 @@
+{
+  "h_r01_guidewire_claimcenter": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {
+        "title": "Senior Guidewire ClaimCenter Developer",
+        "employer": "Sample Mutual Insurance Company",
+        "start": "2021-06",
+        "end": null
+      },
+      {
+        "title": "Guidewire Developer",
+        "employer": "Demo Infotech Pvt. Ltd.",
+        "start": "2018-08",
+        "end": "2021-05"
+      },
+      {
+        "title": "Java Developer",
+        "employer": "Example Softech Solutions",
+        "start": "2016-07",
+        "end": "2018-07"
+      }
+    ],
+    "total_years": 10.4,
+    "education": [
+      {
+        "degree": "Bachelor of Technology in Electronics and Communication Engineering",
+        "school": "Example Institute of Technology",
+        "year": 2016
+      }
+    ]
+  },
+  "h_r02_data_scientist": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {
+        "title": "Senior Data Scientist",
+        "employer": "Sample Health Partners",
+        "start": "2023-03",
+        "end": null
+      },
+      {
+        "title": "Data Scientist",
+        "employer": "Demo Retail Analytics",
+        "start": "2020-07",
+        "end": "2023-02"
+      },
+      {
+        "title": "Graduate Research Assistant",
+        "employer": "Example State University",
+        "start": "2016-08",
+        "end": "2020-06"
+      }
+    ],
+    "total_years": 10.3,
+    "education": [
+      {
+        "degree": "Ph.D. in Statistics",
+        "school": "Example State University",
+        "year": 2020
+      },
+      {
+        "degree": "M.S. in Applied Mathematics",
+        "school": "Sample University",
+        "year": 2016
+      },
+      {
+        "degree": "B.S. in Mathematics",
+        "school": "Sample University",
+        "year": null
+      }
+    ]
+  },
+  "h_r03_salesforce_developer": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {
+        "title": "Salesforce Developer",
+        "employer": "Sample Cloud Consulting Pvt. Ltd.",
+        "start": "2022-01",
+        "end": null
+      },
+      {
+        "title": "Associate Salesforce Developer",
+        "employer": "Demo Technologies",
+        "start": "2019-06",
+        "end": "2021-12"
+      }
+    ],
+    "total_years": 7.5,
+    "education": [
+      {
+        "degree": "Bachelor of Engineering (Computer Science)",
+        "school": "Sample Engineering College",
+        "year": 2019
+      }
+    ]
+  },
+  "h_r04_platform_cloud_engineer": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {
+        "title": "Senior Platform Engineer",
+        "employer": "Demo Savings Bank",
+        "start": "2022-09",
+        "end": null
+      },
+      {
+        "title": "Cloud Engineer",
+        "employer": "Placeholder Lending Co.",
+        "start": "2019-02",
+        "end": "2022-08"
+      },
+      {
+        "title": "Adjunct Instructor",
+        "employer": "Sample Community College",
+        "start": "2021-01",
+        "end": "2021-12"
+      },
+      {
+        "title": "Systems Engineer",
+        "employer": "Sample Hosting Co.",
+        "start": "2016-06",
+        "end": "2018-06"
+      }
+    ],
+    "total_years": 9.9,
+    "education": [
+      {
+        "degree": "B.S. Information Technology",
+        "school": "Sample Tech University",
+        "year": 2016
+      }
+    ]
+  },
+  "h_r05_bi_developer": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {
+        "title": "Lead BI Developer",
+        "employer": "Sample Pharma Distributors",
+        "start": "2021-04",
+        "end": null
+      },
+      {
+        "title": "BI Developer",
+        "employer": "Demo Retail Corp",
+        "start": "2017-01",
+        "end": "2021-12"
+      },
+      {
+        "title": "Junior SQL Developer",
+        "employer": "Example Info Systems",
+        "start": "2012-06",
+        "end": "2014-11"
+      }
+    ],
+    "total_years": 12.4,
+    "education": [
+      {
+        "degree": "Master of Science, Information Systems",
+        "school": "Sample State University",
+        "year": 2016
+      },
+      {
+        "degree": "Bachelor of Technology, Computer Science",
+        "school": "Example College of Engineering",
+        "year": 2012
+      }
+    ]
+  },
+  "h_r06_mobile_developer": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {
+        "title": "Senior Mobile Engineer",
+        "employer": "Mock Fitness Labs",
+        "start": "2022-05",
+        "end": null
+      },
+      {
+        "title": "Android Developer",
+        "employer": "Sample Ride Share Co.",
+        "start": "2019-10",
+        "end": "2022-04"
+      },
+      {
+        "title": "Mobile Developer Intern",
+        "employer": "Demo Media Group",
+        "start": "2019-06",
+        "end": "2019-08"
+      }
+    ],
+    "total_years": 7.4,
+    "education": [
+      {
+        "degree": "Bachelor of Science in Computer Science",
+        "school": "Demo Pacific University",
+        "year": 2019
+      }
+    ]
+  }
+}

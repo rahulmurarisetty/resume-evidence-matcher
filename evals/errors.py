@@ -96,15 +96,16 @@ _STRUCTURE_CAUSES: dict[str, tuple[str, str]] = {
         "so the role and its months are lost.",
     ),
     "outside_section": (
-        "A resume without section headings yields no roles or education",
-        "Roles are read only from an experience section and education only from an "
-        "education section. With no headings every line is in the header section, so no "
-        "role, date, total years or degree is read.",
+        "Roles or degrees outside their section are not read",
+        "Roles are read from an experience section, and education from an education "
+        "section. Without such a heading the app reads roles from the lines with date ranges "
+        "and degrees from lines that name one, and these entries weren't found that way.",
     ),
     "fields_differ": (
         "Roles are found but the title or employer is split wrongly",
-        "The role and its dates are read, but extra text stays in the employer (a city and "
-        "state) or the employer stays in the title, so the role doesn't match its label.",
+        "The role and its dates are read, but the title and employer are split in another "
+        "place than the labels (extra text in one of them, or both in the title), so the "
+        "role doesn't match its label.",
     ),
     "dates_unreadable": (
         "Date ranges with a separator the parser doesn't accept are not read",
@@ -117,8 +118,7 @@ _STRUCTURE_CAUSES: dict[str, tuple[str, str]] = {
     ),
     "joined_lines": (
         "PDF extraction joins a line to the one before it",
-        "A line that follows a full-width line, or any line on a page with only short lines, "
-        "is joined to the previous paragraph, so a role header or an education entry "
+        "A line was joined to the paragraph above it, so a role header or an education entry "
         "disappears into another line.",
     ),
     "year_wrong": (
@@ -188,10 +188,10 @@ def _requirement_patterns(results: Sequence[JobExtraction]) -> list[Pattern]:
     boilerplate = Pattern(
         "jd_boilerplate_kept",
         "Requirement extraction",
-        "Benefits, pay and legal lines after an unknown heading are kept as requirements",
-        "A heading the parser doesn't know (\"What we offer\") doesn't end the section above "
-        "it, so benefit, salary, equal opportunity and how-to-apply lines are kept with that "
-        "section's priority.",
+        "Benefits, pay and legal lines are kept as requirements",
+        "Benefit, salary, equal opportunity, work authorization or how-to-apply lines were "
+        "kept, with the priority of the section they are in. Their wording isn't on the "
+        "parser's lists.",
         "job lines",
         by_format=False,
     )
@@ -199,8 +199,9 @@ def _requirement_patterns(results: Sequence[JobExtraction]) -> list[Pattern]:
         "jd_heading_kept",
         "Requirement extraction",
         "Unknown section headings are kept as requirements",
-        'A heading the parser doesn\'t recognize ("What we need:", "What we offer") is kept as '
-        "a requirement line, and the lines under it keep the previous section's priority.",
+        "A heading the parser doesn't recognize is kept as a requirement line, and the lines "
+        "under it keep the previous section's priority. Headings ending in a colon or written "
+        "in capitals are recognized; others need a known heading word.",
         "job lines",
         by_format=False,
     )
@@ -208,9 +209,9 @@ def _requirement_patterns(results: Sequence[JobExtraction]) -> list[Pattern]:
         "jd_intro_kept",
         "Requirement extraction",
         "Company and posting details are kept as requirements",
-        "Company descriptions and posting lines (company, client) are kept as context "
-        "requirements: before the first heading when they name a catalog skill (a company "
-        'name with "Insurance" in it), and inside a role section as one more sentence.',
+        "Company descriptions and posting lines are kept as requirements, usually as "
+        "context: they name a skill or address the candidate, so the parser can't tell them "
+        "from a duty.",
         "job lines",
         by_format=False,
     )
@@ -219,9 +220,9 @@ def _requirement_patterns(results: Sequence[JobExtraction]) -> list[Pattern]:
         "jd_priority",
         "Requirement extraction",
         "Required lines get the wrong priority",
-        "Required lines written as prose sentences, or under a heading the parser doesn't "
-        'know, default to context; a line-level word such as "Familiarity with" turns a '
-        "required line into preferred.",
+        "A line gets another priority than its label: its section's priority, changed by "
+        'wording in the line ("is a plus" makes it preferred, "you should" or "must" makes a '
+        "context line required).",
         "job lines",
         by_format=False,
     )
@@ -313,9 +314,9 @@ def _pair_rules() -> list[_PairRule]:
             "pair_no_catalog_skill",
             "Requirements that name no catalog skill are left for a person to check",
             "The rule parser only finds skills from the skill catalog. A requirement whose "
-            "tools are outside it, or that asks for a domain, a degree or a certification, gets "
-            "no skills, so exact matching marks it needs_check whether the resume proves it, "
-            "lacks it or shows it in part.",
+            "tools or domain are outside it gets no skills, and a degree or certification "
+            "requirement the app can't judge is left to a person, so exact matching marks it "
+            "needs_check whether the resume proves it, lacks it or shows it in part.",
             lambda i: (
                 i.app_status == "needs_check"
                 and i.gold_status != "needs_check"
@@ -338,10 +339,10 @@ def _pair_rules() -> list[_PairRule]:
         _PairRule(
             "pair_overcredited",
             "A related skill or a missing detail is counted as direct proof",
-            "The catalog files some tools under a broader skill (GitHub, GitLab and Bitbucket "
-            "are terms for Git, JUnit for Unit testing), so a requirement for one tool can be "
-            "proven by a line that names another. A version the requirement asks for isn't "
-            "checked either.",
+            "The catalog files some tools under a broader skill as well (JUnit and NUnit also "
+            "count as Unit testing, GitHub and GitLab as Git), so a requirement that names the "
+            "broad skill can be proven by a line that names another tool, and a domain word "
+            '("payments") counts wherever a work line uses it.',
             lambda i: i.app_status == "direct" and i.gold_status != "direct",
             lambda i: f"labeled {i.gold_status}, app direct from the {_first_line(i)}.",
         ),

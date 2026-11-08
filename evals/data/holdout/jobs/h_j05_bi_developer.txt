@@ -1,0 +1,32 @@
+Business Intelligence Developer III
+Sample Regional Health System
+Columbus, OH (hybrid) | Full time | Requisition 2026-4471
+
+Position summary
+Sample Regional Health System is looking for a senior BI developer to join the Enterprise Analytics department. The team supports 14 hospitals and more than 200 clinics with reporting on quality, finance and operations.
+
+In this role you will design and publish Power BI semantic models and reports used by clinical and finance leaders. You will build and maintain SSIS and Azure Data Factory pipelines that load our SQL Server and Azure Synapse data warehouse. You will work with report requesters to turn loosely defined questions into clear metrics with agreed definitions.
+
+Minimum qualifications
+Bachelor's degree in Information Systems, Computer Science, Statistics or a related field, or four additional years of relevant experience in place of a degree.
+At least 5 years of experience in business intelligence, data warehousing or reporting development.
+Advanced DAX and Power Query skills, including performance tuning of large semantic models.
+Expert T-SQL, including stored procedures, window functions and query tuning.
+Experience building ETL with SSIS or Azure Data Factory.
+Experience implementing row-level security in Power BI.
+Solid understanding of dimensional modeling (star schemas, slowly changing dimensions).
+Strong customer service orientation and the ability to manage competing priorities.
+
+Preferred qualifications
+Experience with Epic Clarity or Caboodle data models.
+Experience with Microsoft Fabric lakehouses or Direct Lake semantic models.
+Experience with Tabular Editor and DAX Studio.
+Familiarity with Git-based source control for Power BI projects (PBIP format).
+Microsoft Certified: Power BI Data Analyst Associate (PL-300).
+Experience with Tableau or Qlik.
+
+Pay range: $96,000 - $128,000 per year, depending on experience. Sample Regional Health System offers medical, dental and vision benefits, tuition reimbursement, a 403(b) retirement plan with employer match, and paid time off that starts accruing on day one.
+
+This position requires work authorization in the United States. Sponsorship is not available.
+
+Sample Regional Health System is an Equal Opportunity Employer, including disability and protected veterans. Applicants will receive consideration for employment without regard to race, color, religion, sex, sexual orientation, gender identity, national origin, age, disability or protected veteran status.

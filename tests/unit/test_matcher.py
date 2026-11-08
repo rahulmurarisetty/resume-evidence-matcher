@@ -133,3 +133,19 @@ def test_wrong_resume_for_the_job(
     assert all(not m.requirement.skills for m in direct)
     assert "Python" in report.missing_required_skills
     assert "Databricks" in report.missing_required_skills
+
+
+def test_roles_without_an_experience_heading_count_as_work(catalog: SkillCatalog) -> None:
+    # v0.5: the roles are read from the date ranges, and their lines are work evidence
+    # even though they sit under the summary heading.
+    resume = _resume(
+        ("SUMMARY", Section.SUMMARY, SpanKind.HEADING),
+        ("Engineer who likes Docker.", Section.SUMMARY, SpanKind.LINE),
+        ("Data Engineer, Example Corp | Jan 2020 - Present", Section.SUMMARY, SpanKind.LINE),
+        ("Built Airflow DAGs in Python", Section.SUMMARY, SpanKind.BULLET),
+    )
+    job = parse_job_description("Requirements\n- Python\n- Docker\n", catalog)
+    report = build_report(resume, job, catalog)
+    statuses = {m.requirement.text: m.status for m in report.matches}
+    assert statuses == {"Python": MatchStatus.DIRECT, "Docker": MatchStatus.PARTIAL}
+    assert report.profile.roles[0].bullet_span_ids == ["s3"]
