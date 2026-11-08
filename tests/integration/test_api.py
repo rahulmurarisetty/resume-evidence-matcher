@@ -1,6 +1,5 @@
 import tempfile
 from datetime import timedelta
-from pathlib import Path
 from unittest import mock
 
 from fastapi.testclient import TestClient
@@ -11,6 +10,7 @@ from app.models import FileType
 from app.storage.db import Database
 from app.storage.repository import AnalysisRepository
 from tests.builders import build_docx, build_pdf
+from tests.support import authenticate, make_settings
 
 PDF = "application/pdf"
 DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -24,9 +24,10 @@ def _post(client: TestClient, data: bytes, jd: str, name: str = "resume.pdf", mi
     )
 
 
-def test_health(client: TestClient) -> None:
-    assert client.get("/healthz").json() == {"status": "ok"}
-    assert client.get("/readyz").json() == {"status": "ready"}
+def test_health(anon_client: TestClient) -> None:
+    # Health checks need no session.
+    assert anon_client.get("/healthz").json() == {"status": "ok"}
+    assert anon_client.get("/readyz").json() == {"status": "ready"}
 
 
 def test_create_get_delete(
@@ -39,7 +40,7 @@ def test_create_get_delete(
     assert created.headers["Location"] == f"/api/v1/analyses/{analysis_id}"
     # v0.2: "5+ years of experience" is now checked against the role dates.
     assert body["report"]["coverage"]["required"]["direct"] == 5
-    assert body["report"]["pipeline_version"] == "0.5.0-exact"
+    assert body["report"]["pipeline_version"] == "1.0.0-exact"
     assert body["report"]["matching_mode"] == "exact"
 
     fetched = client.get(f"/api/v1/analyses/{analysis_id}")
@@ -114,35 +115,32 @@ def test_expired_analyses_are_hidden_and_purged(
 
     from app.models import AnalysisReport
 
+    owner = client.get("/api/v1/auth/me").json()["id"]
     db = Database(settings.database_url)
     try:
         for session in db.session():
             repo = AnalysisRepository(session)
             old = repo.create(
                 AnalysisReport.model_validate(report),
+                owner,
                 FileType.PDF,
                 "0" * 64,
                 timedelta(seconds=-1),
             )
-            assert repo.get(old.id) is None
+            assert repo.get(old.id, owner) is None
+            assert [r.id for r in repo.list_for_owner(owner)] == [body["id"]]
             assert repo.purge_expired() == 1
-            assert repo.get(body["id"]) is not None
+            assert repo.get(body["id"], owner) is not None
     finally:
         db.engine.dispose()
 
 
 def test_uploads_under_the_limit_stay_in_memory(
-    tmp_path: Path, data_engineer_markup: str, data_engineer_jd: str
+    database_url: str, data_engineer_markup: str, data_engineer_jd: str
 ) -> None:
     # Starlette writes uploads over 1 MB to a temp file by default. The app raises that
     # threshold to its own upload limit so resumes never touch the disk.
-    settings = Settings(
-        _env_file=None,  # type: ignore[call-arg]
-        database_url=f"sqlite:///{tmp_path / 'spool.db'}",
-        max_upload_mb=5,
-        log_level="WARNING",
-        semantic_matching="off",
-    )
+    settings = make_settings(database_url, max_upload_mb=5)
     padded = build_pdf(data_engineer_markup) + b"%" + b"0" * (3 * 1024 * 1024)
     rollover = tempfile.SpooledTemporaryFile.rollover
     with (
@@ -151,6 +149,7 @@ def test_uploads_under_the_limit_stay_in_memory(
         ) as spilled,
         TestClient(create_app(settings)) as client,
     ):
+        authenticate(client)
         response = _post(client, padded, data_engineer_jd)
     assert response.status_code == 201, response.text
     assert not spilled.called

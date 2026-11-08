@@ -1,34 +1,56 @@
-# The API and the Streamlit screen.
+# The whole stack on one machine: the API, the Streamlit screen, Postgres and ClamAV.
 #
 #   docker compose up --build                     exact matching only
 #   INSTALL_ML=true docker compose up --build     adds matching by meaning
 #
-# With INSTALL_ML=true the API downloads two models (about 180 MB) on its first
-# start and keeps them in the model-cache volume.
+# Then open http://localhost:8501, create an account and log in. The API and its
+# docs are at http://localhost:8000/docs.
+#
+# Login is required and every upload is scanned by ClamAV, as in production. ClamAV
+# needs about 3 GiB of memory (4 GiB is better) and a minute or two to load its
+# signatures on each start; the API waits for it, and the screen waits for the API.
+# The API runs the database migrations once at start (RUN_MIGRATIONS) and then
+# checks them, as in production.
+#
+# POSTGRES_PASSWORD has a default so the stack starts without setup. It is for this
+# local stack only: the database port isn't published outside Docker.
 services:
   api:
     build:
       context: .
       args:
         INSTALL_ML: ${INSTALL_ML:-false}
-    image: resume-evidence-matcher:local
+    image: resume-evidence-matcher-api:local
     environment:
-      SEMANTIC_MATCHING: ${SEMANTIC_MATCHING:-auto}
+      APP_ENV: local
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DATABASE_URL: postgresql+psycopg://matcher:${POSTGRES_PASSWORD:-local-only-password}@postgres:5432/matcher
+      RUN_MIGRATIONS: "true"
+      DB_AUTO_MIGRATE: "false"
+      AUTH_MODE: required
+      SCANNER: clamav
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: "3310"
+      SEMANTIC_MATCHING: ${SEMANTIC_MATCHING:-auto}
       # Claude stays off unless ANTHROPIC_API_KEY is set in your shell or local .env.
       LLM_ENABLED: ${LLM_ENABLED:-auto}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:
       - "8000:8000"
     volumes:
-      - app-data:/home/appuser/data
       - model-cache:/home/appuser/.cache/huggingface
+    depends_on:
+      postgres:
+        condition: service_healthy
+      clamav:
+        condition: service_healthy
     healthcheck:
+      # Ready means the database and ClamAV both answer.
       test:
         - CMD
         - python
         - -c
-        - "import sys, urllib.request; sys.exit(urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2).status != 200)"
+        - "import sys, urllib.request; sys.exit(urllib.request.urlopen('http://127.0.0.1:8000/readyz', timeout=2).status != 200)"
       interval: 5s
       timeout: 3s
       retries: 3
@@ -47,6 +69,35 @@ services:
       api:
         condition: service_healthy
 
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: matcher
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-only-password}
+      POSTGRES_DB: matcher
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matcher -d matcher"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  clamav:
+    # The official image, on a feature-release tag as ClamAV's docs recommend. It
+    # comes with signatures and keeps them up to date with freshclam.
+    image: clamav/clamav:1.4
+    volumes:
+      - clamav-db:/var/lib/clamav
+    healthcheck:
+      # The image's own check: clamd answers PING.
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
+
 volumes:
-  app-data:
+  postgres-data:
+  clamav-db:
   model-cache:

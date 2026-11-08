@@ -1,8 +1,6 @@
 """The API with matching by meaning: fakes injected at app creation, and how startup
 handles each SEMANTIC_MATCHING setting. No real model is ever loaded."""
 
-from pathlib import Path
-
 import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
@@ -13,17 +11,13 @@ from app.main import create_app, start_semantic
 from app.models import AnalysisReport, MatchingMode
 from tests.builders import build_pdf
 from tests.fakes import FakeEncoder, FakeReranker
+from tests.support import authenticate, make_settings
 
 PDF = "application/pdf"
 
 
-def _settings(tmp_path: Path, mode: str) -> Settings:
-    return Settings(
-        _env_file=None,  # type: ignore[call-arg]
-        database_url=f"sqlite:///{tmp_path / 'semantic.db'}",
-        log_level="WARNING",
-        semantic_matching=mode,  # type: ignore[arg-type]
-    )
+def _settings(database_url: str, mode: str) -> Settings:
+    return make_settings(database_url, semantic_matching=mode, max_upload_mb=5)
 
 
 def test_report_includes_profile(
@@ -48,11 +42,12 @@ def test_report_includes_profile(
 
 
 def test_injected_fakes_are_used(
-    tmp_path: Path, data_engineer_markup: str, data_engineer_jd: str
+    database_url: str, data_engineer_markup: str, data_engineer_jd: str
 ) -> None:
     encoder, reranker = FakeEncoder(), FakeReranker()
-    app = create_app(_settings(tmp_path, "off"), encoder=encoder, reranker=reranker)
+    app = create_app(_settings(database_url, "off"), encoder=encoder, reranker=reranker)
     with TestClient(app) as client:
+        authenticate(client)
         response = client.post(
             "/api/v1/analyses",
             files={"resume": ("r.pdf", build_pdf(data_engineer_markup), PDF)},
@@ -62,7 +57,7 @@ def test_injected_fakes_are_used(
         stored = client.get(f"/api/v1/analyses/{response.json()['id']}").json()
     report = response.json()["report"]
     assert stored["report"] == report
-    assert report["pipeline_version"] == "0.5.0-semantic"
+    assert report["pipeline_version"] == "1.0.0-semantic"
     assert report["matching_mode"] == "semantic"
     assert report["coverage"]["context"]["adjacent"] == 2
     assert report["coverage"]["required"]["direct"] == 5
@@ -74,26 +69,26 @@ def test_injected_fakes_are_used(
 
 
 def test_startup_off_and_auto_without_the_library(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(main, "sentence_transformers_available", lambda: False)
-    assert start_semantic(_settings(tmp_path, "off")) == (None, None)
-    assert start_semantic(_settings(tmp_path, "auto")) == (None, None)
+    assert start_semantic(_settings(database_url, "off")) == (None, None)
+    assert start_semantic(_settings(database_url, "auto")) == (None, None)
 
 
 def test_startup_on_without_the_library_fails(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(main, "sentence_transformers_available", lambda: False)
     with (
         pytest.raises(RuntimeError, match="ml extra"),
-        TestClient(create_app(_settings(tmp_path, "on"))),
+        TestClient(create_app(_settings(database_url, "on"))),
     ):
         pass  # pragma: no cover
 
 
 def test_startup_loads_models_once(
-    tmp_path: Path,
+    database_url: str,
     monkeypatch: pytest.MonkeyPatch,
     data_engineer_markup: str,
     data_engineer_jd: str,
@@ -106,8 +101,9 @@ def test_startup_loads_models_once(
 
     monkeypatch.setattr(main, "sentence_transformers_available", lambda: True)
     monkeypatch.setattr(main, "load_models", fake_load)
-    settings = _settings(tmp_path, "auto")
+    settings = _settings(database_url, "auto")
     with TestClient(create_app(settings)) as client:
+        authenticate(client)
         for _ in range(2):
             report = client.post(
                 "/api/v1/analyses",
@@ -118,21 +114,23 @@ def test_startup_loads_models_once(
     assert loaded == [(settings.embedding_model, settings.rerank_model)]
 
 
-def test_auto_falls_back_when_models_fail(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_auto_falls_back_when_models_fail(
+    database_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
     def broken(embedding: str, rerank: str) -> None:
         raise OSError("no network")
 
     monkeypatch.setattr(main, "sentence_transformers_available", lambda: True)
     monkeypatch.setattr(main, "load_models", broken)
-    assert start_semantic(_settings(tmp_path, "auto")) == (None, None)
+    assert start_semantic(_settings(database_url, "auto")) == (None, None)
     with pytest.raises(OSError):
-        start_semantic(_settings(tmp_path, "on"))
+        start_semantic(_settings(database_url, "on"))
 
 
-def test_semantic_setting_values(tmp_path: Path) -> None:
-    assert _settings(tmp_path, " OFF ").semantic_matching == "off"
+def test_semantic_setting_values(database_url: str) -> None:
+    assert _settings(database_url, " OFF ").semantic_matching == "off"
     with pytest.raises(ValidationError):
-        _settings(tmp_path, "sometimes")
+        _settings(database_url, "sometimes")
 
 
 def test_reports_stored_by_v0_1_still_load(

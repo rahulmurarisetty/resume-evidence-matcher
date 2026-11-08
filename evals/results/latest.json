@@ -7,10 +7,10 @@
       "factcheck_labels": true
     },
     "date": "2026-11-08",
-    "git_commit": "6b763ac",
+    "git_commit": "02c3195",
     "uncommitted_changes": true,
-    "app_version": "0.5.0",
-    "pipeline_version": "0.5.0-exact",
+    "app_version": "1.0.0",
+    "pipeline_version": "1.0.0-exact",
     "as_of": "2026-11-01",
     "formats": [
       {

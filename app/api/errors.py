@@ -13,11 +13,19 @@ _EXTRACTION_STATUS = {
 
 
 class ApiError(Exception):
-    def __init__(self, status_code: int, code: str, message: str) -> None:
+    def __init__(
+        self,
+        status_code: int,
+        code: str,
+        message: str,
+        *,
+        headers: dict[str, str] | None = None,
+    ) -> None:
         super().__init__(message)
         self.status_code = status_code
         self.code = code
         self.message = message
+        self.headers = headers or {}
 
 
 def _body(code: str, message: str) -> dict[str, dict[str, str]]:
@@ -27,7 +35,9 @@ def _body(code: str, message: str) -> dict[str, dict[str, str]]:
 def install_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(ApiError)
     async def _api_error(_: Request, exc: ApiError) -> JSONResponse:
-        return JSONResponse(_body(exc.code, exc.message), status_code=exc.status_code)
+        return JSONResponse(
+            _body(exc.code, exc.message), status_code=exc.status_code, headers=exc.headers
+        )
 
     @app.exception_handler(ExtractionError)
     async def _extraction_error(_: Request, exc: ExtractionError) -> JSONResponse:

@@ -1,9 +1,8 @@
-"""Database setup. SQLite locally; any SQLAlchemy URL (Postgres in v1.0) in production.
+"""Database tables. SQLite locally and in tests, Postgres (psycopg 3) in production.
 
-v0.3 only adds tables. `create_all` creates missing tables and leaves existing
-ones alone, so a v0.2 database file starts without changes: its old analyses
-simply have no stored resume lines, and the endpoints that need them say so.
-Alembic migrations replace this in v1.0.
+The tables are created and changed only by the Alembic migrations in
+app/migrations/. A test compares the migrated schema with these models, so the
+two can't drift apart.
 """
 
 from collections.abc import Iterator
@@ -15,6 +14,7 @@ from sqlalchemy import (
     Engine,
     ForeignKey,
     Integer,
+    MetaData,
     String,
     Text,
     create_engine,
@@ -25,10 +25,46 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sess
 from sqlalchemy.sql.elements import ColumnElement
 
 _ANALYSIS_FK = "analyses.id"
+_USER_FK = "users.id"
+
+# Constraint names the same on every database, so later migrations can name them.
+NAMING_CONVENTION = {
+    "ix": "ix_%(column_0_label)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s",
+}
 
 
 class Base(DeclarativeBase):
-    pass
+    metadata = MetaData(naming_convention=NAMING_CONVENTION)
+
+
+class UserRecord(Base):
+    """An account. The email is stored lowercased; the password only as an
+    argon2id hash."""
+
+    __tablename__ = "users"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    email: Mapped[str] = mapped_column(String(320), unique=True, index=True)
+    password_hash: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class AuthSessionRecord(Base):
+    """A login session. Only the SHA-256 hash of the token is stored, so a copy of
+    the database can't be used to log in. Logging out deletes the row."""
+
+    __tablename__ = "sessions"
+
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey(_USER_FK, ondelete="CASCADE"), index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
 
 
 class AnalysisRecord(Base):
@@ -38,6 +74,10 @@ class AnalysisRecord(Base):
     __tablename__ = "analyses"
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    # Only the owner can see or change an analysis. Added in v1.0.
+    owner_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey(_USER_FK, ondelete="CASCADE"), index=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     pipeline_version: Mapped[str] = mapped_column(String(32))
@@ -157,7 +197,10 @@ def make_engine(database_url: str) -> Engine:
         connect_args["check_same_thread"] = False
         if url.database and url.database != ":memory:":
             Path(url.database).parent.mkdir(parents=True, exist_ok=True)
-    engine = create_engine(database_url, connect_args=connect_args, pool_pre_ping=True)
+    # hide_parameters keeps values (emails, resume text) out of error messages and logs.
+    engine = create_engine(
+        database_url, connect_args=connect_args, pool_pre_ping=True, hide_parameters=True
+    )
 
     if url.get_backend_name() == "sqlite":
 
@@ -171,11 +214,6 @@ def make_engine(database_url: str) -> Engine:
             cursor.close()
 
     return engine
-
-
-def init_db(engine: Engine) -> None:
-    # Creates missing tables only. v1.0 replaces this with Alembic migrations.
-    Base.metadata.create_all(engine)
 
 
 class Database:

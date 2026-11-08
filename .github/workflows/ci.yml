@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  # The release workflow runs this first and publishes images only when it passes.
+  workflow_call:
 
 permissions:
   contents: read
@@ -34,6 +36,7 @@ jobs:
       - name: Type check
         run: mypy app evals
 
+      # SQLite. The postgres job below runs the database tests against Postgres.
       - name: Test
         run: pytest --cov=app --cov-report=term-missing --cov-fail-under=90
 
@@ -42,30 +45,159 @@ jobs:
       - name: Evaluation
         run: python -m evals.run --check
 
-  docker:
+  postgres:
     runs-on: ubuntu-latest
-    needs: test
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: matcher
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: matcher_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U matcher -d matcher_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      # The tests drop every table in this database before each test, so its name
+      # must contain "test" (tests/support.py checks).
+      TEST_DATABASE_URL: postgresql+psycopg://matcher:ci-only-password@localhost:5432/matcher_test
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build image
-        run: docker build -t resume-evidence-matcher:ci .
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.lock
 
-      - name: Smoke test
+      - name: Install dependencies
         run: |
-          docker run -d --name app -p 8000:8000 resume-evidence-matcher:ci
+          pip install --require-hashes -r requirements-dev.lock
+          pip install --no-deps -e .
+
+      - name: alembic upgrade head on an empty Postgres
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+        run: |
+          alembic upgrade head
+          python -m app.storage.migrations
+
+      # Every test that uses a database: the API, accounts, ownership, migrations
+      # (including the check that the migrated schema matches the models), rate
+      # limits, scanning, storage and the screen's helpers.
+      - name: API and storage tests on Postgres
+        run: pytest tests/integration tests/unit/test_ui.py
+
+  ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.lock
+
+      # Streamlit isn't in the lock files (the ui extra is left out of them).
+      - name: Install dependencies
+        run: |
+          pip install --require-hashes -r requirements-dev.lock
+          pip install --no-deps -e .
+          pip install "streamlit>=1.40"
+
+      - name: Screen tests (login, register, logout, deleting the account)
+        run: pytest tests/unit/test_ui.py
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: matcher
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: matcher
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U matcher -d matcher"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build images
+        run: |
+          docker build -t resume-evidence-matcher-api:ci .
+          docker build -t resume-evidence-matcher-ui:ci ui
+
+      - name: Production refuses unsafe settings
+        run: |
+          # The image's default database is SQLite, and nothing scans uploads.
+          if docker run --rm -e APP_ENV=production resume-evidence-matcher-api:ci > /tmp/refused.log 2>&1; then
+            echo "APP_ENV=production with SQLite started, and it must not"
+            cat /tmp/refused.log
+            exit 1
+          fi
+          grep -q "refuses to start" /tmp/refused.log
+          grep -q "SQLite" /tmp/refused.log
+
+      # The image on Postgres, started the way production starts it: the entrypoint
+      # migrates (RUN_MIGRATIONS), and the app only checks (DB_AUTO_MIGRATE=false).
+      - name: Start the API on Postgres
+        run: |
+          docker run -d --name app --network host \
+            -e DATABASE_URL=postgresql+psycopg://matcher:ci-only-password@localhost:5432/matcher \
+            -e RUN_MIGRATIONS=true \
+            -e DB_AUTO_MIGRATE=false \
+            resume-evidence-matcher-api:ci
           for i in $(seq 1 30); do
             if curl -fsS http://localhost:8000/healthz; then break; fi
             sleep 1
           done
           curl -fsS http://localhost:8000/readyz
-          curl -fsS -X POST http://localhost:8000/api/v1/analyses \
+
+      - name: Smoke test
+        run: |
+          api=http://localhost:8000
+          account='{"email": "ci@example.com", "password": "a long ci-only password"}'
+          headers=$(curl -fsS -D - -o /dev/null "$api/healthz")
+          echo "$headers" | grep -qi "^x-frame-options: DENY"
+          echo "$headers" | grep -qi "^x-content-type-options: nosniff"
+
+          # Nothing works without a session.
+          status=$(curl -s -o /dev/null -w "%{http_code}" "$api/api/v1/analyses")
+          [ "$status" = 401 ]
+
+          curl -fsS -X POST "$api/api/v1/auth/register" -H "Content-Type: application/json" -d "$account"
+          token=$(curl -fsS -X POST "$api/api/v1/auth/login" -H "Content-Type: application/json" -d "$account" \
+            | python3 -c "import json, sys; print(json.load(sys.stdin)['token'])")
+          auth="Authorization: Bearer $token"
+
+          curl -fsS -X POST "$api/api/v1/analyses" -H "$auth" \
             -F resume=@samples/generated/jordan_example_data_engineer.pdf \
             -F job_description="<samples/jobs/data_engineer.txt" \
             -o /tmp/analysis.json
-          # v0.2: the "5+ years" requirement is now checked against the role dates.
+          # v0.2: the "5+ years" requirement is checked against the role dates.
           # The default image has no ML packages, so matching stays exact.
           python3 -c "import json; r = json.load(open('/tmp/analysis.json'))['report']; assert r['coverage']['required']['direct'] == 5, r['coverage']; assert r['matching_mode'] == 'exact', r['pipeline_version']; assert r['profile']['total_years'] >= 7.5, r['profile']"
+          id=$(python3 -c "import json; print(json.load(open('/tmp/analysis.json'))['id'])")
+          curl -fsS -H "$auth" "$api/api/v1/analyses/$id" -o /dev/null
+
+          # Deleting the account deletes the analysis and ends the session.
+          curl -fsS -X DELETE -H "$auth" "$api/api/v1/auth/me"
+          status=$(curl -s -o /dev/null -w "%{http_code}" -H "$auth" "$api/api/v1/analyses/$id")
+          [ "$status" = 401 ]
+          status=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$api/api/v1/auth/login" \
+            -H "Content-Type: application/json" -d "$account")
+          [ "$status" = 401 ]
 
       - name: Check compose file
         run: docker compose config --quiet

@@ -1,0 +1,116 @@
+name: Deploy to Azure
+
+# Run by hand (Actions, "Deploy to Azure", "Run workflow") after the release
+# workflow has pushed the images for a tag. It runs the database migrations with
+# the new API image, then moves the API and the screen to it. The resources must
+# exist already: create them once with infra/azure/main.bicep.
+#
+# Signs in to Azure with OpenID Connect, so no Azure password is stored in GitHub.
+# Set up once (docs/deploy-azure.md has the commands):
+#   secrets    AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID
+#   variables  AZURE_RESOURCE_GROUP, AZURE_NAME_PREFIX (the template's namePrefix)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to deploy, such as v1.0.0"
+        required: true
+        type: string
+      ml:
+        description: "Use the API image with matching by meaning (the -ml tag)"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-azure
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Add required reviewers to this environment in the repository settings to make
+    # every deploy wait for an approval.
+    environment: production
+    env:
+      TAG: ${{ inputs.tag }}
+      ML: ${{ inputs.ml }}
+      RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      PREFIX: ${{ vars.AZURE_NAME_PREFIX }}
+    steps:
+      - name: Check the inputs
+        run: |
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$'; then
+            echo "\"$TAG\" isn't a release tag such as v1.0.0."
+            exit 1
+          fi
+          if [ -z "$RESOURCE_GROUP" ] || [ -z "$PREFIX" ]; then
+            echo "Set the repository variables AZURE_RESOURCE_GROUP and AZURE_NAME_PREFIX."
+            exit 1
+          fi
+          owner=$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
+          suffix=""
+          if [ "$ML" = "true" ]; then suffix="-ml"; fi
+          echo "API_IMAGE=ghcr.io/$owner/resume-evidence-matcher-api:$TAG$suffix" >> "$GITHUB_ENV"
+          echo "UI_IMAGE=ghcr.io/$owner/resume-evidence-matcher-ui:$TAG" >> "$GITHUB_ENV"
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Run the migrations with the new image
+        run: |
+          job="$PREFIX-migrate"
+          az containerapp job update -n "$job" -g "$RESOURCE_GROUP" \
+            --container-name migrate --image "$API_IMAGE" --output none
+          execution=$(az containerapp job start -n "$job" -g "$RESOURCE_GROUP" --query name -o tsv)
+          echo "Started $execution"
+          status=""
+          for i in $(seq 1 60); do
+            status=$(az containerapp job execution show -n "$job" -g "$RESOURCE_GROUP" \
+              --job-execution-name "$execution" --query properties.status -o tsv)
+            echo "Migration job: $status"
+            case "$status" in
+              Succeeded) break ;;
+              Failed | Stopped | Degraded) break ;;
+            esac
+            sleep 10
+          done
+          if [ "$status" != "Succeeded" ]; then
+            az containerapp job logs show -n "$job" -g "$RESOURCE_GROUP" \
+              --container migrate --execution "$execution" --format text --tail 100 || true
+            exit 1
+          fi
+
+      - name: Move the API to the new image
+        run: |
+          az containerapp update -n "$PREFIX-api" -g "$RESOURCE_GROUP" \
+            --container-name api --image "$API_IMAGE" --output none
+
+      - name: Move the screen to the new image
+        run: |
+          az containerapp update -n "$PREFIX-ui" -g "$RESOURCE_GROUP" \
+            --container-name ui --image "$UI_IMAGE" --output none
+
+      - name: Wait until the API is ready
+        run: |
+          fqdn=$(az containerapp show -n "$PREFIX-api" -g "$RESOURCE_GROUP" \
+            --query properties.configuration.ingress.fqdn -o tsv)
+          for i in $(seq 1 60); do
+            if curl -fsS "https://$fqdn/readyz"; then
+              echo
+              curl -fsS "https://$fqdn/openapi.json" | python3 -c "import json, sys; print('API version', json.load(sys.stdin)['info']['version'])"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "The API didn't become ready in 10 minutes."
+          az containerapp logs show -n "$PREFIX-api" -g "$RESOURCE_GROUP" --container api --tail 100 || true
+          exit 1

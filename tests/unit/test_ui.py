@@ -1,15 +1,23 @@
 """The Streamlit screen's helpers, run against the real API. Streamlit itself is
-optional: the screen test skips when it isn't installed."""
+optional: the screen tests skip when it isn't installed. They drive the screen
+against the API running on a local port, because the screen calls it over HTTP."""
 
 import importlib.util
+import socket
+import threading
+import time
+from collections.abc import Iterator
 from pathlib import Path
 from types import ModuleType
+from typing import Any
 
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
 from tests.builders import build_docx, build_pdf
 from tests.fakes import FakeLLMClient
+from tests.support import EMAIL, PASSWORD, authenticate, bearer, make_settings, register
 
 UI_APP = Path(__file__).resolve().parents[2] / "ui" / "app.py"
 
@@ -83,21 +91,15 @@ def test_screen_renders_without_errors() -> None:
 
 
 def test_edit_helpers_against_the_api(
-    ui: ModuleType, tmp_path: Path, data_engineer_markup: str, data_engineer_jd: str
+    ui: ModuleType, database_url: str, data_engineer_markup: str, data_engineer_jd: str
 ) -> None:
-    from app.config import Settings
     from app.main import create_app
     from tests.integration.test_edits_api import rewrite_handler
 
-    settings = Settings(
-        _env_file=None,  # type: ignore[call-arg]
-        database_url=f"sqlite:///{tmp_path / 'ui.db'}",
-        log_level="WARNING",
-        semantic_matching="off",
-        llm_enabled="on",
-    )
+    settings = make_settings(database_url, llm_enabled="on")
     fake = FakeLLMClient(handler=rewrite_handler)
     with TestClient(create_app(settings, llm_client=fake)) as client:
+        authenticate(client)
         analysis = ui.create_analysis(
             client, "resume.pdf", build_pdf(data_engineer_markup), data_engineer_jd
         )
@@ -152,3 +154,194 @@ def test_suggestions_off_message(
     with pytest.raises(ui.ApiError, match="need Claude") as error:
         ui.request_suggestions(client, analysis["id"])
     assert error.value.code == "llm_disabled"
+
+
+# ---------------------------------------------------------------------------
+# Accounts
+# ---------------------------------------------------------------------------
+
+
+def test_account_helpers_against_the_api(ui: ModuleType, anon_client: TestClient) -> None:
+    assert ui.current_user(anon_client) is None
+    message = ui.register(anon_client, EMAIL, PASSWORD)
+    assert "Log in" in message
+    with pytest.raises(ui.ApiError, match="at least 12") as error:
+        ui.register(anon_client, "other@example.com", "short")
+    assert error.value.code == "weak_password"
+    with pytest.raises(ui.ApiError, match="email or password is wrong"):
+        ui.login(anon_client, EMAIL, "not the password")
+
+    result = ui.login(anon_client, EMAIL, PASSWORD)
+    anon_client.headers.update(bearer(result["token"]))
+    assert ui.current_user(anon_client)["email"] == EMAIL
+    ui.logout(anon_client)
+    assert ui.current_user(anon_client) is None
+
+    anon_client.headers.update(bearer(ui.login(anon_client, EMAIL, PASSWORD)["token"]))
+    ui.delete_account(anon_client)
+    assert ui.current_user(anon_client) is None
+    with pytest.raises(ui.ApiError, match="email or password is wrong"):
+        ui.login(anon_client, EMAIL, PASSWORD)
+
+
+def test_api_client_headers(ui: ModuleType) -> None:
+    with ui.api_client("tok", "203.0.113.7") as client:
+        assert client.headers["Authorization"] == "Bearer tok"
+        assert client.headers["X-Forwarded-For"] == "203.0.113.7"
+    with ui.api_client() as client:
+        assert "Authorization" not in client.headers and "X-Forwarded-For" not in client.headers
+
+
+@pytest.mark.parametrize(
+    ("incoming", "peer", "expected"),
+    [
+        (None, None, None),
+        (None, "10.0.0.4", "10.0.0.4"),
+        ("203.0.113.7", "10.0.0.4", "203.0.113.7, 10.0.0.4"),
+        (" 1.1.1.1 ,, 203.0.113.7 ", None, "1.1.1.1, 203.0.113.7"),
+    ],
+)
+def test_forwarded_for(
+    ui: ModuleType, incoming: str | None, peer: str | None, expected: Any
+) -> None:
+    assert ui.forwarded_for(incoming, peer) == expected
+
+
+def test_forwarded_for_is_bounded(ui: ModuleType) -> None:
+    value = ui.forwarded_for(", ".join(["198.51.100.1"] * 500), "10.0.0.4")
+    assert len(value) <= 2000 and value.endswith("10.0.0.4") and not value.startswith(",")
+
+
+def test_export_key_follows_the_changes(ui: ModuleType) -> None:
+    change = {"kind": "correction", "before": "a", "after": "b"}
+    assert ui.export_key("x", []) != ui.export_key("x", [change])
+    assert ui.export_key("x", [change]) == ui.export_key("x", [dict(change)])
+
+
+# ---------------------------------------------------------------------------
+# The screen, against the API on a local port
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def live_api(database_url: str, monkeypatch: pytest.MonkeyPatch) -> Iterator[str]:
+    """The API served by uvicorn on a free local port, with API_URL pointing at it."""
+    pytest.importorskip("streamlit")
+    import uvicorn
+
+    from app.main import create_app
+
+    def serve(**values: Any) -> str:
+        app = create_app(make_settings(database_url, **values))
+        sock = socket.socket()
+        sock.bind(("127.0.0.1", 0))
+        config = uvicorn.Config(app, log_config=None, ws="none", loop="asyncio", http="h11")
+        server = uvicorn.Server(config)
+        thread = threading.Thread(target=server.run, kwargs={"sockets": [sock]}, daemon=True)
+        thread.start()
+        deadline = time.monotonic() + 20
+        while not server.started:
+            assert thread.is_alive() and time.monotonic() < deadline, "the API didn't start"
+            time.sleep(0.02)
+        servers.append((server, thread, sock))
+        url = f"http://127.0.0.1:{sock.getsockname()[1]}"
+        monkeypatch.setenv("API_URL", url)
+        return url
+
+    servers: list[tuple[Any, threading.Thread, socket.socket]] = []
+    yield serve  # type: ignore[misc]
+    for server, thread, sock in servers:
+        server.should_exit = True
+        thread.join(timeout=10)
+        sock.close()
+
+
+def _screen() -> Any:
+    from streamlit.testing.v1 import AppTest
+
+    return AppTest.from_file(str(UI_APP), default_timeout=30).run()
+
+
+def _button(screen: Any, label: str) -> Any:
+    return next(b for b in screen.button if b.label == label)
+
+
+def _texts(screen: Any) -> str:
+    parts = [
+        e.value for kind in ("error", "info", "warning", "success") for e in getattr(screen, kind)
+    ]
+    parts += [m.value for m in screen.markdown]
+    return " ".join(str(p) for p in parts)
+
+
+def test_screen_register_logout_and_delete_account(live_api: Any) -> None:
+    url = live_api()
+    screen = _screen()
+    assert not screen.exception
+    assert [t.label for t in screen.tabs] == ["Log in", "Create account"]
+    assert not any(b.label == "Check my resume" for b in screen.button)
+
+    screen.text_input(key="register-email").input(EMAIL)
+    screen.text_input(key="register-password").input(PASSWORD)
+    screen.text_input(key="register-again").input(PASSWORD + "x")
+    _button(screen, "Create account").click().run()
+    assert "The two passwords differ." in _texts(screen)
+
+    screen.text_input(key="register-again").input(PASSWORD)
+    _button(screen, "Create account").click().run()
+    assert not screen.exception
+    assert screen.session_state["token"] and screen.session_state["user"]["email"] == EMAIL
+    assert any(b.label == "Check my resume" for b in screen.button)
+    assert f"Logged in as {EMAIL}" in _texts(screen)
+
+    screen.button(key="logout").click().run()
+    assert "token" not in screen.session_state
+    assert "Logged out." in _texts(screen)
+
+    screen.text_input(key="login-email").input(EMAIL)
+    screen.text_input(key="login-password").input("wrong password!")
+    _button(screen, "Log in").click().run()
+    assert "The email or password is wrong." in _texts(screen)
+    screen.text_input(key="login-password").input(PASSWORD)
+    _button(screen, "Log in").click().run()
+    assert screen.session_state["user"]["email"] == EMAIL
+
+    screen.button(key="delete-account").click().run()
+    assert "can't be undone" in _texts(screen)
+    screen.button(key="delete-cancel").click().run()
+    assert "confirm_delete" not in screen.session_state
+    screen.button(key="delete-account").click().run()
+    screen.button(key="delete-confirm").click().run()
+    assert not screen.exception
+    assert "token" not in screen.session_state
+    assert "Your account and all of its data were deleted." in _texts(screen)
+    with httpx.Client(base_url=url) as client:
+        response = client.post("/api/v1/auth/login", json={"email": EMAIL, "password": PASSWORD})
+    assert response.status_code == 401
+
+
+def test_screen_forgets_an_ended_session(live_api: Any) -> None:
+    url = live_api()
+    screen = _screen()
+    with httpx.Client(base_url=url) as client:
+        register(client)
+    screen.text_input(key="login-email").input(EMAIL)
+    screen.text_input(key="login-password").input(PASSWORD)
+    _button(screen, "Log in").click().run()
+    token = screen.session_state["token"]
+    with httpx.Client(base_url=url) as client:
+        client.post("/api/v1/auth/logout", headers=bearer(token))
+    # The next action finds the token refused and goes back to the login screen.
+    _button(screen, "Delete my account and data").click().run()
+    _button(screen, "Yes, delete everything").click().run()
+    assert "token" not in screen.session_state
+    assert "Your session ended. Log in again." in _texts(screen)
+
+
+def test_screen_without_accounts(live_api: Any) -> None:
+    live_api(auth_mode="disabled")
+    screen = _screen()
+    assert not screen.exception
+    assert not screen.tabs
+    assert any(b.label == "Check my resume" for b in screen.button)
+    assert "Accounts are off on this server" in " ".join(c.value for c in screen.caption)

@@ -3,6 +3,7 @@ versioned prompts. Nothing here runs unless a key is configured."""
 
 import logging
 
+from app.errors import StartupError
 from app.llm.client import (
     LLMClient,
     LLMError,
@@ -35,7 +36,7 @@ def start_llm(enabled: str, api_key: str | None, *, timeout_seconds: float) -> L
         return None
     if not api_key:
         if enabled == "on":
-            raise RuntimeError(
+            raise StartupError(
                 "LLM_ENABLED=on needs ANTHROPIC_API_KEY. Set it in the environment or a "
                 "local .env file, or set LLM_ENABLED=off."
             )

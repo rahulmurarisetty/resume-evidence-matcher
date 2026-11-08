@@ -244,7 +244,7 @@ def test_off_mode_leaves_related_evidence_empty(
 ) -> None:
     _, report = analyze(build_pdf(data_engineer_markup), data_engineer_jd, today=TODAY)
     assert report.matching_mode is MatchingMode.EXACT
-    assert report.pipeline_version == "0.5.0-exact"
+    assert report.pipeline_version == "1.0.0-exact"
     assert SEMANTIC_OFF_WARNING in report.warnings
     assert all(m.related_evidence == [] for m in report.matches)
     assert all(m.status is not MatchStatus.ADJACENT for m in report.matches)
@@ -271,7 +271,7 @@ def test_sample_with_fakes(data_engineer_markup: str, data_engineer_jd: str) -> 
         today=TODAY,
     )
     assert report.matching_mode is MatchingMode.SEMANTIC
-    assert report.pipeline_version == "0.5.0-semantic"
+    assert report.pipeline_version == "1.0.0-semantic"
     assert SEMANTIC_OFF_WARNING not in report.warnings
     statuses = {m.requirement.text: m.status for m in report.matches}
     assert statuses["Mentor two junior engineers and review their code"] is MatchStatus.ADJACENT

@@ -2,7 +2,7 @@ import uuid
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import Select, delete, func, select
 from sqlalchemy.orm import Session
 
 from app.models import AnalysisReport, FileType, ResumeDocument, SuggestionStatus
@@ -37,6 +37,7 @@ class AnalysisRepository:
     def create(
         self,
         report: AnalysisReport,
+        owner_id: str,
         file_type: FileType,
         file_sha256: str,
         retention: timedelta,
@@ -45,6 +46,7 @@ class AnalysisRepository:
         now = utcnow()
         record = AnalysisRecord(
             id=uuid.uuid4().hex,
+            owner_id=owner_id,
             created_at=now,
             expires_at=now + retention,
             pipeline_version=report.pipeline_version,
@@ -61,33 +63,57 @@ class AnalysisRepository:
         self.session.commit()
         return record
 
-    def get(self, analysis_id: str) -> AnalysisRecord | None:
+    def get(self, analysis_id: str, owner_id: str) -> AnalysisRecord | None:
+        """The analysis, or None when it doesn't exist, has expired or belongs to
+        someone else. Callers answer all three the same way (404)."""
         record = self.session.get(AnalysisRecord, analysis_id)
-        if record is None or _aware(record.expires_at) <= utcnow():
+        if record is None or record.owner_id != owner_id:
+            return None
+        if _aware(record.expires_at) <= utcnow():
             return None
         record.created_at = _aware(record.created_at)
         record.expires_at = _aware(record.expires_at)
         return record
 
-    def delete(self, analysis_id: str) -> bool:
-        """Delete an analysis and everything stored with it."""
-        for table in CHILD_TABLES:
-            self.session.execute(delete(table).where(analysis_column(table) == analysis_id))
-        result = self.session.execute(
-            delete(AnalysisRecord).where(AnalysisRecord.id == analysis_id)
+    def list_for_owner(self, owner_id: str) -> list[AnalysisRecord]:
+        """The owner's analyses that haven't expired, newest first."""
+        rows = self.session.scalars(
+            select(AnalysisRecord)
+            .where(AnalysisRecord.owner_id == owner_id, AnalysisRecord.expires_at > utcnow())
+            .order_by(AnalysisRecord.created_at.desc())
         )
-        self.session.commit()
-        return bool(result.rowcount)  # type: ignore[attr-defined]
+        records = list(rows)
+        for record in records:
+            record.created_at = _aware(record.created_at)
+            record.expires_at = _aware(record.expires_at)
+        return records
+
+    def delete(self, analysis_id: str, owner_id: str) -> bool:
+        """Delete an analysis and everything stored with it, if `owner_id` owns it."""
+        owned = select(AnalysisRecord.id).where(
+            AnalysisRecord.id == analysis_id, AnalysisRecord.owner_id == owner_id
+        )
+        return self._delete_where(owned) > 0
+
+    def delete_all_for_owner(self, owner_id: str, *, commit: bool = True) -> int:
+        """Delete every analysis the owner has, with everything stored with them.
+        With commit=False the caller commits, so this can be part of a larger delete."""
+        owned = select(AnalysisRecord.id).where(AnalysisRecord.owner_id == owner_id)
+        return self._delete_where(owned, commit=commit)
+
+    def _delete_where(self, ids: Select[str], *, commit: bool = True) -> int:
+        # Child rows first, so the delete holds on databases that check foreign keys.
+        for table in CHILD_TABLES:
+            self.session.execute(delete(table).where(analysis_column(table).in_(ids)))
+        result = self.session.execute(delete(AnalysisRecord).where(AnalysisRecord.id.in_(ids)))
+        if commit:
+            self.session.commit()
+        return int(result.rowcount)  # type: ignore[attr-defined]
 
     def purge_expired(self) -> int:
-        expired = select(AnalysisRecord.id).where(AnalysisRecord.expires_at <= utcnow())
-        for table in CHILD_TABLES:
-            self.session.execute(delete(table).where(analysis_column(table).in_(expired)))
-        result = self.session.execute(
-            delete(AnalysisRecord).where(AnalysisRecord.expires_at <= utcnow())
+        return self._delete_where(
+            select(AnalysisRecord.id).where(AnalysisRecord.expires_at <= utcnow())
         )
-        self.session.commit()
-        return int(result.rowcount)  # type: ignore[attr-defined]
 
     def ping(self) -> None:
         self.session.execute(select(1))

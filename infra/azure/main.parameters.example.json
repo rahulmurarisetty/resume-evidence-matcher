@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "namePrefix": {
+      "value": "rem"
+    },
+    "apiImage": {
+      "value": "ghcr.io/YOUR-GITHUB-USER/resume-evidence-matcher-api:v1.0.0"
+    },
+    "uiImage": {
+      "value": "ghcr.io/YOUR-GITHUB-USER/resume-evidence-matcher-ui:v1.0.0"
+    },
+    "postgresAdminLogin": {
+      "value": "matcher"
+    },
+    "postgresSkuName": {
+      "value": "Standard_B1ms"
+    },
+    "postgresTier": {
+      "value": "Burstable"
+    },
+    "apiCpu": {
+      "value": "0.5"
+    },
+    "apiMemory": {
+      "value": "1Gi"
+    },
+    "clamavCpu": {
+      "value": "1.5"
+    },
+    "clamavMemory": {
+      "value": "3Gi"
+    }
+  }
+}

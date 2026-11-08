@@ -6,7 +6,6 @@ import io
 import logging
 from collections.abc import Callable, Iterator
 from datetime import timedelta
-from pathlib import Path
 from typing import Any
 
 import pytest
@@ -23,6 +22,7 @@ from app.storage.db import Database
 from app.storage.repository import AnalysisRepository
 from tests.builders import build_pdf
 from tests.fakes import FakeLLMClient, LLMCall
+from tests.support import authenticate, make_settings
 
 PDF = "application/pdf"
 BASE = "/api/v1/analyses"
@@ -54,14 +54,8 @@ def rewrite_handler(call: LLMCall) -> object:
     return RewriteOutput(rewrites=[faithful, invented])
 
 
-def _settings(tmp_path: Path, **values: Any) -> Settings:
-    base: dict[str, Any] = {
-        "database_url": f"sqlite:///{tmp_path / 'edits.db'}",
-        "log_level": "WARNING",
-        "semantic_matching": "off",
-        "llm_enabled": "on",
-    }
-    return Settings(_env_file=None, **(base | values))  # type: ignore[call-arg]
+def _settings(database_url: str, **values: Any) -> Settings:
+    return make_settings(database_url, **({"llm_enabled": "on", "max_upload_mb": 5} | values))
 
 
 @pytest.fixture
@@ -70,8 +64,9 @@ def fake() -> FakeLLMClient:
 
 
 @pytest.fixture
-def llm_client(tmp_path: Path, fake: FakeLLMClient) -> Iterator[TestClient]:
-    with TestClient(create_app(_settings(tmp_path), llm_client=fake)) as test_client:
+def llm_client(database_url: str, fake: FakeLLMClient) -> Iterator[TestClient]:
+    with TestClient(create_app(_settings(database_url), llm_client=fake)) as test_client:
+        authenticate(test_client)
         yield test_client
 
 
@@ -228,10 +223,11 @@ def test_all_eligible_requirements(
 
 
 def test_the_cap_is_respected(
-    tmp_path: Path, fake: FakeLLMClient, data_engineer_markup: str, data_engineer_jd: str
+    database_url: str, fake: FakeLLMClient, data_engineer_markup: str, data_engineer_jd: str
 ) -> None:
-    app = create_app(_settings(tmp_path, llm_max_suggestions=3), llm_client=fake)
+    app = create_app(_settings(database_url, llm_max_suggestions=3), llm_client=fake)
     with TestClient(app) as client:
+        authenticate(client)
         analysis_id = _create(client, data_engineer_markup, data_engineer_jd)["id"]
         batch = _suggest(client, analysis_id).json()
         # Two candidates for the first requirement, one for the second, then the cap.
@@ -257,8 +253,8 @@ def test_409_when_claude_is_off(
     assert client.get(f"{BASE}/{analysis_id}/gap-questions").status_code == 200
 
 
-def test_off_ignores_an_injected_client(tmp_path: Path, fake: FakeLLMClient) -> None:
-    app = create_app(_settings(tmp_path, llm_enabled="off"), llm_client=fake)
+def test_off_ignores_an_injected_client(database_url: str, fake: FakeLLMClient) -> None:
+    app = create_app(_settings(database_url, llm_enabled="off"), llm_client=fake)
     with TestClient(app):
         assert app.state.llm is None
 
@@ -379,10 +375,11 @@ def _fill(client: TestClient, analysis_id: str) -> None:
 
 
 def test_delete_removes_everything(
-    tmp_path: Path, fake: FakeLLMClient, data_engineer_markup: str, data_engineer_jd: str
+    database_url: str, fake: FakeLLMClient, data_engineer_markup: str, data_engineer_jd: str
 ) -> None:
-    settings = _settings(tmp_path)
+    settings = _settings(database_url)
     with TestClient(create_app(settings, llm_client=fake)) as client:
+        authenticate(client)
         analysis_id = _create(client, data_engineer_markup, data_engineer_jd)["id"]
         _fill(client, analysis_id)
         # analysis, resume lines, 1 suggestion, 1 run, 1 correction, 1 answer
@@ -393,17 +390,19 @@ def test_delete_removes_everything(
 
 
 def test_expiry_removes_everything(
-    tmp_path: Path, fake: FakeLLMClient, data_engineer_markup: str, data_engineer_jd: str
+    database_url: str, fake: FakeLLMClient, data_engineer_markup: str, data_engineer_jd: str
 ) -> None:
-    settings = _settings(tmp_path)
+    settings = _settings(database_url)
     with TestClient(create_app(settings, llm_client=fake)) as client:
+        authenticate(client)
+        owner = client.get("/api/v1/auth/me").json()["id"]
         analysis_id = _create(client, data_engineer_markup, data_engineer_jd)["id"]
         _fill(client, analysis_id)
     db = Database(settings.database_url)
     try:
         for session in db.session():
             repo = AnalysisRepository(session)
-            record = repo.get(analysis_id)
+            record = repo.get(analysis_id, owner)
             assert record is not None
             record.expires_at = record.expires_at - timedelta(days=2)
             session.commit()
@@ -414,24 +413,28 @@ def test_expiry_removes_everything(
 
 
 def test_logs_hold_no_resume_text(
-    tmp_path: Path,
+    database_url: str,
     fake: FakeLLMClient,
     data_engineer_markup: str,
     data_engineer_jd: str,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    app = create_app(_settings(tmp_path, log_level="INFO"), llm_client=fake)
+    app = create_app(_settings(database_url, log_level="INFO"), llm_client=fake)
     logging.getLogger().addHandler(caplog.handler)
     caplog.handler.setLevel(logging.INFO)
     with TestClient(app) as client:
+        token = authenticate(client)
         analysis_id = _create(client, data_engineer_markup, data_engineer_jd)["id"]
         _fill(client, analysis_id)
         client.get(f"{BASE}/{analysis_id}/export.docx")
     messages = [r.getMessage() for r in caplog.records]
     assert "suggestions created" in messages and "export built" in messages
     text = " ".join(f"{r.getMessage()} {r.__dict__}" for r in caplog.records)
-    for secret in ("Jordan", "PySpark jobs", "data-quality", "Fixed summary line", "Northwind"):
+    secrets = ("Jordan", "PySpark jobs", "data-quality", "Fixed summary line", "Northwind")
+    # v1.0: nor the email, the password or the session token.
+    for secret in (*secrets, "person@example.com", "correct horse", token):
         assert secret not in text
+    assert any(getattr(r, "user_id", None) for r in caplog.records)
 
 
 def test_stored_v0_2_reports_still_load() -> None:

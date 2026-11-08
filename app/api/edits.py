@@ -1,7 +1,8 @@
 """Suggestions, corrections, gap answers and export for a stored analysis.
 
 Everything here is stored with the analysis, expires with it after
-RETENTION_HOURS and is deleted with it.
+RETENTION_HOURS and is deleted with it. Every endpoint needs a session and finds
+only the logged-in person's analyses; anyone else's id is answered with 404.
 """
 
 import logging
@@ -12,7 +13,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Body, Request, Response
 
-from app.api.deps import SessionDep, SettingsDep
+from app.api.deps import SessionDep, SettingsDep, UserDep, enforce_limit
 from app.api.errors import ApiError
 from app.api.schemas import (
     ChangeOut,
@@ -46,7 +47,7 @@ logger = logging.getLogger("app.api")
 router = APIRouter(prefix="/api/v1/analyses/{analysis_id}", tags=["edits"])
 
 _ERRORS: dict[int | str, dict[str, object]] = {
-    code: {"model": ErrorResponse} for code in (404, 409, 422, 503)
+    code: {"model": ErrorResponse} for code in (401, 404, 409, 422, 429, 503)
 }
 _CHANGE_LABELS = {ChangeKind.CORRECTION: "User correction", ChangeKind.REWRITE: "Accepted rewrite"}
 
@@ -56,8 +57,8 @@ _CHANGE_LABELS = {ChangeKind.CORRECTION: "User correction", ChangeKind.REWRITE: 
 # ---------------------------------------------------------------------------
 
 
-def _report(repo: AnalysisRepository, analysis_id: str) -> AnalysisReport:
-    record = repo.get(analysis_id)
+def _report(repo: AnalysisRepository, analysis_id: str, owner_id: str) -> AnalysisReport:
+    record = repo.get(analysis_id, owner_id)
     if record is None:
         raise ApiError(404, "not_found", "No analysis with that id, or it has expired.")
     return AnalysisReport.model_validate_json(record.report_json)
@@ -133,10 +134,10 @@ def _accepted(repo: AnalysisRepository, analysis_id: str) -> dict[str, Suggestio
 
 @router.get("/suggestions", response_model=SuggestionListResponse, responses=_ERRORS)
 def list_suggestions(
-    analysis_id: str, session: SessionDep, settings: SettingsDep
+    analysis_id: str, user: UserDep, session: SessionDep, settings: SettingsDep
 ) -> SuggestionListResponse:
     repo = AnalysisRepository(session)
-    _report(repo, analysis_id)
+    _report(repo, analysis_id, user.id)
     return SuggestionListResponse(
         suggestions=[_suggestion_out(s) for s in repo.suggestions(analysis_id)],
         usage=_usage(repo, analysis_id, settings),
@@ -152,12 +153,15 @@ def list_suggestions(
 def create_suggestions(
     analysis_id: str,
     request: Request,
+    user: UserDep,
     session: SessionDep,
     settings: SettingsDep,
     body: Annotated[SuggestionsRequest | None, Body()] = None,
 ) -> SuggestionBatchResponse:
     repo = AnalysisRepository(session)
-    report = _report(repo, analysis_id)
+    report = _report(repo, analysis_id, user.id)
+    # Each request can call Claude several times, so it has its own limit.
+    enforce_limit(request, "suggestions", user_id=user.id)
     llm: LLMClient | None = request.app.state.llm
     if llm is None:
         raise ApiError(
@@ -250,6 +254,7 @@ def create_suggestions(
         "suggestions created",
         extra={
             "analysis_id": analysis_id,
+            "user_id": user.id,
             "calls": run.calls,
             "generated": run.returned,
             "rejected": run.rejected,
@@ -269,9 +274,9 @@ def create_suggestions(
 
 
 def _load_suggestion(
-    repo: AnalysisRepository, analysis_id: str, suggestion_id: str
+    repo: AnalysisRepository, analysis_id: str, suggestion_id: str, owner_id: str
 ) -> SuggestionRecord:
-    _report(repo, analysis_id)
+    _report(repo, analysis_id, owner_id)
     record = repo.get_suggestion(analysis_id, suggestion_id)
     if record is None:
         raise ApiError(404, "suggestion_not_found", "No suggestion with that id.")
@@ -279,9 +284,11 @@ def _load_suggestion(
 
 
 @router.post("/suggestions/{suggestion_id}/accept", response_model=SuggestionOut, responses=_ERRORS)
-def accept_suggestion(analysis_id: str, suggestion_id: str, session: SessionDep) -> SuggestionOut:
+def accept_suggestion(
+    analysis_id: str, suggestion_id: str, user: UserDep, session: SessionDep
+) -> SuggestionOut:
     repo = AnalysisRepository(session)
-    record = _load_suggestion(repo, analysis_id, suggestion_id)
+    record = _load_suggestion(repo, analysis_id, suggestion_id, user.id)
     if record.status == SuggestionStatus.ACCEPTED.value:
         return _suggestion_out(record)
     other = _accepted(repo, analysis_id).get(record.span_id)
@@ -303,9 +310,11 @@ def accept_suggestion(analysis_id: str, suggestion_id: str, session: SessionDep)
 
 
 @router.post("/suggestions/{suggestion_id}/reject", response_model=SuggestionOut, responses=_ERRORS)
-def reject_suggestion(analysis_id: str, suggestion_id: str, session: SessionDep) -> SuggestionOut:
+def reject_suggestion(
+    analysis_id: str, suggestion_id: str, user: UserDep, session: SessionDep
+) -> SuggestionOut:
     repo = AnalysisRepository(session)
-    record = _load_suggestion(repo, analysis_id, suggestion_id)
+    record = _load_suggestion(repo, analysis_id, suggestion_id, user.id)
     repo.set_suggestion_status(record, SuggestionStatus.REJECTED)
     return _suggestion_out(record)
 
@@ -329,9 +338,9 @@ def _span_out(span: Span, corrected: str | None) -> SpanOut:
 
 
 @router.get("/spans", response_model=SpanListResponse, responses=_ERRORS)
-def list_spans(analysis_id: str, session: SessionDep) -> SpanListResponse:
+def list_spans(analysis_id: str, user: UserDep, session: SessionDep) -> SpanListResponse:
     repo = AnalysisRepository(session)
-    _report(repo, analysis_id)
+    _report(repo, analysis_id, user.id)
     resume = _resume(repo, analysis_id)
     corrections = repo.corrections(analysis_id)
     return SpanListResponse(
@@ -349,10 +358,14 @@ def list_spans(analysis_id: str, session: SessionDep) -> SpanListResponse:
     summary="Correct a line the app read wrongly. Sending the original text removes the fix.",
 )
 def correct_span(
-    analysis_id: str, span_id: str, body: SpanCorrectionRequest, session: SessionDep
+    analysis_id: str,
+    span_id: str,
+    body: SpanCorrectionRequest,
+    user: UserDep,
+    session: SessionDep,
 ) -> SpanOut:
     repo = AnalysisRepository(session)
-    _report(repo, analysis_id)
+    _report(repo, analysis_id, user.id)
     span = _span(_resume(repo, analysis_id), span_id)
     text = normalize(body.text)
     if not text:
@@ -389,9 +402,11 @@ def _question_out(
 
 
 @router.get("/gap-questions", response_model=GapQuestionsResponse, responses=_ERRORS)
-def list_gap_questions(analysis_id: str, session: SessionDep) -> GapQuestionsResponse:
+def list_gap_questions(
+    analysis_id: str, user: UserDep, session: SessionDep
+) -> GapQuestionsResponse:
     repo = AnalysisRepository(session)
-    report = _report(repo, analysis_id)
+    report = _report(repo, analysis_id, user.id)
     answers = repo.gap_answers(analysis_id)
     out: list[GapQuestionOut] = []
     for question in gap_questions(report):
@@ -413,10 +428,14 @@ def list_gap_questions(analysis_id: str, session: SessionDep) -> GapQuestionsRes
     summary="Answer a gap question. Answers are stored, never added to the resume.",
 )
 def put_gap_answer(
-    analysis_id: str, requirement_id: str, body: GapAnswerRequest, session: SessionDep
+    analysis_id: str,
+    requirement_id: str,
+    body: GapAnswerRequest,
+    user: UserDep,
+    session: SessionDep,
 ) -> GapQuestionOut:
     repo = AnalysisRepository(session)
-    report = _report(repo, analysis_id)
+    report = _report(repo, analysis_id, user.id)
     question = next((q for q in gap_questions(report) if q.requirement_id == requirement_id), None)
     if question is None:
         raise ApiError(404, "no_gap_question", "That requirement has no gap question.")
@@ -449,9 +468,10 @@ def _edits(
     response_class=Response,
     summary="A clean Word file with corrections and accepted rewrites applied.",
 )
-def export_docx(analysis_id: str, session: SessionDep) -> Response:
+def export_docx(analysis_id: str, request: Request, user: UserDep, session: SessionDep) -> Response:
     repo = AnalysisRepository(session)
-    report = _report(repo, analysis_id)
+    report = _report(repo, analysis_id, user.id)
+    enforce_limit(request, "exports", user_id=user.id)
     resume, corrections, rewrites = _edits(repo, analysis_id)
     data = build_docx(
         resume,
@@ -471,9 +491,9 @@ def export_docx(analysis_id: str, session: SessionDep) -> Response:
 
 
 @router.get("/export/changes", response_model=ChangesResponse, responses=_ERRORS)
-def export_changes(analysis_id: str, session: SessionDep) -> ChangesResponse:
+def export_changes(analysis_id: str, user: UserDep, session: SessionDep) -> ChangesResponse:
     repo = AnalysisRepository(session)
-    _report(repo, analysis_id)
+    _report(repo, analysis_id, user.id)
     resume, corrections, rewrites = _edits(repo, analysis_id)
     return ChangesResponse(
         changes=[

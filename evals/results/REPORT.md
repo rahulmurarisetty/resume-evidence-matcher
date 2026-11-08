@@ -9,8 +9,8 @@ Written by `python -m evals.run` from `latest.json` in this folder. Every number
 | Setting | Value |
 | --- | --- |
 | Dataset | development (`evals/data`) |
-| Pipeline version | 0.5.0-exact |
-| Git commit | 6b763ac with uncommitted changes |
+| Pipeline version | 1.0.0-exact |
+| Git commit | 02c3195 with uncommitted changes |
 | Labels as of | 2026-11-01, passed to the app as today |
 | Job parser | rules (Claude only with --llm) |
 | Matching | exact |
@@ -49,7 +49,7 @@ v0.5 was built by reading this set's failures, so its gains here are optimistic.
 - v0.4.0: The committed v0.4 code at 6b763ac, run before any v0.5 change.
 - v0.4.0 app, v0.5 PDF builder: The v0.4 app with only the tests/builders.py fix, so en dashes reach the app. This separates the builder fix from the app changes.
 
-| Metric | v0.4.0 | v0.4.0 app, v0.5 PDF builder | This run (0.5.0-exact) |
+| Metric | v0.4.0 | v0.4.0 app, v0.5 PDF builder | This run (1.0.0-exact) |
 | --- | --- | --- | --- |
 | Role precision (all formats) | 93.2% (82/88) | 93.2% (82/88) | 100.0% (105/105) |
 | Role recall (all formats) | 78.1% (82/105) | 78.1% (82/105) | 100.0% (105/105) |

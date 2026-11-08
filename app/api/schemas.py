@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 from app.models import (
     AnalysisReport,
+    CategoryCoverage,
     ChangeKind,
     MatchStatus,
     Priority,
@@ -16,6 +17,10 @@ from app.models import (
 
 MAX_CORRECTION_CHARS = 2000
 MAX_ANSWER_CHARS = 4000
+# Request field caps, above the rules in app/services/accounts.py so a value just
+# over a rule gets that rule's message.
+MAX_EMAIL_FIELD = 1000
+MAX_PASSWORD_FIELD = 1000
 
 
 class ErrorBody(BaseModel):
@@ -34,6 +39,21 @@ class AnalysisResponse(BaseModel):
     report: AnalysisReport
 
 
+class AnalysisSummary(BaseModel):
+    id: str
+    created_at: datetime
+    expires_at: datetime
+    job_title: str | None
+    pipeline_version: str
+    required: CategoryCoverage | None = Field(
+        description="Coverage of the required requirements, when the job has any"
+    )
+
+
+class AnalysisListResponse(BaseModel):
+    analyses: list[AnalysisSummary] = Field(description="Your analyses that haven't expired")
+
+
 class ExtractResponse(BaseModel):
     """The text the app read from the resume, so a user can check it before trusting
     any match."""
@@ -43,6 +63,35 @@ class ExtractResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     status: str
+
+
+# ---------------------------------------------------------------------------
+# Accounts
+# ---------------------------------------------------------------------------
+
+
+class CredentialsRequest(BaseModel):
+    # Lengths are checked in the route, so the messages can say what is wrong.
+    email: str = Field(max_length=MAX_EMAIL_FIELD)
+    password: str = Field(max_length=MAX_PASSWORD_FIELD)
+
+
+class MessageResponse(BaseModel):
+    message: str
+
+
+class UserOut(BaseModel):
+    id: str
+    email: str
+    created_at: datetime
+    auth_mode: Literal["required", "disabled"]
+
+
+class LoginResponse(BaseModel):
+    token: str = Field(description='Send as "Authorization: Bearer <token>". Shown only once.')
+    token_type: Literal["bearer"] = "bearer"
+    expires_at: datetime
+    user: UserOut
 
 
 # ---------------------------------------------------------------------------
