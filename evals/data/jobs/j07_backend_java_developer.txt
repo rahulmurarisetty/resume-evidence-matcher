@@ -1,0 +1,29 @@
+Position: Backend Java Developer
+Team: Fulfillment Platform
+Location: Chicago, IL or remote (Central time zone)
+
+The role
+Demo Freight Systems is growing the team that runs our order and shipment platform. In this role you will design and build Java microservices that process millions of shipment events a day. You will own services end to end, from design through production support. You will also work with product managers to plan and estimate work.
+
+Requirements
+- 5+ years of backend software development experience
+- 4+ years with Java
+- Strong experience with Spring Boot
+- Experience with Kafka or another message broker
+- Experience with relational databases such as PostgreSQL or Oracle
+- Experience writing automated tests with JUnit
+- Experience with Docker and deploying to AWS
+- Ability to explain technical decisions to non-technical stakeholders
+
+Bonus
+- Kubernetes experience
+- Experience with Redis or another caching layer
+- Experience in logistics or supply chain software
+- Experience mentoring other developers
+
+Benefits
+- Medical, dental and vision from day one
+- 20 days of paid vacation
+
+About Us
+Demo Freight Systems moves freight for 2,000 shippers across North America. We are an equal opportunity employer.

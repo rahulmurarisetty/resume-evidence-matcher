@@ -1,0 +1,11 @@
+Front-End Engineer (React)
+
+Sample Media Network is a digital publisher with 30 million monthly readers. Our web platform team owns the reading experience across news, video and newsletters.
+
+As a front-end engineer on the platform team, you will build and maintain the React components that render every article page. You will work closely with designers to turn Figma designs into accessible, responsive interfaces. You will also improve page performance and track Core Web Vitals for our highest-traffic pages.
+
+We are looking for someone with 4+ years of professional front-end development experience. You should have strong skills in React and TypeScript. You should be comfortable writing unit tests with Jest or a similar framework. Experience with Next.js or another server-side rendering framework is required. You should understand web accessibility standards such as WCAG. Clear written communication is essential on our distributed team.
+
+It would be great if you have worked with GraphQL. Experience building or maintaining a design system in Storybook is a plus. Familiarity with Cypress or Playwright for end-to-end testing is also a plus.
+
+The salary range for this role is $125,000 to $150,000, depending on experience. Sample Media Network is an equal opportunity employer and welcomes applicants of all backgrounds.

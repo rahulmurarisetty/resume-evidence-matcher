@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "resume-evidence-matcher"
-version = "0.3.0"
+version = "0.4.0"
 description = "Maps job-description requirements to evidence in a resume, shows gaps, and never invents experience."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -71,3 +71,9 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = ["pymupdf", "pymupdf.*", "docx", "docx.*"]
 ignore_missing_imports = true
+
+# The evaluation (evals/) renders its files with tests/builders.py. Type-check the
+# calls into it, but don't report the test helpers' own untyped library calls.
+[[tool.mypy.overrides]]
+module = ["tests", "tests.*"]
+follow_imports = "silent"

@@ -32,10 +32,15 @@ jobs:
         run: ruff format --check .
 
       - name: Type check
-        run: mypy app
+        run: mypy app evals
 
       - name: Test
         run: pytest --cov=app --cov-report=term-missing --cov-fail-under=90
+
+      # Default mode only: exact matching and the rule parser. The real models and
+      # Claude never run in CI. Fails when a metric is past evals/thresholds.json.
+      - name: Evaluation
+        run: python -m evals.run --check
 
   docker:
     runs-on: ubuntu-latest

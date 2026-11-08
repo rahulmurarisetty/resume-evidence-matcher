@@ -1,0 +1,171 @@
+{
+  "j01_senior_data_engineer": {
+    "title": "Senior Data Engineer",
+    "min_years": 5,
+    "requirements": [
+      {"text": "Design, build and maintain batch and streaming data pipelines on Databricks", "priority": "context"},
+      {"text": "Model claims, policy and billing data in Snowflake for analytics and actuarial teams", "priority": "context"},
+      {"text": "Orchestrate and monitor workflows with Airflow", "priority": "context"},
+      {"text": "Work with analysts and data scientists to define data contracts and quality checks", "priority": "context"},
+      {"text": "Mentor junior engineers and review their code", "priority": "context"},
+      {"text": "5+ years of professional software or data engineering experience", "priority": "required"},
+      {"text": "Strong Python and SQL skills", "priority": "required"},
+      {"text": "Hands-on experience with PySpark and Databricks", "priority": "required"},
+      {"text": "Experience with Snowflake or Redshift", "priority": "required"},
+      {"text": "Experience building data pipelines on AWS or Azure", "priority": "required"},
+      {"text": "Experience with dbt", "priority": "required"},
+      {"text": "Familiarity with Git and CI/CD workflows", "priority": "required"},
+      {"text": "Experience with Kafka or Kinesis", "priority": "preferred"},
+      {"text": "Infrastructure as code with Terraform", "priority": "preferred"},
+      {"text": "Experience with GitHub Actions", "priority": "preferred"},
+      {"text": "Background in the insurance industry", "priority": "preferred"}
+    ]
+  },
+  "j02_dotnet_fullstack_developer": {
+    "title": ".NET Full Stack Developer",
+    "min_years": 3,
+    "requirements": [
+      {"text": "Build and maintain REST APIs using C# and ASP.NET Core", "priority": "context"},
+      {"text": "Develop responsive Angular screens with TypeScript", "priority": "context"},
+      {"text": "Write unit tests and participate in code reviews", "priority": "context"},
+      {"text": "Deploy applications to Azure through CI/CD pipelines", "priority": "context"},
+      {"text": "Collaborate with business analysts and QA in an Agile team", "priority": "context"},
+      {"text": "3-5 years of professional software development experience", "priority": "required"},
+      {"text": "Strong C# and ASP.NET Core skills", "priority": "required"},
+      {"text": "Experience with Angular 12 or later", "priority": "required"},
+      {"text": "SQL Server and Entity Framework experience", "priority": "required"},
+      {"text": "Experience deploying to Azure (App Service, Functions or AKS)", "priority": "required"},
+      {"text": "Strong problem-solving and communication skills", "priority": "required"},
+      {"text": "Experience with Azure DevOps or GitHub Actions", "priority": "preferred"},
+      {"text": "Docker or Kubernetes", "priority": "preferred"},
+      {"text": "Knowledge of Guidewire or other insurance platforms", "priority": "preferred"},
+      {"text": "Experience with RxJS and NgRx", "priority": "preferred"}
+    ]
+  },
+  "j03_frontend_react_engineer": {
+    "title": "Front-End Engineer (React)",
+    "min_years": 4,
+    "requirements": [
+      {"text": "As a front-end engineer on the platform team, you will build and maintain the React components that render every article page.", "priority": "context"},
+      {"text": "You will work closely with designers to turn Figma designs into accessible, responsive interfaces.", "priority": "context"},
+      {"text": "You will also improve page performance and track Core Web Vitals for our highest-traffic pages.", "priority": "context"},
+      {"text": "We are looking for someone with 4+ years of professional front-end development experience.", "priority": "required"},
+      {"text": "You should have strong skills in React and TypeScript.", "priority": "required"},
+      {"text": "You should be comfortable writing unit tests with Jest or a similar framework.", "priority": "required"},
+      {"text": "Experience with Next.js or another server-side rendering framework is required.", "priority": "required"},
+      {"text": "You should understand web accessibility standards such as WCAG.", "priority": "required"},
+      {"text": "Clear written communication is essential on our distributed team.", "priority": "required"},
+      {"text": "It would be great if you have worked with GraphQL.", "priority": "preferred"},
+      {"text": "Experience building or maintaining a design system in Storybook is a plus.", "priority": "preferred"},
+      {"text": "Familiarity with Cypress or Playwright for end-to-end testing is also a plus.", "priority": "preferred"}
+    ]
+  },
+  "j04_ml_engineer": {
+    "title": "Machine Learning Engineer",
+    "min_years": 4,
+    "requirements": [
+      {"text": "Train, evaluate and deploy machine learning models for claims and clinical text", "priority": "context"},
+      {"text": "Build and maintain model serving APIs and batch scoring jobs", "priority": "context"},
+      {"text": "Monitor models in production for drift and performance", "priority": "context"},
+      {"text": "Work with product managers and clinicians to turn problems into ML tasks", "priority": "context"},
+      {"text": "Minimum 4 yrs of professional experience in a software or data role", "priority": "required"},
+      {"text": "Strong Python skills", "priority": "required"},
+      {"text": "Experience with PyTorch or TensorFlow", "priority": "required"},
+      {"text": "Hands-on NLP experience, including transformer models", "priority": "required"},
+      {"text": "Experience deploying models with Docker and Kubernetes", "priority": "required"},
+      {"text": "Experience with MLflow or a similar experiment tracking tool", "priority": "required"},
+      {"text": "Solid understanding of statistics and model evaluation", "priority": "required"},
+      {"text": "Experience with LLMs and retrieval-augmented generation", "priority": "preferred"},
+      {"text": "Healthcare or insurance data experience", "priority": "preferred"},
+      {"text": "Experience with AWS SageMaker or Azure Machine Learning", "priority": "preferred"},
+      {"text": "A master's degree or PhD in a quantitative field", "priority": "preferred"}
+    ]
+  },
+  "j05_site_reliability_engineer": {
+    "title": "Site Reliability Engineer",
+    "min_years": 5,
+    "requirements": [
+      {"text": "Operate and scale Kubernetes clusters running more than 150 services", "priority": "context"},
+      {"text": "Define SLOs, manage error budgets and lead incident response", "priority": "context"},
+      {"text": "Build and maintain infrastructure as code", "priority": "context"},
+      {"text": "Improve CI/CD pipelines and release safety", "priority": "context"},
+      {"text": "Participate in an on-call rotation (one week in six)", "priority": "context"},
+      {"text": "5+ years of experience in software engineering, DevOps or systems administration", "priority": "required"},
+      {"text": "Production experience with Kubernetes", "priority": "required"},
+      {"text": "Strong experience with Terraform or Pulumi", "priority": "required"},
+      {"text": "Experience with AWS or GCP", "priority": "required"},
+      {"text": "Experience with Prometheus, Grafana or Datadog", "priority": "required"},
+      {"text": "Scripting in Python, Go or Bash", "priority": "required"},
+      {"text": "CI/CD experience with GitHub Actions or Jenkins", "priority": "required"},
+      {"text": "Calm and clear communicator during incidents", "priority": "required"},
+      {"text": "Certified Kubernetes Administrator (CKA) or similar certification", "priority": "preferred"},
+      {"text": "Experience with service mesh tools such as Istio or Linkerd", "priority": "preferred"},
+      {"text": "Experience in payments or financial services", "priority": "preferred"},
+      {"text": "Experience with Argo CD or Flux", "priority": "preferred"}
+    ]
+  },
+  "j06_qa_automation_engineer": {
+    "title": "QA Automation Engineer",
+    "min_years": 3,
+    "requirements": [
+      {"text": "Design and maintain automated UI and API test suites", "priority": "context"},
+      {"text": "Run regression testing for every release and report results to the team", "priority": "context"},
+      {"text": "Work with developers and business analysts to write acceptance criteria", "priority": "context"},
+      {"text": "Log, triage and track defects through resolution", "priority": "context"},
+      {"text": "3+ years of experience in test automation", "priority": "required"},
+      {"text": "Strong experience with Selenium WebDriver using Java or C#", "priority": "required"},
+      {"text": "API testing with Rest Assured, Postman or similar tools", "priority": "required"},
+      {"text": "Experience with BDD frameworks such as Cucumber or SpecFlow", "priority": "required"},
+      {"text": "Experience running automated tests in CI pipelines (Jenkins, GitHub Actions or Azure DevOps)", "priority": "required"},
+      {"text": "Good SQL skills for test data validation", "priority": "required"},
+      {"text": "Strong attention to detail", "priority": "required"},
+      {"text": "Experience testing Guidewire PolicyCenter, BillingCenter or ClaimCenter", "priority": "preferred"},
+      {"text": "Performance testing with JMeter or Gatling", "priority": "preferred"},
+      {"text": "ISTQB certification", "priority": "preferred"},
+      {"text": "Experience with mobile test automation using Appium", "priority": "preferred"}
+    ]
+  },
+  "j07_backend_java_developer": {
+    "title": "Backend Java Developer",
+    "min_years": 5,
+    "requirements": [
+      {"text": "In this role you will design and build Java microservices that process millions of shipment events a day.", "priority": "context"},
+      {"text": "You will own services end to end, from design through production support.", "priority": "context"},
+      {"text": "You will also work with product managers to plan and estimate work.", "priority": "context"},
+      {"text": "5+ years of backend software development experience", "priority": "required"},
+      {"text": "4+ years with Java", "priority": "required"},
+      {"text": "Strong experience with Spring Boot", "priority": "required"},
+      {"text": "Experience with Kafka or another message broker", "priority": "required"},
+      {"text": "Experience with relational databases such as PostgreSQL or Oracle", "priority": "required"},
+      {"text": "Experience writing automated tests with JUnit", "priority": "required"},
+      {"text": "Experience with Docker and deploying to AWS", "priority": "required"},
+      {"text": "Ability to explain technical decisions to non-technical stakeholders", "priority": "required"},
+      {"text": "Kubernetes experience", "priority": "preferred"},
+      {"text": "Experience with Redis or another caching layer", "priority": "preferred"},
+      {"text": "Experience in logistics or supply chain software", "priority": "preferred"},
+      {"text": "Experience mentoring other developers", "priority": "preferred"}
+    ]
+  },
+  "j08_guidewire_policycenter_developer": {
+    "title": "Guidewire PolicyCenter Developer",
+    "min_years": 6,
+    "requirements": [
+      {"text": "Configure Guidewire PolicyCenter product model, PCF screens and Gosu rules for personal lines", "priority": "context"},
+      {"text": "Build and support integrations between PolicyCenter and external rating, document and billing systems", "priority": "context"},
+      {"text": "Take part in the Guidewire Cloud upgrade and fix upgrade defects", "priority": "context"},
+      {"text": "Work with business analysts to refine user stories and estimates", "priority": "context"},
+      {"text": "6+ years of IT experience", "priority": "required"},
+      {"text": "Minimum 3 years of hands-on Guidewire PolicyCenter or BillingCenter configuration", "priority": "required"},
+      {"text": "Strong Gosu programming skills", "priority": "required"},
+      {"text": "Experience with PCF and data model changes (entities and typelists)", "priority": "required"},
+      {"text": "Experience with SOAP and REST web service integrations", "priority": "required"},
+      {"text": "Working knowledge of SQL and Oracle or SQL Server", "priority": "required"},
+      {"text": "Experience with Git and Jenkins", "priority": "required"},
+      {"text": "Guidewire certification (Associate or Specialist)", "priority": "preferred"},
+      {"text": "Experience with Guidewire Cloud", "priority": "preferred"},
+      {"text": "Experience with CustomerEngage or Jutro digital portals", "priority": "preferred"},
+      {"text": "GUnit testing experience", "priority": "preferred"},
+      {"text": "Property and casualty insurance domain knowledge", "priority": "preferred"}
+    ]
+  }
+}

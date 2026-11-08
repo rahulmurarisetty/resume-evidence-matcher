@@ -1,0 +1,32 @@
+QA Automation Engineer
+Placeholder Auto & Home, Charlotte, NC (Hybrid)
+
+Who we are
+Placeholder Auto & Home provides personal auto and homeowners coverage in 12 states. Our digital team of 80 people builds the quote, policy and claims experiences our customers use every day.
+
+Key responsibilities
+• Design and maintain automated UI and API test suites
+• Run regression testing for every release and report results to the team
+• Work with developers and business analysts to write acceptance criteria
+• Log, triage and track defects through resolution
+
+Required skills
+• 3+ years of experience in test automation
+• Strong experience with Selenium WebDriver using Java or C#
+• API testing with Rest Assured, Postman or similar tools
+• Experience with BDD frameworks such as Cucumber or SpecFlow
+• Experience running automated tests in CI pipelines (Jenkins, GitHub Actions or Azure DevOps)
+• Good SQL skills for test data validation
+• Strong attention to detail
+
+Preferred skills
+• Experience testing Guidewire PolicyCenter, BillingCenter or ClaimCenter
+• Performance testing with JMeter or Gatling
+• ISTQB certification
+• Experience with mobile test automation using Appium
+
+Perks
+• Hybrid schedule with two remote days
+• Tuition reimbursement
+
+We are an equal opportunity employer.

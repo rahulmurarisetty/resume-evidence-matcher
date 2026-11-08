@@ -1,0 +1,148 @@
+{
+  "r01_data_engineer": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Senior Data Engineer", "employer": "Example Mutual", "start": "2022-03", "end": null},
+      {"title": "Data Engineer", "employer": "Demo Logistics", "start": "2019-07", "end": "2022-02"},
+      {"title": "Junior Data Analyst", "employer": "Sample Retail Group", "start": "2018-01", "end": "2019-06"}
+    ],
+    "total_years": 8.9,
+    "education": [
+      {"degree": "B.S. Information Systems", "school": "Example State University", "year": 2017}
+    ]
+  },
+  "r02_dotnet_fullstack": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Senior .NET Developer", "employer": "Placeholder Bank", "start": "2022-01", "end": null},
+      {"title": ".NET Developer", "employer": "Example Mutual", "start": "2019-01", "end": "2021-12"},
+      {"title": "Junior Developer", "employer": "Sample Software Co", "start": "2017-01", "end": "2018-12"}
+    ],
+    "total_years": 9.9,
+    "education": [
+      {"degree": "B.Tech Computer Science", "school": "Sample Institute of Technology", "year": 2016}
+    ]
+  },
+  "r03_react_frontend": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Senior Front-End Engineer", "employer": "Sample Retail Group", "start": "2022-03", "end": null},
+      {"title": "Front-End Developer", "employer": "Demo Media", "start": "2019-06", "end": "2022-02"},
+      {"title": "Web Developer Intern", "employer": "Example Agency", "start": "2019-01", "end": "2019-05"}
+    ],
+    "total_years": 7.9,
+    "education": [
+      {"degree": "B.A. Interactive Media", "school": "Example College", "year": 2018}
+    ]
+  },
+  "r04_ml_engineer": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Machine Learning Engineer", "employer": "Example Health Analytics", "start": "2021-08", "end": null},
+      {"title": "Part-Time Instructor", "employer": "Sample Community College", "start": "2023-01", "end": "2024-12"},
+      {"title": "Data Scientist", "employer": "Demo Insurance Group", "start": "2019-05", "end": "2021-07"}
+    ],
+    "total_years": 7.6,
+    "education": [
+      {"degree": "M.S. Data Science", "school": "Example Tech University", "year": 2019},
+      {"degree": "B.S. Mathematics", "school": "Sample State College", "year": 2017}
+    ]
+  },
+  "r05_devops_sre": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Senior Site Reliability Engineer", "employer": "Placeholder Payments", "start": "2022-04", "end": null},
+      {"title": "DevOps Engineer", "employer": "Demo Logistics", "start": "2020-01", "end": "2022-03"},
+      {"title": "Systems Administrator", "employer": "Sample Retail Group", "start": "2018-01", "end": "2019-12"}
+    ],
+    "total_years": 8.9,
+    "education": [
+      {"degree": "B.S. Computer Engineering", "school": "Example Polytechnic", "year": 2017}
+    ]
+  },
+  "r06_qa_automation": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Senior QA Automation Engineer", "employer": "Placeholder Bank", "start": "2023-02", "end": null},
+      {"title": "QA Automation Engineer", "employer": "Example Mutual", "start": "2020-03", "end": "2023-01"},
+      {"title": "QA Analyst", "employer": "Sample Software Co", "start": "2018-06", "end": "2020-02"}
+    ],
+    "total_years": 8.5,
+    "education": [
+      {"degree": "Bachelor of Science in Computer Science", "school": "Sample State University", "year": 2018}
+    ]
+  },
+  "r07_data_analyst": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Data Analyst", "employer": "Sample Health Partners", "start": "2022-08", "end": null},
+      {"title": "Reporting Analyst", "employer": "Demo Retail Stores", "start": "2017-01", "end": "2020-03"}
+    ],
+    "total_years": 7.6,
+    "education": [
+      {"degree": "B.A. Economics", "school": "Example University", "year": 2016},
+      {"degree": "Certificate in Business Analytics", "school": "Example Community College", "year": 2022}
+    ]
+  },
+  "r08_guidewire_developer": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Senior Guidewire Developer", "employer": "Example Mutual", "start": "2022-04", "end": null},
+      {"title": "Guidewire Developer", "employer": "Placeholder Insurance Services", "start": "2020-01", "end": "2022-03"},
+      {"title": "Software Engineer", "employer": "Demo Tech Solutions", "start": "2018-07", "end": "2019-12"}
+    ],
+    "total_years": 8.4,
+    "education": [
+      {"degree": "Master of Science in Computer Science", "school": "Example State University", "year": 2018}
+    ]
+  },
+  "r09_java_backend": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Senior Software Engineer", "employer": "Demo Logistics", "start": "2021-05", "end": null},
+      {"title": "Java Developer", "employer": "Example Mutual", "start": "2017-09", "end": "2021-04"},
+      {"title": "Associate Developer", "employer": "Sample Software Co", "start": "2016-06", "end": "2017-08"}
+    ],
+    "total_years": 10.5,
+    "education": [
+      {"degree": "B.E. Computer Science", "school": "Example Institute of Engineering", "year": 2016}
+    ]
+  },
+  "r10_python_backend": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Backend Developer", "employer": "Sample Retail Group", "start": "2023-02", "end": null},
+      {"title": "Python Developer", "employer": "Demo Startup Labs", "start": "2020-04", "end": "2023-01"},
+      {"title": "Junior Developer", "employer": "Placeholder Web Studio", "start": "2019-07", "end": "2020-03"}
+    ],
+    "total_years": 7.4,
+    "education": [
+      {"degree": "B.S. Computer Science", "school": "Example University", "year": 2019}
+    ]
+  },
+  "r11_cloud_data_architect": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Cloud Data Architect", "employer": "Placeholder Bank", "start": "2022-10", "end": null},
+      {"title": "Lead Data Engineer", "employer": "Example Mutual", "start": "2019-03", "end": "2022-09"},
+      {"title": "Senior ETL Developer", "employer": "Demo Insurance Group", "start": "2015-06", "end": "2019-02"},
+      {"title": "BI Developer", "employer": "Sample Retail Group", "start": "2013-08", "end": "2015-05"}
+    ],
+    "total_years": 13.3,
+    "education": [
+      {"degree": "M.S. Information Technology", "school": "Example University", "year": 2013},
+      {"degree": "B.Tech Electronics", "school": "Sample Institute of Technology", "year": 2011}
+    ]
+  },
+  "r12_junior_developer": {
+    "as_of": "2026-11-01",
+    "roles": [
+      {"title": "Junior Web Developer", "employer": "Demo Media Co", "start": "2025-09", "end": null},
+      {"title": "Software Developer Intern", "employer": "Sample Retail Group", "start": "2024-05", "end": "2024-08"}
+    ],
+    "total_years": 1.6,
+    "education": [
+      {"degree": "B.S. Computer Science", "school": "Example State University", "year": 2025}
+    ]
+  }
+}

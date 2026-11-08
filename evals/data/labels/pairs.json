@@ -1,0 +1,290 @@
+[
+  {
+    "resume": "r01_data_engineer",
+    "job": "j01_senior_data_engineer",
+    "fit": "strong",
+    "requirements": [
+      {"text": "5+ years of professional software or data engineering experience", "status": "direct", "evidence": ["Senior Data Engineer, Example Mutual | Mar 2022 - Present", "Data Engineer, Demo Logistics | Jul 2019 - Feb 2022", "Junior Data Analyst, Sample Retail Group | Jan 2018 - Jun 2019"], "note": "8.9 years by hand"},
+      {"text": "Strong Python and SQL skills", "status": "direct", "evidence": ["Developed ETL pipelines in Python and SQL on AWS using S3, Glue and Redshift for shipment and warehouse data."]},
+      {"text": "Hands-on experience with PySpark and Databricks", "status": "direct", "evidence": ["Built PySpark pipelines on Databricks that ingest claims, policy and billing data into Snowflake"]},
+      {"text": "Experience with Snowflake or Redshift", "status": "direct", "evidence": ["Built PySpark pipelines on Databricks that ingest claims, policy and billing data into Snowflake", "Developed ETL pipelines in Python and SQL on AWS using S3, Glue and Redshift"]},
+      {"text": "Experience building data pipelines on AWS or Azure", "status": "direct", "evidence": ["Developed ETL pipelines in Python and SQL on AWS using S3, Glue and Redshift for shipment and warehouse data."]},
+      {"text": "Experience with dbt", "status": "direct", "evidence": ["Introduced dbt for the reporting layer and converted 85 legacy SQL views into tested dbt models."]},
+      {"text": "Familiarity with Git and CI/CD workflows", "status": "partial", "evidence": ["Cloud and DevOps: AWS, Terraform, Git, GitHub Actions, Docker"], "note": "Git and GitHub Actions appear only in the skills section; no CI/CD work in any bullet"},
+      {"text": "Experience with Kafka or Kinesis", "status": "direct", "evidence": ["Designed a Kafka-based streaming feed for first notice of loss events"]},
+      {"text": "Infrastructure as code with Terraform", "status": "direct", "evidence": ["Built Terraform modules for the data platform's S3 buckets and IAM roles."]},
+      {"text": "Experience with GitHub Actions", "status": "partial", "evidence": ["Cloud and DevOps: AWS, Terraform, Git, GitHub Actions, Docker"], "note": "skills section only"},
+      {"text": "Background in the insurance industry", "status": "direct", "evidence": ["Designed a Kafka-based streaming feed for first notice of loss events, delivering new claims to adjusters within 2 minutes.", "ingest claims, policy and billing data into Snowflake"]}
+    ]
+  },
+  {
+    "resume": "r11_cloud_data_architect",
+    "job": "j01_senior_data_engineer",
+    "fit": "strong",
+    "requirements": [
+      {"text": "5+ years of professional software or data engineering experience", "status": "direct", "evidence": ["Cloud Data Architect, Placeholder Bank (Oct 2022 - Present)", "Lead Data Engineer, Example Mutual (Mar 2019 - Sep 2022)", "Senior ETL Developer, Demo Insurance Group (Jun 2015 - Feb 2019)", "BI Developer, Sample Retail Group (Aug 2013 - May 2015)"], "note": "13.3 years by hand"},
+      {"text": "Strong Python and SQL skills", "status": "direct", "evidence": ["Automated job monitoring with Python scripts that email failures to support.", "Wrote complex SQL and PL/SQL for regulatory reporting."]},
+      {"text": "Hands-on experience with PySpark and Databricks", "status": "direct", "evidence": ["Led a team of 7 engineers building PySpark pipelines on Azure Databricks for claims and policy data."]},
+      {"text": "Experience with Snowflake or Redshift", "status": "direct", "evidence": ["Led the Snowflake migration of 400 TB from Teradata"]},
+      {"text": "Experience building data pipelines on AWS or Azure", "status": "direct", "evidence": ["Created Azure Data Factory pipelines that load 150 source tables into Azure Synapse every night.", "building PySpark pipelines on Azure Databricks"]},
+      {"text": "Experience with dbt", "status": "direct", "evidence": ["Introduced dbt and data quality tests with Great Expectations, cutting reporting defects by half."]},
+      {"text": "Familiarity with Git and CI/CD workflows", "status": "partial", "evidence": ["Implemented CI/CD for data pipelines with Azure DevOps."], "note": "CI/CD shown; Git is never named"},
+      {"text": "Experience with Kafka or Kinesis", "status": "partial", "evidence": ["Engineering: Python, PySpark, SQL, dbt, Airflow, Kafka, Azure Data Factory, Informatica"], "note": "Kafka only in skills; streaming work in bullets uses Azure Event Hubs"},
+      {"text": "Infrastructure as code with Terraform", "status": "direct", "evidence": ["Built reusable Terraform modules for Databricks workspaces, S3 buckets and IAM."]},
+      {"text": "Experience with GitHub Actions", "status": "adjacent", "evidence": ["Implemented CI/CD for data pipelines with Azure DevOps."], "note": "Azure DevOps CI/CD instead of GitHub Actions"},
+      {"text": "Background in the insurance industry", "status": "direct", "evidence": ["Partnered with actuarial analysts to design loss triangle data sets.", "building PySpark pipelines on Azure Databricks for claims and policy data"]}
+    ]
+  },
+  {
+    "resume": "r03_react_frontend",
+    "job": "j01_senior_data_engineer",
+    "fit": "wrong",
+    "requirements": [
+      {"text": "5+ years of professional software or data engineering experience", "status": "direct", "evidence": ["Senior Front-End Engineer at Sample Retail Group, Mar 2022 – Present", "Front-End Developer at Demo Media, Jun 2019 – Feb 2022", "Web Developer Intern at Example Agency, Jan 2019 – May 2019"], "note": "7.9 years by hand; all software engineering, none of it data engineering"},
+      {"text": "Strong Python and SQL skills", "status": "gap", "evidence": []},
+      {"text": "Hands-on experience with PySpark and Databricks", "status": "gap", "evidence": []},
+      {"text": "Experience with Snowflake or Redshift", "status": "gap", "evidence": []},
+      {"text": "Experience building data pipelines on AWS or Azure", "status": "gap", "evidence": []},
+      {"text": "Experience with dbt", "status": "gap", "evidence": []},
+      {"text": "Familiarity with Git and CI/CD workflows", "status": "direct", "evidence": ["Set up GitLab CI pipelines that run lint, tests and preview deploys for every merge request."], "note": "GitLab merge requests and CI pipelines show both Git and CI/CD"},
+      {"text": "Experience with Kafka or Kinesis", "status": "gap", "evidence": []},
+      {"text": "Infrastructure as code with Terraform", "status": "gap", "evidence": []},
+      {"text": "Experience with GitHub Actions", "status": "adjacent", "evidence": ["Set up GitLab CI pipelines that run lint, tests and preview deploys for every merge request."], "note": "GitLab CI instead of GitHub Actions"},
+      {"text": "Background in the insurance industry", "status": "gap", "evidence": []}
+    ]
+  },
+  {
+    "resume": "r02_dotnet_fullstack",
+    "job": "j02_dotnet_fullstack_developer",
+    "fit": "strong",
+    "requirements": [
+      {"text": "3-5 years of professional software development experience", "status": "direct", "evidence": ["Placeholder Bank - Senior .NET Developer (2022 - Present)", "Example Mutual - .NET Developer (2019 - 2021)", "Sample Software Co - Junior Developer (2017 - 2018)"], "note": "9.9 years by hand; a 3-5 range is read as a minimum of 3"},
+      {"text": "Strong C# and ASP.NET Core skills", "status": "direct", "evidence": ["Led development of a loan servicing portal in ASP.NET Core 8 and Angular 17 used by 45,000 customers.", "Maintained WCF services written in C# and .NET Framework 4.7"]},
+      {"text": "Experience with Angular 12 or later", "status": "direct", "evidence": ["ASP.NET Core 8 and Angular 17"]},
+      {"text": "SQL Server and Entity Framework experience", "status": "direct", "evidence": ["Tuned SQL Server stored procedures and Entity Framework Core queries"]},
+      {"text": "Experience deploying to Azure (App Service, Functions or AKS)", "status": "direct", "evidence": ["Moved four services from on-premises IIS to Azure App Service and Azure Functions using Azure DevOps YAML pipelines."]},
+      {"text": "Strong problem-solving and communication skills", "status": "needs_check", "evidence": []},
+      {"text": "Experience with Azure DevOps or GitHub Actions", "status": "direct", "evidence": ["using Azure DevOps YAML pipelines"]},
+      {"text": "Docker or Kubernetes", "status": "direct", "evidence": ["Containerized the quoting API with Docker for local development."]},
+      {"text": "Knowledge of Guidewire or other insurance platforms", "status": "adjacent", "evidence": ["Built Angular and TypeScript screens for an agent quoting portal."], "note": "insurance portal work, but no named insurance platform"},
+      {"text": "Experience with RxJS and NgRx", "status": "partial", "evidence": ["C#, ASP.NET Core, .NET Framework, Entity Framework Core, Angular, TypeScript, RxJS, SQL Server, Azure, Azure DevOps, Docker, xUnit, Git"], "note": "RxJS only in skills; NgRx absent"}
+    ]
+  },
+  {
+    "resume": "r08_guidewire_developer",
+    "job": "j02_dotnet_fullstack_developer",
+    "fit": "mixed",
+    "requirements": [
+      {"text": "3-5 years of professional software development experience", "status": "direct", "evidence": ["Senior Guidewire Developer, Example Mutual, Jacksonville, FL | Apr 2022 - Till date", "Guidewire Developer, Placeholder Insurance Services | Jan 2020 - Mar 2022", "Software Engineer, Demo Tech Solutions | Jul 2018 - Dec 2019"], "note": "8.4 years by hand"},
+      {"text": "Strong C# and ASP.NET Core skills", "status": "adjacent", "evidence": ["Built Java and Spring web services for an internal claims tracking tool."], "note": "Java and Spring instead of C# and ASP.NET Core"},
+      {"text": "Experience with Angular 12 or later", "status": "partial", "evidence": ["Customized CustomerEngage Angular screens for policy servicing and online payments."], "note": "Angular shown in a bullet, but the version is not stated"},
+      {"text": "SQL Server and Entity Framework experience", "status": "partial", "evidence": ["Environment: Guidewire BillingCenter 9, CustomerEngage, Gosu, Angular, SQL Server, Bitbucket, Jira"], "note": "SQL Server named in a role's Environment line; Entity Framework absent"},
+      {"text": "Experience deploying to Azure (App Service, Functions or AKS)", "status": "gap", "evidence": []},
+      {"text": "Strong problem-solving and communication skills", "status": "needs_check", "evidence": []},
+      {"text": "Experience with Azure DevOps or GitHub Actions", "status": "adjacent", "evidence": ["Environment: Guidewire PolicyCenter 10, Guidewire Cloud, Gosu, PCF, SOAP, REST, Jenkins, Git, Oracle, Jira"], "note": "Jenkins instead of Azure DevOps or GitHub Actions"},
+      {"text": "Docker or Kubernetes", "status": "gap", "evidence": []},
+      {"text": "Knowledge of Guidewire or other insurance platforms", "status": "direct", "evidence": ["Configured PolicyCenter 10 for homeowners and dwelling fire lines"]},
+      {"text": "Experience with RxJS and NgRx", "status": "gap", "evidence": []}
+    ]
+  },
+  {
+    "resume": "r03_react_frontend",
+    "job": "j03_frontend_react_engineer",
+    "fit": "strong",
+    "requirements": [
+      {"text": "We are looking for someone with 4+ years of professional front-end development experience.", "status": "direct", "evidence": ["Senior Front-End Engineer at Sample Retail Group, Mar 2022 – Present", "Front-End Developer at Demo Media, Jun 2019 – Feb 2022", "Web Developer Intern at Example Agency, Jan 2019 – May 2019"], "note": "7.9 years by hand"},
+      {"text": "You should have strong skills in React and TypeScript.", "status": "direct", "evidence": ["Rebuilt the checkout flow in React 18 and TypeScript, raising mobile conversion by 11%."]},
+      {"text": "You should be comfortable writing unit tests with Jest or a similar framework.", "status": "direct", "evidence": ["Wrote unit tests with Jest and React Testing Library"]},
+      {"text": "Experience with Next.js or another server-side rendering framework is required.", "status": "direct", "evidence": ["Built Next.js marketing pages with server-side rendering"]},
+      {"text": "You should understand web accessibility standards such as WCAG.", "status": "direct", "evidence": ["Fixed WCAG 2.1 AA issues found in an accessibility audit, closing 120 tickets in one quarter."]},
+      {"text": "Clear written communication is essential on our distributed team.", "status": "needs_check", "evidence": []},
+      {"text": "It would be great if you have worked with GraphQL.", "status": "direct", "evidence": ["Integrated GraphQL APIs using Apollo Client."]},
+      {"text": "Experience building or maintaining a design system in Storybook is a plus.", "status": "direct", "evidence": ["Created a shared component library with Storybook used by 6 product teams."]},
+      {"text": "Familiarity with Cypress or Playwright for end-to-end testing is also a plus.", "status": "direct", "evidence": ["end-to-end tests with Playwright"]}
+    ]
+  },
+  {
+    "resume": "r12_junior_developer",
+    "job": "j03_frontend_react_engineer",
+    "fit": "mixed",
+    "requirements": [
+      {"text": "We are looking for someone with 4+ years of professional front-end development experience.", "status": "gap", "evidence": [], "note": "1.6 years by hand"},
+      {"text": "You should have strong skills in React and TypeScript.", "status": "direct", "evidence": ["Build React components for the company's article pages and fix layout bugs reported by editors.", "Built with React, TypeScript, Node.js and MongoDB, with login via JSON Web Tokens."]},
+      {"text": "You should be comfortable writing unit tests with Jest or a similar framework.", "status": "adjacent", "evidence": ["Wrote JUnit tests for the endpoint and fixed 12 bugs from the team backlog.", "Set up GitHub Actions to run pytest on every push."], "note": "unit tests in JUnit and pytest, not a JavaScript test framework; Cypress work is end-to-end"},
+      {"text": "Experience with Next.js or another server-side rendering framework is required.", "status": "gap", "evidence": []},
+      {"text": "You should understand web accessibility standards such as WCAG.", "status": "gap", "evidence": []},
+      {"text": "Clear written communication is essential on our distributed team.", "status": "needs_check", "evidence": []},
+      {"text": "It would be great if you have worked with GraphQL.", "status": "gap", "evidence": []},
+      {"text": "Experience building or maintaining a design system in Storybook is a plus.", "status": "gap", "evidence": []},
+      {"text": "Familiarity with Cypress or Playwright for end-to-end testing is also a plus.", "status": "direct", "evidence": ["Wrote Cypress tests for the newsletter sign-up flow."]}
+    ]
+  },
+  {
+    "resume": "r04_ml_engineer",
+    "job": "j04_ml_engineer",
+    "fit": "strong",
+    "requirements": [
+      {"text": "Minimum 4 yrs of professional experience in a software or data role", "status": "direct", "evidence": ["Machine Learning Engineer - Example Health Analytics - Aug 2021 to Present", "Data Scientist - Demo Insurance Group - May 2019 to Jul 2021"], "note": "7.6 years by hand; the instructor role overlaps and adds nothing"},
+      {"text": "Strong Python skills", "status": "direct", "evidence": ["Taught an evening Introduction to Python course to 3 cohorts of about 25 students each.", "Built churn and fraud models in scikit-learn and pandas on AWS SageMaker."]},
+      {"text": "Experience with PyTorch or TensorFlow", "status": "direct", "evidence": ["Fine-tuned BERT-based models with PyTorch and Hugging Face Transformers"]},
+      {"text": "Hands-on NLP experience, including transformer models", "status": "direct", "evidence": ["Fine-tuned BERT-based models with PyTorch and Hugging Face Transformers to classify 2 million clinical notes a month."]},
+      {"text": "Experience deploying models with Docker and Kubernetes", "status": "partial", "evidence": ["Served models behind FastAPI on Kubernetes (EKS), keeping p95 latency under 120 ms.", "MLOps: MLflow, Docker, Kubernetes, Airflow, AWS SageMaker"], "note": "Kubernetes shown in a bullet; Docker only in skills"},
+      {"text": "Experience with MLflow or a similar experiment tracking tool", "status": "direct", "evidence": ["Set up MLflow experiment tracking and a model registry used by a team of 9 data scientists."]},
+      {"text": "Solid understanding of statistics and model evaluation", "status": "direct", "evidence": ["Designed offline evaluation with cross-validation, calibration curves and precision-recall analysis before each model release."]},
+      {"text": "Experience with LLMs and retrieval-augmented generation", "status": "direct", "evidence": ["Built a retrieval-augmented generation service with LangChain and FAISS"]},
+      {"text": "Healthcare or insurance data experience", "status": "direct", "evidence": ["to classify 2 million clinical notes a month", "Trained and deployed a claims-denial prediction model with XGBoost"]},
+      {"text": "Experience with AWS SageMaker or Azure Machine Learning", "status": "direct", "evidence": ["Built churn and fraud models in scikit-learn and pandas on AWS SageMaker."]},
+      {"text": "A master's degree or PhD in a quantitative field", "status": "direct", "evidence": ["M.S. Data Science, Example Tech University, 2019"], "note": "degree requirement met by the education section"}
+    ]
+  },
+  {
+    "resume": "r06_qa_automation",
+    "job": "j04_ml_engineer",
+    "fit": "wrong",
+    "requirements": [
+      {"text": "Minimum 4 yrs of professional experience in a software or data role", "status": "direct", "evidence": ["Senior QA Automation Engineer | Placeholder Bank | 02/2023 - Current", "QA Automation Engineer | Example Mutual | 03/2020 - 01/2023", "QA Analyst | Sample Software Co | 06/2018 - 02/2020"], "note": "8.5 years by hand; QA roles counted as software roles"},
+      {"text": "Strong Python skills", "status": "gap", "evidence": []},
+      {"text": "Experience with PyTorch or TensorFlow", "status": "gap", "evidence": []},
+      {"text": "Hands-on NLP experience, including transformer models", "status": "gap", "evidence": []},
+      {"text": "Experience deploying models with Docker and Kubernetes", "status": "gap", "evidence": []},
+      {"text": "Experience with MLflow or a similar experiment tracking tool", "status": "gap", "evidence": []},
+      {"text": "Solid understanding of statistics and model evaluation", "status": "gap", "evidence": []},
+      {"text": "Experience with LLMs and retrieval-augmented generation", "status": "gap", "evidence": []},
+      {"text": "Healthcare or insurance data experience", "status": "adjacent", "evidence": ["Wrote Cucumber BDD scenarios in Gherkin with business analysts for policy and billing workflows.", "Automated Guidewire PolicyCenter UI tests with Selenium"], "note": "tested insurance systems, but did not work with insurance data"},
+      {"text": "Experience with AWS SageMaker or Azure Machine Learning", "status": "gap", "evidence": []},
+      {"text": "A master's degree or PhD in a quantitative field", "status": "gap", "evidence": [], "note": "bachelor's degree only"}
+    ]
+  },
+  {
+    "resume": "r05_devops_sre",
+    "job": "j05_site_reliability_engineer",
+    "fit": "strong",
+    "requirements": [
+      {"text": "5+ years of experience in software engineering, DevOps or systems administration", "status": "direct", "evidence": ["Senior Site Reliability Engineer, Placeholder Payments", "Apr 2022 - Current", "DevOps Engineer, Demo Logistics", "Jan 2020 - Mar 2022", "Systems Administrator, Sample Retail Group", "Jan 2018 - Dec 2019"], "note": "8.9 years by hand"},
+      {"text": "Production experience with Kubernetes", "status": "direct", "evidence": ["Run 14 production EKS clusters with Terraform and Argo CD, supporting 220 microservices."]},
+      {"text": "Strong experience with Terraform or Pulumi", "status": "direct", "evidence": ["Run 14 production EKS clusters with Terraform and Argo CD", "Managed Azure infrastructure with Terraform and Ansible."]},
+      {"text": "Experience with AWS or GCP", "status": "direct", "evidence": ["Run 14 production EKS clusters", "AWS Certified Solutions Architect - Associate, 2021"], "note": "EKS is an AWS service"},
+      {"text": "Experience with Prometheus, Grafana or Datadog", "status": "direct", "evidence": ["Built Prometheus and Grafana dashboards and moved alert routing to PagerDuty."]},
+      {"text": "Scripting in Python, Go or Bash", "status": "direct", "evidence": ["Wrote Python and Bash tooling that automates certificate rotation across all clusters."]},
+      {"text": "CI/CD experience with GitHub Actions or Jenkins", "status": "direct", "evidence": ["Moved CI from Jenkins to GitLab CI, cutting average pipeline time from 25 minutes to 8 minutes."], "note": "worked with Jenkins before moving to GitLab CI"},
+      {"text": "Calm and clear communicator during incidents", "status": "needs_check", "evidence": [], "note": "leads postmortems, but how they communicate during incidents cannot be judged from text"},
+      {"text": "Certified Kubernetes Administrator (CKA) or similar certification", "status": "direct", "evidence": ["Certified Kubernetes Administrator (CKA), 2023"]},
+      {"text": "Experience with service mesh tools such as Istio or Linkerd", "status": "gap", "evidence": []},
+      {"text": "Experience in payments or financial services", "status": "direct", "evidence": ["Defined SLOs and error budgets for the payments API"]},
+      {"text": "Experience with Argo CD or Flux", "status": "direct", "evidence": ["Run 14 production EKS clusters with Terraform and Argo CD"]}
+    ]
+  },
+  {
+    "resume": "r10_python_backend",
+    "job": "j05_site_reliability_engineer",
+    "fit": "mixed",
+    "requirements": [
+      {"text": "5+ years of experience in software engineering, DevOps or systems administration", "status": "direct", "evidence": ["Backend Developer, Sample Retail Group | Feb 2023 - Present", "Python Developer, Demo Startup Labs | Apr 2020 - Jan 2023", "Junior Developer, Placeholder Web Studio | Jul 2019 - Mar 2020"], "note": "7.4 years by hand"},
+      {"text": "Production experience with Kubernetes", "status": "adjacent", "evidence": ["Containerized services with Docker and deployed them to AWS ECS using GitHub Actions."], "note": "container orchestration on ECS, not Kubernetes"},
+      {"text": "Strong experience with Terraform or Pulumi", "status": "gap", "evidence": []},
+      {"text": "Experience with AWS or GCP", "status": "direct", "evidence": ["deployed them to AWS ECS"]},
+      {"text": "Experience with Prometheus, Grafana or Datadog", "status": "gap", "evidence": []},
+      {"text": "Scripting in Python, Go or Bash", "status": "direct", "evidence": ["Python Developer, Demo Startup Labs | Apr 2020 - Jan 2023", "Built Flask admin tools and fixed bugs in client websites."]},
+      {"text": "CI/CD experience with GitHub Actions or Jenkins", "status": "direct", "evidence": ["deployed them to AWS ECS using GitHub Actions"]},
+      {"text": "Calm and clear communicator during incidents", "status": "needs_check", "evidence": []},
+      {"text": "Certified Kubernetes Administrator (CKA) or similar certification", "status": "gap", "evidence": []},
+      {"text": "Experience with service mesh tools such as Istio or Linkerd", "status": "gap", "evidence": []},
+      {"text": "Experience in payments or financial services", "status": "adjacent", "evidence": ["Integrated a payments provider and SMS notifications into the booking flow."], "note": "payment integration in a scheduling app, not work in payments or finance"},
+      {"text": "Experience with Argo CD or Flux", "status": "gap", "evidence": []}
+    ]
+  },
+  {
+    "resume": "r06_qa_automation",
+    "job": "j06_qa_automation_engineer",
+    "fit": "strong",
+    "requirements": [
+      {"text": "3+ years of experience in test automation", "status": "direct", "evidence": ["Senior QA Automation Engineer | Placeholder Bank | 02/2023 - Current", "QA Automation Engineer | Example Mutual | 03/2020 - 01/2023"], "note": "8.5 years total by hand; automation roles alone are 6.7 years"},
+      {"text": "Strong experience with Selenium WebDriver using Java or C#", "status": "direct", "evidence": ["Built a Selenium WebDriver and Java framework with TestNG and the Page Object Model covering 1,100 regression tests."]},
+      {"text": "API testing with Rest Assured, Postman or similar tools", "status": "direct", "evidence": ["Automated REST API tests with Rest Assured and Postman, reducing manual API testing effort by 65%."]},
+      {"text": "Experience with BDD frameworks such as Cucumber or SpecFlow", "status": "direct", "evidence": ["Wrote Cucumber BDD scenarios in Gherkin with business analysts for policy and billing workflows."]},
+      {"text": "Experience running automated tests in CI pipelines (Jenkins, GitHub Actions or Azure DevOps)", "status": "direct", "evidence": ["Ran regression suites in Jenkins pipelines on every merge and published Allure reports."]},
+      {"text": "Good SQL skills for test data validation", "status": "direct", "evidence": ["Validated database results with SQL queries against Oracle."]},
+      {"text": "Strong attention to detail", "status": "needs_check", "evidence": []},
+      {"text": "Experience testing Guidewire PolicyCenter, BillingCenter or ClaimCenter", "status": "direct", "evidence": ["Automated Guidewire PolicyCenter UI tests with Selenium, cutting the regression cycle from 10 days to 3 days."]},
+      {"text": "Performance testing with JMeter or Gatling", "status": "direct", "evidence": ["Performed load testing with JMeter for the agent portal before two major releases."]},
+      {"text": "ISTQB certification", "status": "direct", "evidence": ["ISTQB Certified Tester Foundation Level"]},
+      {"text": "Experience with mobile test automation using Appium", "status": "partial", "evidence": ["Selenium, Playwright, Cypress, TestNG, JUnit, Cucumber, Rest Assured, Postman, JMeter, Appium, Jenkins, Git, Jira, Java, TypeScript, SQL"], "note": "Appium only in the tools list; the mobile testing in bullets was manual"}
+    ]
+  },
+  {
+    "resume": "r09_java_backend",
+    "job": "j07_backend_java_developer",
+    "fit": "strong",
+    "requirements": [
+      {"text": "5+ years of backend software development experience", "status": "direct", "evidence": ["Demo Logistics: Senior Software Engineer, May 2021 - present", "Example Mutual: Java Developer, Sep 2017 - Apr 2021", "Sample Software Co: Associate Developer, Jun 2016 - Aug 2017"], "note": "10.5 years by hand"},
+      {"text": "4+ years with Java", "status": "direct", "evidence": ["Example Mutual: Java Developer, Sep 2017 - Apr 2021", "Built REST APIs in Java 8 and Spring MVC for policy and claims systems.", "Designed Spring Boot microservices for shipment tracking"], "note": "Java in every role since 2016"},
+      {"text": "Strong experience with Spring Boot", "status": "direct", "evidence": ["Designed Spring Boot microservices for shipment tracking that handle 3 million events a day."]},
+      {"text": "Experience with Kafka or another message broker", "status": "direct", "evidence": ["Moved order events from RabbitMQ to Apache Kafka"]},
+      {"text": "Experience with relational databases such as PostgreSQL or Oracle", "status": "direct", "evidence": ["Tuned PostgreSQL queries and added Redis caching", "Worked with Oracle and Hibernate for persistence."]},
+      {"text": "Experience writing automated tests with JUnit", "status": "direct", "evidence": ["Wrote JUnit and Mockito tests, raising coverage of the claims service from 40% to 78%."]},
+      {"text": "Experience with Docker and deploying to AWS", "status": "direct", "evidence": ["Deployed services to AWS ECS with Docker and GitHub Actions."]},
+      {"text": "Ability to explain technical decisions to non-technical stakeholders", "status": "needs_check", "evidence": []},
+      {"text": "Kubernetes experience", "status": "partial", "evidence": ["Docker, Kubernetes, AWS, GitHub Actions, Maven, Gradle"], "note": "skills section only"},
+      {"text": "Experience with Redis or another caching layer", "status": "direct", "evidence": ["added Redis caching, lowering p99 API latency by 45%"]},
+      {"text": "Experience in logistics or supply chain software", "status": "direct", "evidence": ["Designed Spring Boot microservices for shipment tracking"]},
+      {"text": "Experience mentoring other developers", "status": "direct", "evidence": ["Mentored 4 developers and ran the team's design review meetings."]}
+    ]
+  },
+  {
+    "resume": "r12_junior_developer",
+    "job": "j07_backend_java_developer",
+    "fit": "mixed",
+    "requirements": [
+      {"text": "5+ years of backend software development experience", "status": "gap", "evidence": [], "note": "1.6 years by hand"},
+      {"text": "4+ years with Java", "status": "gap", "evidence": [], "note": "Java shown only in a 4-month internship"},
+      {"text": "Strong experience with Spring Boot", "status": "direct", "evidence": ["Added a store-locator search endpoint to an internal Java Spring Boot service."], "note": "demonstrated, but only in an internship"},
+      {"text": "Experience with Kafka or another message broker", "status": "gap", "evidence": []},
+      {"text": "Experience with relational databases such as PostgreSQL or Oracle", "status": "direct", "evidence": ["A Python and Flask app with a SQLite database that tracks grocery expiry dates."], "note": "SQLite is relational; shown in a personal project"},
+      {"text": "Experience writing automated tests with JUnit", "status": "direct", "evidence": ["Wrote JUnit tests for the endpoint and fixed 12 bugs from the team backlog."]},
+      {"text": "Experience with Docker and deploying to AWS", "status": "gap", "evidence": []},
+      {"text": "Ability to explain technical decisions to non-technical stakeholders", "status": "needs_check", "evidence": []},
+      {"text": "Kubernetes experience", "status": "gap", "evidence": []},
+      {"text": "Experience with Redis or another caching layer", "status": "gap", "evidence": []},
+      {"text": "Experience in logistics or supply chain software", "status": "gap", "evidence": []},
+      {"text": "Experience mentoring other developers", "status": "gap", "evidence": []}
+    ]
+  },
+  {
+    "resume": "r08_guidewire_developer",
+    "job": "j08_guidewire_policycenter_developer",
+    "fit": "strong",
+    "requirements": [
+      {"text": "6+ years of IT experience", "status": "direct", "evidence": ["Senior Guidewire Developer, Example Mutual, Jacksonville, FL | Apr 2022 - Till date", "Guidewire Developer, Placeholder Insurance Services | Jan 2020 - Mar 2022", "Software Engineer, Demo Tech Solutions | Jul 2018 - Dec 2019"], "note": "8.4 years by hand"},
+      {"text": "Minimum 3 years of hands-on Guidewire PolicyCenter or BillingCenter configuration", "status": "direct", "evidence": ["Senior Guidewire Developer, Example Mutual, Jacksonville, FL | Apr 2022 - Till date", "Guidewire Developer, Placeholder Insurance Services | Jan 2020 - Mar 2022"], "note": "6.9 years in Guidewire roles by hand"},
+      {"text": "Strong Gosu programming skills", "status": "direct", "evidence": ["Wrote Gosu rules and enhancements for underwriting referrals, reducing manual referrals by 25%.", "Built batch processes in Gosu for delinquency and write-off handling."]},
+      {"text": "Experience with PCF and data model changes (entities and typelists)", "status": "direct", "evidence": ["including PCF screens, product model changes and typelist extensions"]},
+      {"text": "Experience with SOAP and REST web service integrations", "status": "direct", "evidence": ["Built SOAP and REST integrations from PolicyCenter to an external rating engine and a document generation service."]},
+      {"text": "Working knowledge of SQL and Oracle or SQL Server", "status": "direct", "evidence": ["Wrote PL/SQL procedures for monthly claim reports."]},
+      {"text": "Experience with Git and Jenkins", "status": "direct", "evidence": ["Environment: Guidewire PolicyCenter 10, Guidewire Cloud, Gosu, PCF, SOAP, REST, Jenkins, Git, Oracle, Jira"], "note": "named only in the current role's Environment line, which ties them to that job"},
+      {"text": "Guidewire certification (Associate or Specialist)", "status": "direct", "evidence": ["Guidewire Certified Associate - PolicyCenter Configuration"]},
+      {"text": "Experience with Guidewire Cloud", "status": "direct", "evidence": ["Supported the move from PolicyCenter 10 to Guidewire Cloud and fixed 150+ upgrade defects."]},
+      {"text": "Experience with CustomerEngage or Jutro digital portals", "status": "direct", "evidence": ["Customized CustomerEngage Angular screens for policy servicing and online payments."]},
+      {"text": "GUnit testing experience", "status": "partial", "evidence": ["Tools: Jenkins, Git, Bitbucket, Jira, SoapUI, Postman, GUnit"], "note": "skills section only"},
+      {"text": "Property and casualty insurance domain knowledge", "status": "direct", "evidence": ["Configured PolicyCenter 10 for homeowners and dwelling fire lines", "for a personal auto carrier"]}
+    ]
+  },
+  {
+    "resume": "r07_data_analyst",
+    "job": "j08_guidewire_policycenter_developer",
+    "fit": "wrong",
+    "requirements": [
+      {"text": "6+ years of IT experience", "status": "direct", "evidence": ["Data Analyst, Sample Health Partners | Aug 2022 - Present", "Reporting Analyst, Demo Retail Stores | Jan 2017 - Mar 2020"], "note": "7.6 years by hand, career gap excluded; analyst roles counted as IT experience"},
+      {"text": "Minimum 3 years of hands-on Guidewire PolicyCenter or BillingCenter configuration", "status": "gap", "evidence": []},
+      {"text": "Strong Gosu programming skills", "status": "gap", "evidence": []},
+      {"text": "Experience with PCF and data model changes (entities and typelists)", "status": "gap", "evidence": []},
+      {"text": "Experience with SOAP and REST web service integrations", "status": "gap", "evidence": []},
+      {"text": "Working knowledge of SQL and Oracle or SQL Server", "status": "direct", "evidence": ["Wrote SQL Server queries for the merchandising team."]},
+      {"text": "Experience with Git and Jenkins", "status": "gap", "evidence": []},
+      {"text": "Guidewire certification (Associate or Specialist)", "status": "gap", "evidence": []},
+      {"text": "Experience with Guidewire Cloud", "status": "gap", "evidence": []},
+      {"text": "Experience with CustomerEngage or Jutro digital portals", "status": "gap", "evidence": []},
+      {"text": "GUnit testing experience", "status": "gap", "evidence": []},
+      {"text": "Property and casualty insurance domain knowledge", "status": "gap", "evidence": []}
+    ]
+  }
+]

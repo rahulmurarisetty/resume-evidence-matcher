@@ -1,0 +1,31 @@
+Job Title: .NET Full Stack Developer
+Company: Sample Insurance Holdings
+Location: Atlanta, GA (Hybrid, 3 days in office)
+Employment Type: Full-time
+
+About the role
+Sample Insurance Holdings is replacing its policyholder and agent portals, and this role sits on the six-person team doing that work.
+
+Responsibilities
+- Build and maintain REST APIs using C# and ASP.NET Core
+- Develop responsive Angular screens with TypeScript
+- Write unit tests and participate in code reviews
+- Deploy applications to Azure through CI/CD pipelines
+- Collaborate with business analysts and QA in an Agile team
+
+Must have
+- 3-5 years of professional software development experience
+- Strong C# and ASP.NET Core skills
+- Experience with Angular 12 or later
+- SQL Server and Entity Framework experience
+- Experience deploying to Azure (App Service, Functions or AKS)
+- Strong problem-solving and communication skills
+
+Good to have
+- Experience with Azure DevOps or GitHub Actions
+- Docker or Kubernetes
+- Knowledge of Guidewire or other insurance platforms
+- Experience with RxJS and NgRx
+
+How to apply
+Send your resume and a short note to talent@example.com with the subject line ".NET Full Stack".

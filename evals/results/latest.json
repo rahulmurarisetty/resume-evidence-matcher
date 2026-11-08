@@ -1,0 +1,4793 @@
+{
+  "meta": {
+    "date": "2026-11-08",
+    "git_commit": "8582174",
+    "uncommitted_changes": true,
+    "app_version": "0.4.0",
+    "pipeline_version": "0.4.0-exact",
+    "as_of": "2026-11-01",
+    "formats": [
+      {
+        "name": "pdf_inline",
+        "description": "PDF with the default PdfStyle: bullet glyph and text in one text run"
+      },
+      {
+        "name": "pdf_separate",
+        "description": "PDF with bullet_mode=\"separate\": the glyph drawn on its own, as Word exports do"
+      },
+      {
+        "name": "docx",
+        "description": "DOCX from python-docx: Heading 1 sections and List Bullet paragraphs"
+      }
+    ],
+    "modes": {
+      "exact": "ran",
+      "semantic": "not requested",
+      "llm": "not requested"
+    },
+    "job_parser": "rules",
+    "fuzzy_threshold": 0.85,
+    "years_tolerance": 0.5,
+    "python": "3.13.18",
+    "pymupdf": "1.28.2",
+    "python_docx": "1.2.0",
+    "labels": {
+      "resumes": 12,
+      "roles": 35,
+      "education_entries": 15,
+      "jobs": 8,
+      "job_requirements": 121,
+      "pairs": 16,
+      "pair_labels": 176,
+      "factcheck_development": 60,
+      "factcheck_holdout": 40
+    }
+  },
+  "metrics": {
+    "structure": {
+      "overall": {
+        "resumes": 36,
+        "role_precision": {
+          "rate": 0.9318,
+          "count": 82,
+          "total": 88
+        },
+        "role_recall": {
+          "rate": 0.781,
+          "count": 82,
+          "total": 105
+        },
+        "start_month_accuracy": {
+          "rate": 0.9268,
+          "count": 76,
+          "total": 82
+        },
+        "end_month_accuracy": {
+          "rate": 0.9512,
+          "count": 78,
+          "total": 82
+        },
+        "total_years_mae": 0.9871,
+        "total_years_measured": {
+          "rate": 0.8611,
+          "count": 31,
+          "total": 36
+        },
+        "total_years_within_half": {
+          "rate": 0.7222,
+          "count": 26,
+          "total": 36
+        },
+        "education_recall": {
+          "rate": 0.8889,
+          "count": 40,
+          "total": 45
+        },
+        "education_precision": {
+          "rate": 1.0,
+          "count": 40,
+          "total": 40
+        },
+        "education_year_accuracy": {
+          "rate": 0.95,
+          "count": 38,
+          "total": 40
+        }
+      },
+      "by_format": {
+        "pdf_inline": {
+          "resumes": 12,
+          "role_precision": {
+            "rate": 0.931,
+            "count": 27,
+            "total": 29
+          },
+          "role_recall": {
+            "rate": 0.7714,
+            "count": 27,
+            "total": 35
+          },
+          "start_month_accuracy": {
+            "rate": 0.8889,
+            "count": 24,
+            "total": 27
+          },
+          "end_month_accuracy": {
+            "rate": 0.9259,
+            "count": 25,
+            "total": 27
+          },
+          "total_years_mae": 1.07,
+          "total_years_measured": {
+            "rate": 0.8333,
+            "count": 10,
+            "total": 12
+          },
+          "total_years_within_half": {
+            "rate": 0.6667,
+            "count": 8,
+            "total": 12
+          },
+          "education_recall": {
+            "rate": 0.8667,
+            "count": 13,
+            "total": 15
+          },
+          "education_precision": {
+            "rate": 1.0,
+            "count": 13,
+            "total": 13
+          },
+          "education_year_accuracy": {
+            "rate": 0.9231,
+            "count": 12,
+            "total": 13
+          }
+        },
+        "pdf_separate": {
+          "resumes": 12,
+          "role_precision": {
+            "rate": 0.931,
+            "count": 27,
+            "total": 29
+          },
+          "role_recall": {
+            "rate": 0.7714,
+            "count": 27,
+            "total": 35
+          },
+          "start_month_accuracy": {
+            "rate": 0.8889,
+            "count": 24,
+            "total": 27
+          },
+          "end_month_accuracy": {
+            "rate": 0.9259,
+            "count": 25,
+            "total": 27
+          },
+          "total_years_mae": 1.07,
+          "total_years_measured": {
+            "rate": 0.8333,
+            "count": 10,
+            "total": 12
+          },
+          "total_years_within_half": {
+            "rate": 0.6667,
+            "count": 8,
+            "total": 12
+          },
+          "education_recall": {
+            "rate": 0.8667,
+            "count": 13,
+            "total": 15
+          },
+          "education_precision": {
+            "rate": 1.0,
+            "count": 13,
+            "total": 13
+          },
+          "education_year_accuracy": {
+            "rate": 0.9231,
+            "count": 12,
+            "total": 13
+          }
+        },
+        "docx": {
+          "resumes": 12,
+          "role_precision": {
+            "rate": 0.9333,
+            "count": 28,
+            "total": 30
+          },
+          "role_recall": {
+            "rate": 0.8,
+            "count": 28,
+            "total": 35
+          },
+          "start_month_accuracy": {
+            "rate": 1.0,
+            "count": 28,
+            "total": 28
+          },
+          "end_month_accuracy": {
+            "rate": 1.0,
+            "count": 28,
+            "total": 28
+          },
+          "total_years_mae": 0.8364,
+          "total_years_measured": {
+            "rate": 0.9167,
+            "count": 11,
+            "total": 12
+          },
+          "total_years_within_half": {
+            "rate": 0.8333,
+            "count": 10,
+            "total": 12
+          },
+          "education_recall": {
+            "rate": 0.9333,
+            "count": 14,
+            "total": 15
+          },
+          "education_precision": {
+            "rate": 1.0,
+            "count": 14,
+            "total": 14
+          },
+          "education_year_accuracy": {
+            "rate": 1.0,
+            "count": 14,
+            "total": 14
+          }
+        }
+      }
+    },
+    "requirements": {
+      "rules": {
+        "jobs": 8,
+        "extraction_precision": {
+          "rate": 0.8832,
+          "count": 121,
+          "total": 137
+        },
+        "extraction_recall": {
+          "rate": 1.0,
+          "count": 121,
+          "total": 121
+        },
+        "priority_accuracy": {
+          "rate": 0.9091,
+          "count": 110,
+          "total": 121
+        },
+        "per_class": {
+          "required": {
+            "precision": {
+              "rate": 1.0,
+              "count": 46,
+              "total": 46
+            },
+            "recall": {
+              "rate": 0.8214,
+              "count": 46,
+              "total": 56
+            }
+          },
+          "preferred": {
+            "precision": {
+              "rate": 0.7209,
+              "count": 31,
+              "total": 43
+            },
+            "recall": {
+              "rate": 0.9688,
+              "count": 31,
+              "total": 32
+            }
+          },
+          "context": {
+            "precision": {
+              "rate": 0.6875,
+              "count": 33,
+              "total": 48
+            },
+            "recall": {
+              "rate": 1.0,
+              "count": 33,
+              "total": 33
+            }
+          }
+        },
+        "confusion": {
+          "gold_labels": [
+            "required",
+            "preferred",
+            "context",
+            "not_a_requirement"
+          ],
+          "predicted_labels": [
+            "required",
+            "preferred",
+            "context",
+            "not_extracted"
+          ],
+          "rows": [
+            [
+              46,
+              1,
+              9,
+              0
+            ],
+            [
+              0,
+              31,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              33,
+              0
+            ],
+            [
+              0,
+              11,
+              5,
+              0
+            ]
+          ]
+        },
+        "min_years_accuracy": {
+          "rate": 1.0,
+          "count": 8,
+          "total": 8
+        },
+        "title_accuracy": {
+          "rate": 1.0,
+          "count": 8,
+          "total": 8
+        },
+        "match_kinds": {
+          "exact": 121,
+          "contains": 0,
+          "fuzzy": 0
+        }
+      },
+      "claude": null
+    },
+    "pairs": {
+      "exact": {
+        "overall": {
+          "items": 528,
+          "status_accuracy": {
+            "rate": 0.6856,
+            "count": 362,
+            "total": 528
+          },
+          "confusion": {
+            "gold_labels": [
+              "direct",
+              "partial",
+              "adjacent",
+              "gap",
+              "needs_check"
+            ],
+            "predicted_labels": [
+              "direct",
+              "partial",
+              "adjacent",
+              "gap",
+              "needs_check",
+              "not_extracted"
+            ],
+            "rows": [
+              [
+                212,
+                18,
+                0,
+                6,
+                58,
+                0
+              ],
+              [
+                3,
+                21,
+                0,
+                0,
+                9,
+                0
+              ],
+              [
+                6,
+                9,
+                0,
+                9,
+                3,
+                0
+              ],
+              [
+                0,
+                3,
+                0,
+                102,
+                42,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                27,
+                0
+              ]
+            ]
+          },
+          "per_status": {
+            "direct": {
+              "precision": {
+                "rate": 0.9593,
+                "count": 212,
+                "total": 221
+              },
+              "recall": {
+                "rate": 0.7211,
+                "count": 212,
+                "total": 294
+              }
+            },
+            "partial": {
+              "precision": {
+                "rate": 0.4118,
+                "count": 21,
+                "total": 51
+              },
+              "recall": {
+                "rate": 0.6364,
+                "count": 21,
+                "total": 33
+              }
+            },
+            "adjacent": {
+              "precision": {
+                "rate": null,
+                "count": 0,
+                "total": 0
+              },
+              "recall": {
+                "rate": 0.0,
+                "count": 0,
+                "total": 27
+              }
+            },
+            "gap": {
+              "precision": {
+                "rate": 0.8718,
+                "count": 102,
+                "total": 117
+              },
+              "recall": {
+                "rate": 0.6939,
+                "count": 102,
+                "total": 147
+              }
+            },
+            "needs_check": {
+              "precision": {
+                "rate": 0.1942,
+                "count": 27,
+                "total": 139
+              },
+              "recall": {
+                "rate": 1.0,
+                "count": 27,
+                "total": 27
+              }
+            }
+          },
+          "gap_precision": {
+            "rate": 0.8718,
+            "count": 102,
+            "total": 117
+          },
+          "gap_recall": {
+            "rate": 0.6939,
+            "count": 102,
+            "total": 147
+          },
+          "false_proven_rate": {
+            "rate": 0.0,
+            "count": 0,
+            "total": 174
+          },
+          "false_proven_share_of_direct": {
+            "rate": 0.0,
+            "count": 0,
+            "total": 221
+          },
+          "overclaim_rate": {
+            "rate": 0.0385,
+            "count": 9,
+            "total": 234
+          },
+          "not_extracted": {
+            "rate": 0.0,
+            "count": 0,
+            "total": 528
+          },
+          "evidence_recall_at_1": {
+            "rate": 0.5339,
+            "count": 189,
+            "total": 354
+          },
+          "evidence_recall_at_3": {
+            "rate": 0.5763,
+            "count": 204,
+            "total": 354
+          },
+          "evidence_recall_at_1_without_years_only": {
+            "rate": 0.6058,
+            "count": 189,
+            "total": 312
+          },
+          "evidence_recall_at_3_without_years_only": {
+            "rate": 0.6538,
+            "count": 204,
+            "total": 312
+          },
+          "status_accuracy_by_fit": {
+            "strong": {
+              "rate": 0.7205,
+              "count": 214,
+              "total": 297
+            },
+            "mixed": {
+              "rate": 0.5349,
+              "count": 69,
+              "total": 129
+            },
+            "wrong": {
+              "rate": 0.7745,
+              "count": 79,
+              "total": 102
+            }
+          }
+        },
+        "by_format": {
+          "pdf_inline": {
+            "items": 176,
+            "status_accuracy": {
+              "rate": 0.6818,
+              "count": 120,
+              "total": 176
+            },
+            "confusion": {
+              "gold_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check"
+              ],
+              "predicted_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check",
+                "not_extracted"
+              ],
+              "rows": [
+                [
+                  70,
+                  6,
+                  0,
+                  2,
+                  20,
+                  0
+                ],
+                [
+                  1,
+                  7,
+                  0,
+                  0,
+                  3,
+                  0
+                ],
+                [
+                  2,
+                  3,
+                  0,
+                  3,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  1,
+                  0,
+                  34,
+                  14,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0,
+                  9,
+                  0
+                ]
+              ]
+            },
+            "per_status": {
+              "direct": {
+                "precision": {
+                  "rate": 0.9589,
+                  "count": 70,
+                  "total": 73
+                },
+                "recall": {
+                  "rate": 0.7143,
+                  "count": 70,
+                  "total": 98
+                }
+              },
+              "partial": {
+                "precision": {
+                  "rate": 0.4118,
+                  "count": 7,
+                  "total": 17
+                },
+                "recall": {
+                  "rate": 0.6364,
+                  "count": 7,
+                  "total": 11
+                }
+              },
+              "adjacent": {
+                "precision": {
+                  "rate": null,
+                  "count": 0,
+                  "total": 0
+                },
+                "recall": {
+                  "rate": 0.0,
+                  "count": 0,
+                  "total": 9
+                }
+              },
+              "gap": {
+                "precision": {
+                  "rate": 0.8718,
+                  "count": 34,
+                  "total": 39
+                },
+                "recall": {
+                  "rate": 0.6939,
+                  "count": 34,
+                  "total": 49
+                }
+              },
+              "needs_check": {
+                "precision": {
+                  "rate": 0.1915,
+                  "count": 9,
+                  "total": 47
+                },
+                "recall": {
+                  "rate": 1.0,
+                  "count": 9,
+                  "total": 9
+                }
+              }
+            },
+            "gap_precision": {
+              "rate": 0.8718,
+              "count": 34,
+              "total": 39
+            },
+            "gap_recall": {
+              "rate": 0.6939,
+              "count": 34,
+              "total": 49
+            },
+            "false_proven_rate": {
+              "rate": 0.0,
+              "count": 0,
+              "total": 58
+            },
+            "false_proven_share_of_direct": {
+              "rate": 0.0,
+              "count": 0,
+              "total": 73
+            },
+            "overclaim_rate": {
+              "rate": 0.0385,
+              "count": 3,
+              "total": 78
+            },
+            "not_extracted": {
+              "rate": 0.0,
+              "count": 0,
+              "total": 176
+            },
+            "evidence_recall_at_1": {
+              "rate": 0.5339,
+              "count": 63,
+              "total": 118
+            },
+            "evidence_recall_at_3": {
+              "rate": 0.5763,
+              "count": 68,
+              "total": 118
+            },
+            "evidence_recall_at_1_without_years_only": {
+              "rate": 0.6058,
+              "count": 63,
+              "total": 104
+            },
+            "evidence_recall_at_3_without_years_only": {
+              "rate": 0.6538,
+              "count": 68,
+              "total": 104
+            },
+            "status_accuracy_by_fit": {
+              "strong": {
+                "rate": 0.7172,
+                "count": 71,
+                "total": 99
+              },
+              "mixed": {
+                "rate": 0.5349,
+                "count": 23,
+                "total": 43
+              },
+              "wrong": {
+                "rate": 0.7647,
+                "count": 26,
+                "total": 34
+              }
+            }
+          },
+          "pdf_separate": {
+            "items": 176,
+            "status_accuracy": {
+              "rate": 0.6818,
+              "count": 120,
+              "total": 176
+            },
+            "confusion": {
+              "gold_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check"
+              ],
+              "predicted_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check",
+                "not_extracted"
+              ],
+              "rows": [
+                [
+                  70,
+                  6,
+                  0,
+                  2,
+                  20,
+                  0
+                ],
+                [
+                  1,
+                  7,
+                  0,
+                  0,
+                  3,
+                  0
+                ],
+                [
+                  2,
+                  3,
+                  0,
+                  3,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  1,
+                  0,
+                  34,
+                  14,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0,
+                  9,
+                  0
+                ]
+              ]
+            },
+            "per_status": {
+              "direct": {
+                "precision": {
+                  "rate": 0.9589,
+                  "count": 70,
+                  "total": 73
+                },
+                "recall": {
+                  "rate": 0.7143,
+                  "count": 70,
+                  "total": 98
+                }
+              },
+              "partial": {
+                "precision": {
+                  "rate": 0.4118,
+                  "count": 7,
+                  "total": 17
+                },
+                "recall": {
+                  "rate": 0.6364,
+                  "count": 7,
+                  "total": 11
+                }
+              },
+              "adjacent": {
+                "precision": {
+                  "rate": null,
+                  "count": 0,
+                  "total": 0
+                },
+                "recall": {
+                  "rate": 0.0,
+                  "count": 0,
+                  "total": 9
+                }
+              },
+              "gap": {
+                "precision": {
+                  "rate": 0.8718,
+                  "count": 34,
+                  "total": 39
+                },
+                "recall": {
+                  "rate": 0.6939,
+                  "count": 34,
+                  "total": 49
+                }
+              },
+              "needs_check": {
+                "precision": {
+                  "rate": 0.1915,
+                  "count": 9,
+                  "total": 47
+                },
+                "recall": {
+                  "rate": 1.0,
+                  "count": 9,
+                  "total": 9
+                }
+              }
+            },
+            "gap_precision": {
+              "rate": 0.8718,
+              "count": 34,
+              "total": 39
+            },
+            "gap_recall": {
+              "rate": 0.6939,
+              "count": 34,
+              "total": 49
+            },
+            "false_proven_rate": {
+              "rate": 0.0,
+              "count": 0,
+              "total": 58
+            },
+            "false_proven_share_of_direct": {
+              "rate": 0.0,
+              "count": 0,
+              "total": 73
+            },
+            "overclaim_rate": {
+              "rate": 0.0385,
+              "count": 3,
+              "total": 78
+            },
+            "not_extracted": {
+              "rate": 0.0,
+              "count": 0,
+              "total": 176
+            },
+            "evidence_recall_at_1": {
+              "rate": 0.5339,
+              "count": 63,
+              "total": 118
+            },
+            "evidence_recall_at_3": {
+              "rate": 0.5763,
+              "count": 68,
+              "total": 118
+            },
+            "evidence_recall_at_1_without_years_only": {
+              "rate": 0.6058,
+              "count": 63,
+              "total": 104
+            },
+            "evidence_recall_at_3_without_years_only": {
+              "rate": 0.6538,
+              "count": 68,
+              "total": 104
+            },
+            "status_accuracy_by_fit": {
+              "strong": {
+                "rate": 0.7172,
+                "count": 71,
+                "total": 99
+              },
+              "mixed": {
+                "rate": 0.5349,
+                "count": 23,
+                "total": 43
+              },
+              "wrong": {
+                "rate": 0.7647,
+                "count": 26,
+                "total": 34
+              }
+            }
+          },
+          "docx": {
+            "items": 176,
+            "status_accuracy": {
+              "rate": 0.6932,
+              "count": 122,
+              "total": 176
+            },
+            "confusion": {
+              "gold_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check"
+              ],
+              "predicted_labels": [
+                "direct",
+                "partial",
+                "adjacent",
+                "gap",
+                "needs_check",
+                "not_extracted"
+              ],
+              "rows": [
+                [
+                  72,
+                  6,
+                  0,
+                  2,
+                  18,
+                  0
+                ],
+                [
+                  1,
+                  7,
+                  0,
+                  0,
+                  3,
+                  0
+                ],
+                [
+                  2,
+                  3,
+                  0,
+                  3,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  1,
+                  0,
+                  34,
+                  14,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  0,
+                  9,
+                  0
+                ]
+              ]
+            },
+            "per_status": {
+              "direct": {
+                "precision": {
+                  "rate": 0.96,
+                  "count": 72,
+                  "total": 75
+                },
+                "recall": {
+                  "rate": 0.7347,
+                  "count": 72,
+                  "total": 98
+                }
+              },
+              "partial": {
+                "precision": {
+                  "rate": 0.4118,
+                  "count": 7,
+                  "total": 17
+                },
+                "recall": {
+                  "rate": 0.6364,
+                  "count": 7,
+                  "total": 11
+                }
+              },
+              "adjacent": {
+                "precision": {
+                  "rate": null,
+                  "count": 0,
+                  "total": 0
+                },
+                "recall": {
+                  "rate": 0.0,
+                  "count": 0,
+                  "total": 9
+                }
+              },
+              "gap": {
+                "precision": {
+                  "rate": 0.8718,
+                  "count": 34,
+                  "total": 39
+                },
+                "recall": {
+                  "rate": 0.6939,
+                  "count": 34,
+                  "total": 49
+                }
+              },
+              "needs_check": {
+                "precision": {
+                  "rate": 0.2,
+                  "count": 9,
+                  "total": 45
+                },
+                "recall": {
+                  "rate": 1.0,
+                  "count": 9,
+                  "total": 9
+                }
+              }
+            },
+            "gap_precision": {
+              "rate": 0.8718,
+              "count": 34,
+              "total": 39
+            },
+            "gap_recall": {
+              "rate": 0.6939,
+              "count": 34,
+              "total": 49
+            },
+            "false_proven_rate": {
+              "rate": 0.0,
+              "count": 0,
+              "total": 58
+            },
+            "false_proven_share_of_direct": {
+              "rate": 0.0,
+              "count": 0,
+              "total": 75
+            },
+            "overclaim_rate": {
+              "rate": 0.0385,
+              "count": 3,
+              "total": 78
+            },
+            "not_extracted": {
+              "rate": 0.0,
+              "count": 0,
+              "total": 176
+            },
+            "evidence_recall_at_1": {
+              "rate": 0.5339,
+              "count": 63,
+              "total": 118
+            },
+            "evidence_recall_at_3": {
+              "rate": 0.5763,
+              "count": 68,
+              "total": 118
+            },
+            "evidence_recall_at_1_without_years_only": {
+              "rate": 0.6058,
+              "count": 63,
+              "total": 104
+            },
+            "evidence_recall_at_3_without_years_only": {
+              "rate": 0.6538,
+              "count": 68,
+              "total": 104
+            },
+            "status_accuracy_by_fit": {
+              "strong": {
+                "rate": 0.7273,
+                "count": 72,
+                "total": 99
+              },
+              "mixed": {
+                "rate": 0.5349,
+                "count": 23,
+                "total": 43
+              },
+              "wrong": {
+                "rate": 0.7941,
+                "count": 27,
+                "total": 34
+              }
+            }
+          }
+        }
+      },
+      "semantic": null,
+      "claude": null
+    },
+    "factcheck": {
+      "holdout": {
+        "cases": 40,
+        "adds_fact_cases": 20,
+        "faithful_cases": 20,
+        "counts": {
+          "tp": 20,
+          "fp": 1,
+          "tn": 19,
+          "fn": 0
+        },
+        "accuracy": {
+          "rate": 0.975,
+          "count": 39,
+          "total": 40
+        },
+        "precision": {
+          "rate": 0.9524,
+          "count": 20,
+          "total": 21
+        },
+        "recall": {
+          "rate": 1.0,
+          "count": 20,
+          "total": 20
+        },
+        "false_pass_rate": {
+          "rate": 0.0,
+          "count": 0,
+          "total": 20
+        },
+        "false_reject_rate": {
+          "rate": 0.05,
+          "count": 1,
+          "total": 20
+        },
+        "per_category": [
+          {
+            "category": "added_certification",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 2,
+              "total": 2
+            }
+          },
+          {
+            "category": "added_date",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 2,
+              "total": 2
+            }
+          },
+          {
+            "category": "added_employer",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 3,
+              "total": 3
+            }
+          },
+          {
+            "category": "added_number",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 3,
+              "total": 3
+            }
+          },
+          {
+            "category": "added_result",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 2,
+              "total": 2
+            }
+          },
+          {
+            "category": "added_scope",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 2,
+              "total": 2
+            }
+          },
+          {
+            "category": "added_tool",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 3,
+              "total": 3
+            }
+          },
+          {
+            "category": "changed_number",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 3,
+              "total": 3
+            }
+          },
+          {
+            "category": "faithful_reorder",
+            "label": "faithful",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 3,
+              "total": 3
+            }
+          },
+          {
+            "category": "faithful_reword",
+            "label": "faithful",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 5,
+              "total": 5
+            }
+          },
+          {
+            "category": "faithful_trim",
+            "label": "faithful",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 4,
+              "total": 4
+            }
+          },
+          {
+            "category": "tricky_faithful",
+            "label": "faithful",
+            "accuracy": {
+              "rate": 0.875,
+              "count": 7,
+              "total": 8
+            }
+          }
+        ]
+      },
+      "development": {
+        "cases": 60,
+        "adds_fact_cases": 30,
+        "faithful_cases": 30,
+        "counts": {
+          "tp": 30,
+          "fp": 1,
+          "tn": 29,
+          "fn": 0
+        },
+        "accuracy": {
+          "rate": 0.9833,
+          "count": 59,
+          "total": 60
+        },
+        "precision": {
+          "rate": 0.9677,
+          "count": 30,
+          "total": 31
+        },
+        "recall": {
+          "rate": 1.0,
+          "count": 30,
+          "total": 30
+        },
+        "false_pass_rate": {
+          "rate": 0.0,
+          "count": 0,
+          "total": 30
+        },
+        "false_reject_rate": {
+          "rate": 0.0333,
+          "count": 1,
+          "total": 30
+        },
+        "per_category": [
+          {
+            "category": "added_certification",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 3,
+              "total": 3
+            }
+          },
+          {
+            "category": "added_date",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 3,
+              "total": 3
+            }
+          },
+          {
+            "category": "added_employer",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 3,
+              "total": 3
+            }
+          },
+          {
+            "category": "added_number",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 5,
+              "total": 5
+            }
+          },
+          {
+            "category": "added_scope",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 5,
+              "total": 5
+            }
+          },
+          {
+            "category": "added_tool",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 5,
+              "total": 5
+            }
+          },
+          {
+            "category": "changed_number",
+            "label": "adds_fact",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            }
+          },
+          {
+            "category": "faithful_reorder",
+            "label": "faithful",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 5,
+              "total": 5
+            }
+          },
+          {
+            "category": "faithful_reword",
+            "label": "faithful",
+            "accuracy": {
+              "rate": 0.8333,
+              "count": 5,
+              "total": 6
+            }
+          },
+          {
+            "category": "faithful_trim",
+            "label": "faithful",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 5,
+              "total": 5
+            }
+          },
+          {
+            "category": "tricky_faithful",
+            "label": "faithful",
+            "accuracy": {
+              "rate": 1.0,
+              "count": 14,
+              "total": 14
+            }
+          }
+        ]
+      }
+    }
+  },
+  "semantic": {
+    "status": "not requested",
+    "how_to_run": "Install the ml extra (pip install -e \".[dev,ml]\", with the CPU-only PyTorch first on Linux as the README shows), then run python -m evals.run --semantic. The first run downloads the two models from Hugging Face, about 180 MB."
+  },
+  "llm": {
+    "status": "not requested",
+    "how_to_run": "Put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), then run python -m evals.run --llm. It makes one parse call per job and up to LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by default)."
+  },
+  "error_analysis": [
+    {
+      "id": "pair_no_catalog_skill",
+      "area": "Pair status",
+      "title": "Requirements that name no catalog skill are left for a person to check",
+      "observation": "The rule parser only finds skills from the skill catalog. A requirement whose tools are outside it, or that asks for a domain, a degree or a certification, gets no skills, so exact matching marks it needs_check whether the resume proves it, lacks it or shows it in part.",
+      "count": 35,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "r02_dotnet_fullstack x j02_dotnet_fullstack_developer",
+          "formats": "all formats",
+          "what": "\"Experience with RxJS and NgRx\": labeled partial; the parser found no catalog skill in it."
+        },
+        {
+          "where": "r03_react_frontend x j03_frontend_react_engineer",
+          "formats": "all formats",
+          "what": "\"Experience with Next.js or another server-side rendering framework is required.\": labeled direct; the parser found no catalog skill in it."
+        },
+        {
+          "where": "r04_ml_engineer x j04_ml_engineer",
+          "formats": "all formats",
+          "what": "\"Solid understanding of statistics and model evaluation\": labeled direct; the parser found no catalog skill in it."
+        }
+      ]
+    },
+    {
+      "id": "evidence_years_only",
+      "area": "Evidence",
+      "title": "Years requirements cite no resume lines",
+      "observation": "For a years-only requirement the report gives the years it counted but no lines, while the labels cite the role header lines. These items always miss in evidence recall, which is why recall is also shown without them.",
+      "count": 14,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "r01_data_engineer x j01_senior_data_engineer",
+          "formats": "all formats",
+          "what": "\"5+ years of professional software or data engineering experience\": labeled direct; the report cites no lines (8.9 years read)."
+        },
+        {
+          "where": "r11_cloud_data_architect x j01_senior_data_engineer",
+          "formats": "all formats",
+          "what": "\"5+ years of professional software or data engineering experience\": labeled direct; the report cites no lines (13.3 years read)."
+        },
+        {
+          "where": "r03_react_frontend x j01_senior_data_engineer",
+          "formats": "all formats",
+          "what": "\"5+ years of professional software or data engineering experience\": labeled direct; the report cites no lines (no years read)."
+        }
+      ]
+    },
+    {
+      "id": "jd_priority",
+      "area": "Requirement extraction",
+      "title": "Required lines get the wrong priority",
+      "observation": "Required lines written as prose sentences, or under a heading the parser doesn't know, default to context; a line-level word such as \"Familiarity with\" turns a required line into preferred.",
+      "count": 11,
+      "unit": "job lines",
+      "formats": "",
+      "examples": [
+        {
+          "where": "j01_senior_data_engineer",
+          "formats": "",
+          "what": "\"Familiarity with Git and CI/CD workflows\" labeled required, parsed as preferred."
+        },
+        {
+          "where": "j03_frontend_react_engineer",
+          "formats": "",
+          "what": "\"We are looking for someone with 4+ years of professional front-end development experience.\" labeled required, parsed as context."
+        },
+        {
+          "where": "j04_ml_engineer",
+          "formats": "",
+          "what": "\"Experience with PyTorch or TensorFlow\" labeled required, parsed as context."
+        }
+      ]
+    },
+    {
+      "id": "jd_boilerplate_kept",
+      "area": "Requirement extraction",
+      "title": "Benefits, pay and legal lines after an unknown heading are kept as requirements",
+      "observation": "A heading the parser doesn't know (\"What we offer\") doesn't end the section above it, so benefit, salary, equal opportunity and how-to-apply lines are kept with that section's priority.",
+      "count": 10,
+      "unit": "job lines",
+      "formats": "",
+      "examples": [
+        {
+          "where": "j01_senior_data_engineer",
+          "formats": "",
+          "what": "\"Salary range: $150,000 - $175,000 plus annual bonus\" kept as preferred."
+        },
+        {
+          "where": "j05_site_reliability_engineer",
+          "formats": "",
+          "what": "\"Compensation: $160,000 - $190,000 base, plus equity.\" kept as preferred."
+        },
+        {
+          "where": "j08_guidewire_policycenter_developer",
+          "formats": "",
+          "what": "\"Excellent compensation and benefits. Example Coastal Insurance is an Equal Opportunity Employer. Please sha...\" kept as preferred."
+        }
+      ]
+    },
+    {
+      "id": "pair_adjacent_missed",
+      "area": "Pair status",
+      "title": "Related experience needs matching by meaning",
+      "observation": "In exact mode the app never returns adjacent, so related experience the labels mark adjacent (GitLab CI for GitHub Actions, Java for C#) comes out as gap, partial or needs_check. Matching by meaning is meant for these and wasn't run.",
+      "count": 9,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "r11_cloud_data_architect x j01_senior_data_engineer",
+          "formats": "all formats",
+          "what": "\"Experience with GitHub Actions\": labeled adjacent, app gap (GitHub Actions missing, Git missing)."
+        },
+        {
+          "where": "r03_react_frontend x j01_senior_data_engineer",
+          "formats": "all formats",
+          "what": "\"Experience with GitHub Actions\": labeled adjacent, app partial (GitHub Actions missing, Git demonstrated)."
+        },
+        {
+          "where": "r02_dotnet_fullstack x j02_dotnet_fullstack_developer",
+          "formats": "all formats",
+          "what": "\"Knowledge of Guidewire or other insurance platforms\": labeled adjacent, app partial (Guidewire missing, Insurance listed)."
+        }
+      ]
+    },
+    {
+      "id": "evidence_other_line",
+      "area": "Evidence",
+      "title": "The status is right but the first lines cited aren't the labeled ones",
+      "observation": "The status matches the label, but none of the report's first three lines is a labeled evidence line. Evidence is listed skill by skill, so the first lines can all come from one skill of the requirement, or from a broad skill such as ETL (matched by \"data pipelines\").",
+      "count": 7,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "r11_cloud_data_architect x j01_senior_data_engineer",
+          "formats": "all formats",
+          "what": "\"Experience building data pipelines on AWS or Azure\": labeled direct, app direct; first line: experience line \"Implemented CI/CD for data pipelines with Azure DevOps.\" (ETL via 'data pipelines')."
+        },
+        {
+          "where": "r04_ml_engineer x j04_ml_engineer",
+          "formats": "all formats",
+          "what": "\"Healthcare or insurance data experience\": labeled direct, app direct; first line: experience line \"Data Scientist - Demo Insurance Group - May 2019 to Jul 2021\" (Insurance via 'Insurance')."
+        },
+        {
+          "where": "r08_guidewire_developer x j08_guidewire_policycenter_developer",
+          "formats": "all formats",
+          "what": "\"Guidewire certification (Associate or Specialist)\": labeled direct, app direct; first line: experience line \"Senior Guidewire Developer, Example Mutual, Jacksonville, FL | Apr 2022 - Till date\" (Guidewire via 'Guidewire')."
+        }
+      ]
+    },
+    {
+      "id": "pair_years_wrong",
+      "area": "Pair status",
+      "title": "Years requirements fail when roles weren't read",
+      "observation": "A years requirement is decided from the roles the app read: their total for \"5+ years of experience\", and the roles that mention the skill for \"4+ years with Java\". When a role is lost (see the structure patterns) the years fall short and the requirement becomes a gap or partial, or needs_check when no role was read at all.",
+      "count": 5,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "r03_react_frontend x j01_senior_data_engineer",
+          "formats": "pdf_inline, pdf_separate",
+          "what": "\"5+ years of professional software or data engineering experience\": labeled direct, app needs_check with no years read in total."
+        },
+        {
+          "where": "r10_python_backend x j05_site_reliability_engineer",
+          "formats": "all formats",
+          "what": "\"5+ years of experience in software engineering, DevOps or systems administration\": labeled direct, app needs_check with no years read in total."
+        },
+        {
+          "where": "r09_java_backend x j07_backend_java_developer",
+          "formats": "all formats",
+          "what": "\"5+ years of backend software development experience\": labeled direct, app gap with 1.3 years read in total."
+        }
+      ]
+    },
+    {
+      "id": "pair_undercredited",
+      "area": "Pair status",
+      "title": "Work the labels count as shown is found only in a summary or skills line",
+      "observation": "The labels count the work as shown in a bullet, but the bullet describes it in other words, so exact matching finds the skill only in the summary or skills section, or not at all, and calls the requirement partial.",
+      "count": 5,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "r01_data_engineer x j01_senior_data_engineer",
+          "formats": "all formats",
+          "what": "\"Background in the insurance industry\": labeled direct, app partial (Insurance listed)."
+        },
+        {
+          "where": "r03_react_frontend x j01_senior_data_engineer",
+          "formats": "all formats",
+          "what": "\"Familiarity with Git and CI/CD workflows\": labeled direct, app partial (Git demonstrated, CI/CD missing)."
+        },
+        {
+          "where": "r04_ml_engineer x j04_ml_engineer",
+          "formats": "all formats",
+          "what": "\"Hands-on NLP experience, including transformer models\": labeled direct, app partial (NLP listed)."
+        }
+      ]
+    },
+    {
+      "id": "structure_outside_section",
+      "area": "Resume structure",
+      "title": "A resume without section headings yields no roles or education",
+      "observation": "Roles are read only from an experience section and education only from an education section. With no headings every line is in the header section, so no role, date, total years or degree is read.",
+      "count": 4,
+      "unit": "roles or entries",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "r10_python_backend",
+          "formats": "all formats",
+          "what": "role 'Backend Developer, Sample Retail Group': The line is in the header section, and roles are only read from an experience section. Extracted line: \"Backend Developer, Sample Retail Group | Feb 2023 - Present\"."
+        },
+        {
+          "where": "r10_python_backend",
+          "formats": "all formats",
+          "what": "role 'Python Developer, Demo Startup Labs': The line is in the header section, and roles are only read from an experience section. Extracted line: \"Python Developer, Demo Startup Labs | Apr 2020 - Jan 2023\"."
+        },
+        {
+          "where": "r10_python_backend",
+          "formats": "all formats",
+          "what": "role 'Junior Developer, Placeholder Web Studio': The line is in the header section, and roles are only read from an experience section. Extracted line: \"Junior Developer, Placeholder Web Studio | Jul 2019 - Mar 2020\"."
+        }
+      ]
+    },
+    {
+      "id": "jd_intro_kept",
+      "area": "Requirement extraction",
+      "title": "Company and posting details are kept as requirements",
+      "observation": "Company descriptions and posting lines (company, client) are kept as context requirements: before the first heading when they name a catalog skill (a company name with \"Insurance\" in it), and inside a role section as one more sentence.",
+      "count": 4,
+      "unit": "job lines",
+      "formats": "",
+      "examples": [
+        {
+          "where": "j02_dotnet_fullstack_developer",
+          "formats": "",
+          "what": "\"Company: Sample Insurance Holdings\" kept as context."
+        },
+        {
+          "where": "j07_backend_java_developer",
+          "formats": "",
+          "what": "\"Demo Freight Systems is growing the team that runs our order and shipment platform.\" kept as context."
+        },
+        {
+          "where": "j08_guidewire_policycenter_developer",
+          "formats": "",
+          "what": "\"Client: Example Coastal Insurance\" kept as context."
+        }
+      ]
+    },
+    {
+      "id": "structure_dates_unreadable",
+      "area": "Resume structure",
+      "title": "Date ranges with a separator the parser doesn't accept are not read",
+      "observation": "The extracted header has a character between the two dates that the date pattern doesn't accept, so the role's months aren't counted.",
+      "count": 3,
+      "unit": "roles or entries",
+      "formats": "pdf_inline, pdf_separate",
+      "examples": [
+        {
+          "where": "r03_react_frontend",
+          "formats": "pdf_inline, pdf_separate",
+          "what": "role 'Senior Front-End Engineer, Sample Retail Group': The role was found, but its dates couldn't be read. Between the file and the extracted text, '–' became '·'. Extracted line: \"Senior Front-End Engineer at Sample Retail Group, Mar 2022 · Present\"."
+        },
+        {
+          "where": "r03_react_frontend",
+          "formats": "pdf_inline, pdf_separate",
+          "what": "role 'Front-End Developer, Demo Media': The role was found, but its dates couldn't be read. Between the file and the extracted text, '–' became '·'. Extracted line: \"Front-End Developer at Demo Media, Jun 2019 · Feb 2022\"."
+        },
+        {
+          "where": "r03_react_frontend",
+          "formats": "pdf_inline, pdf_separate",
+          "what": "role 'Web Developer Intern, Example Agency': The role was found, but its dates couldn't be read. Between the file and the extracted text, '–' became '·'. Extracted line: \"Web Developer Intern at Example Agency, Jan 2019 · May 2019\"."
+        }
+      ]
+    },
+    {
+      "id": "structure_joined_lines",
+      "area": "Resume structure",
+      "title": "PDF extraction joins a line to the one before it",
+      "observation": "A line that follows a full-width line, or any line on a page with only short lines, is joined to the previous paragraph, so a role header or an education entry disappears into another line.",
+      "count": 3,
+      "unit": "roles or entries",
+      "formats": "pdf_inline, pdf_separate",
+      "examples": [
+        {
+          "where": "r08_guidewire_developer",
+          "formats": "pdf_inline, pdf_separate",
+          "what": "role 'Software Engineer, Demo Tech Solutions': The header was joined with a neighbouring line during extraction. Extracted line: \"Environment: Guidewire BillingCenter 9, CustomerEngage, Gosu, Angular, SQL Server, Bitbucket, Jira Software...\"."
+        },
+        {
+          "where": "r11_cloud_data_architect",
+          "formats": "pdf_inline, pdf_separate",
+          "what": "education 'B.Tech Electronics': The entry was joined with a neighbouring line during extraction. Extracted line: \"M.S. Information Technology, Example University, 2013 B.Tech Electronics, Sample Institute of Technology, 2011\"."
+        },
+        {
+          "where": "r11_cloud_data_architect",
+          "formats": "pdf_inline, pdf_separate",
+          "what": "education 'M.S. Information Technology': Read the year 2011, labeled 2013. Extracted line: \"M.S. Information Technology, Example University, 2013 B.Tech Electronics, Sample Institute of Technology, 2011\"."
+        }
+      ]
+    },
+    {
+      "id": "pair_overcredited",
+      "area": "Pair status",
+      "title": "A related skill or a missing detail is counted as direct proof",
+      "observation": "The catalog files some tools under a broader skill (GitHub, GitLab and Bitbucket are terms for Git, JUnit for Unit testing), so a requirement for one tool can be proven by a line that names another. A version the requirement asks for isn't checked either.",
+      "count": 3,
+      "unit": "labeled requirements",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "r08_guidewire_developer x j02_dotnet_fullstack_developer",
+          "formats": "all formats",
+          "what": "\"Experience with Angular 12 or later\": labeled partial, app direct from the experience line \"Customized CustomerEngage Angular screens for policy servicing and online payments.\" (Angular via 'Angular')."
+        },
+        {
+          "where": "r12_junior_developer x j03_frontend_react_engineer",
+          "formats": "all formats",
+          "what": "\"You should be comfortable writing unit tests with Jest or a similar framework.\": labeled adjacent, app direct from the experience line \"Wrote JUnit tests for the endpoint and fixed 12 bugs from the team backlog.\" (Unit testing via 'JUnit')."
+        },
+        {
+          "where": "r08_guidewire_developer x j02_dotnet_fullstack_developer",
+          "formats": "all formats",
+          "what": "\"Experience with Azure DevOps or GitHub Actions\": labeled adjacent, app direct from the experience line \"Environment: Guidewire PolicyCenter 10, Guidewire Cloud, Gosu, PCF, SOAP, REST, Jenkins...\" (Git via 'Git')."
+        }
+      ]
+    },
+    {
+      "id": "structure_fields_differ",
+      "area": "Resume structure",
+      "title": "Roles are found but the title or employer is split wrongly",
+      "observation": "The role and its dates are read, but extra text stays in the employer (a city and state) or the employer stays in the title, so the role doesn't match its label.",
+      "count": 2,
+      "unit": "roles or entries",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "r08_guidewire_developer",
+          "formats": "all formats",
+          "what": "role 'Senior Guidewire Developer, Example Mutual': Read as a role with title 'Senior Guidewire Developer' and employer 'Example Mutual, Jacksonville, FL'. Extracted line: \"Senior Guidewire Developer, Example Mutual, Jacksonville, FL | Apr 2022 - Till date\"."
+        },
+        {
+          "where": "r09_java_backend",
+          "formats": "all formats",
+          "what": "role 'Associate Developer, Sample Software Co': Read as a role with title 'Sample Software Co: Associate Developer' and employer None. Extracted line: \"Sample Software Co: Associate Developer, Jun 2016 - Aug 2017\"."
+        }
+      ]
+    },
+    {
+      "id": "structure_not_a_header",
+      "area": "Resume structure",
+      "title": "Role header lines in some layouts are read as body text",
+      "observation": "The line holds a date range the app can read, but it isn't taken as a role header, so the role and its months are lost.",
+      "count": 2,
+      "unit": "roles or entries",
+      "formats": "all formats",
+      "examples": [
+        {
+          "where": "r09_java_backend",
+          "formats": "all formats",
+          "what": "role 'Senior Software Engineer, Demo Logistics': The line was kept as body text, not read as a role. It starts with words followed by a colon. Extracted line: \"Demo Logistics: Senior Software Engineer, May 2021 - present\"."
+        },
+        {
+          "where": "r09_java_backend",
+          "formats": "all formats",
+          "what": "role 'Java Developer, Example Mutual': The line was kept as body text, not read as a role. It starts with words followed by a colon. Extracted line: \"Example Mutual: Java Developer, Sep 2017 - Apr 2021\"."
+        }
+      ]
+    },
+    {
+      "id": "jd_heading_kept",
+      "area": "Requirement extraction",
+      "title": "Unknown section headings are kept as requirements",
+      "observation": "A heading the parser doesn't recognize (\"What we need:\", \"What we offer\") is kept as a requirement line, and the lines under it keep the previous section's priority.",
+      "count": 2,
+      "unit": "job lines",
+      "formats": "",
+      "examples": [
+        {
+          "where": "j01_senior_data_engineer",
+          "formats": "",
+          "what": "\"What we offer\" kept as preferred."
+        },
+        {
+          "where": "j04_ml_engineer",
+          "formats": "",
+          "what": "\"What we need:\" kept as context."
+        }
+      ]
+    },
+    {
+      "id": "factcheck_false_reject",
+      "area": "Fact checker",
+      "title": "Faithful rewrites rejected by the fact checker",
+      "observation": "The checker errs toward rejecting. A leadership word (\"led\" for \"ran\") counts as a bigger claim, and another catalog name for the same skill (\"Kubernetes\" for \"K8s\") counts as a new product name.",
+      "count": 2,
+      "unit": "cases",
+      "formats": "",
+      "examples": [
+        {
+          "where": "holdout ho010",
+          "formats": "",
+          "what": "\"Moved nightly batch workers from EC2 instances to K8s CronJobs.\" became \"Moved nightly batch workers from EC2 instances to Kubernetes CronJobs.\": labeled faithful, checker rejected (\"Kubernetes\" looks like the name of an organization or product that isn't in the original line.)."
+        },
+        {
+          "where": "development fc057",
+          "formats": "",
+          "what": "\"Mentored 4 developers and ran the team's design review meetings.\" became \"Mentored four developers and led the team's design review meetings.\": labeled faithful, checker rejected (\"led\" claims more responsibility than the original line does.)."
+        }
+      ]
+    }
+  ],
+  "details": {
+    "structure_per_resume": [
+      {
+        "resume": "r01_data_engineer",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 8.9,
+        "years_app": 8.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r02_dotnet_fullstack",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 9.9,
+        "years_app": 9.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r03_react_frontend",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 0,
+        "years_gold": 7.9,
+        "years_app": null,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r04_ml_engineer",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 7.6,
+        "years_app": 7.6,
+        "education_gold": 2,
+        "education_matched": 2
+      },
+      {
+        "resume": "r05_devops_sre",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 8.9,
+        "years_app": 8.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r06_qa_automation",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 8.5,
+        "years_app": 8.5,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r07_data_analyst",
+        "format": "pdf_inline",
+        "roles_gold": 2,
+        "roles_found": 2,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 7.6,
+        "years_app": 7.6,
+        "education_gold": 2,
+        "education_matched": 2
+      },
+      {
+        "resume": "r08_guidewire_developer",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 2,
+        "roles_matched": 1,
+        "dates_correct": 1,
+        "years_gold": 8.4,
+        "years_app": 6.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 1,
+        "roles_matched": 0,
+        "dates_correct": 0,
+        "years_gold": 10.5,
+        "years_app": 1.3,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "pdf_inline",
+        "roles_gold": 3,
+        "roles_found": 0,
+        "roles_matched": 0,
+        "dates_correct": 0,
+        "years_gold": 7.4,
+        "years_app": null,
+        "education_gold": 1,
+        "education_matched": 0
+      },
+      {
+        "resume": "r11_cloud_data_architect",
+        "format": "pdf_inline",
+        "roles_gold": 4,
+        "roles_found": 4,
+        "roles_matched": 4,
+        "dates_correct": 4,
+        "years_gold": 13.3,
+        "years_app": 13.3,
+        "education_gold": 2,
+        "education_matched": 1
+      },
+      {
+        "resume": "r12_junior_developer",
+        "format": "pdf_inline",
+        "roles_gold": 2,
+        "roles_found": 2,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 1.6,
+        "years_app": 1.6,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r01_data_engineer",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 8.9,
+        "years_app": 8.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r02_dotnet_fullstack",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 9.9,
+        "years_app": 9.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r03_react_frontend",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 0,
+        "years_gold": 7.9,
+        "years_app": null,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r04_ml_engineer",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 7.6,
+        "years_app": 7.6,
+        "education_gold": 2,
+        "education_matched": 2
+      },
+      {
+        "resume": "r05_devops_sre",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 8.9,
+        "years_app": 8.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r06_qa_automation",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 8.5,
+        "years_app": 8.5,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r07_data_analyst",
+        "format": "pdf_separate",
+        "roles_gold": 2,
+        "roles_found": 2,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 7.6,
+        "years_app": 7.6,
+        "education_gold": 2,
+        "education_matched": 2
+      },
+      {
+        "resume": "r08_guidewire_developer",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 2,
+        "roles_matched": 1,
+        "dates_correct": 1,
+        "years_gold": 8.4,
+        "years_app": 6.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 1,
+        "roles_matched": 0,
+        "dates_correct": 0,
+        "years_gold": 10.5,
+        "years_app": 1.3,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "pdf_separate",
+        "roles_gold": 3,
+        "roles_found": 0,
+        "roles_matched": 0,
+        "dates_correct": 0,
+        "years_gold": 7.4,
+        "years_app": null,
+        "education_gold": 1,
+        "education_matched": 0
+      },
+      {
+        "resume": "r11_cloud_data_architect",
+        "format": "pdf_separate",
+        "roles_gold": 4,
+        "roles_found": 4,
+        "roles_matched": 4,
+        "dates_correct": 4,
+        "years_gold": 13.3,
+        "years_app": 13.3,
+        "education_gold": 2,
+        "education_matched": 1
+      },
+      {
+        "resume": "r12_junior_developer",
+        "format": "pdf_separate",
+        "roles_gold": 2,
+        "roles_found": 2,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 1.6,
+        "years_app": 1.6,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r01_data_engineer",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 8.9,
+        "years_app": 8.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r02_dotnet_fullstack",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 9.9,
+        "years_app": 9.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r03_react_frontend",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 7.9,
+        "years_app": 7.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r04_ml_engineer",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 7.6,
+        "years_app": 7.6,
+        "education_gold": 2,
+        "education_matched": 2
+      },
+      {
+        "resume": "r05_devops_sre",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 8.9,
+        "years_app": 8.9,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r06_qa_automation",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 3,
+        "dates_correct": 3,
+        "years_gold": 8.5,
+        "years_app": 8.5,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r07_data_analyst",
+        "format": "docx",
+        "roles_gold": 2,
+        "roles_found": 2,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 7.6,
+        "years_app": 7.6,
+        "education_gold": 2,
+        "education_matched": 2
+      },
+      {
+        "resume": "r08_guidewire_developer",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 3,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 8.4,
+        "years_app": 8.4,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 1,
+        "roles_matched": 0,
+        "dates_correct": 0,
+        "years_gold": 10.5,
+        "years_app": 1.3,
+        "education_gold": 1,
+        "education_matched": 1
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "docx",
+        "roles_gold": 3,
+        "roles_found": 0,
+        "roles_matched": 0,
+        "dates_correct": 0,
+        "years_gold": 7.4,
+        "years_app": null,
+        "education_gold": 1,
+        "education_matched": 0
+      },
+      {
+        "resume": "r11_cloud_data_architect",
+        "format": "docx",
+        "roles_gold": 4,
+        "roles_found": 4,
+        "roles_matched": 4,
+        "dates_correct": 4,
+        "years_gold": 13.3,
+        "years_app": 13.3,
+        "education_gold": 2,
+        "education_matched": 2
+      },
+      {
+        "resume": "r12_junior_developer",
+        "format": "docx",
+        "roles_gold": 2,
+        "roles_found": 2,
+        "roles_matched": 2,
+        "dates_correct": 2,
+        "years_gold": 1.6,
+        "years_app": 1.6,
+        "education_gold": 1,
+        "education_matched": 1
+      }
+    ],
+    "structure_failures": [
+      {
+        "resume": "r03_react_frontend",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Senior Front-End Engineer",
+          "employer": "Sample Retail Group",
+          "start": "2022-03",
+          "end": null
+        },
+        "cause": "dates_unreadable",
+        "line": "Senior Front-End Engineer at Sample Retail Group, Mar 2022 · Present",
+        "detail": "The role was found, but its dates couldn't be read. Between the file and the extracted text, '–' became '·'."
+      },
+      {
+        "resume": "r03_react_frontend",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Front-End Developer",
+          "employer": "Demo Media",
+          "start": "2019-06",
+          "end": "2022-02"
+        },
+        "cause": "dates_unreadable",
+        "line": "Front-End Developer at Demo Media, Jun 2019 · Feb 2022",
+        "detail": "The role was found, but its dates couldn't be read. Between the file and the extracted text, '–' became '·'."
+      },
+      {
+        "resume": "r03_react_frontend",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Web Developer Intern",
+          "employer": "Example Agency",
+          "start": "2019-01",
+          "end": "2019-05"
+        },
+        "cause": "dates_unreadable",
+        "line": "Web Developer Intern at Example Agency, Jan 2019 · May 2019",
+        "detail": "The role was found, but its dates couldn't be read. Between the file and the extracted text, '–' became '·'."
+      },
+      {
+        "resume": "r08_guidewire_developer",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Senior Guidewire Developer",
+          "employer": "Example Mutual",
+          "start": "2022-04",
+          "end": null
+        },
+        "cause": "fields_differ",
+        "line": "Senior Guidewire Developer, Example Mutual, Jacksonville, FL | Apr 2022 - Till date",
+        "detail": "Read as a role with title 'Senior Guidewire Developer' and employer 'Example Mutual, Jacksonville, FL'."
+      },
+      {
+        "resume": "r08_guidewire_developer",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Software Engineer",
+          "employer": "Demo Tech Solutions",
+          "start": "2018-07",
+          "end": "2019-12"
+        },
+        "cause": "joined_lines",
+        "line": "Environment: Guidewire BillingCenter 9, CustomerEngage, Gosu, Angular, SQL Server, Bitbucket, Jira Software Engineer, Demo Tech Solutions | Jul 2018 - Dec 2019",
+        "detail": "The header was joined with a neighbouring line during extraction."
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Senior Software Engineer",
+          "employer": "Demo Logistics",
+          "start": "2021-05",
+          "end": null
+        },
+        "cause": "not_a_header",
+        "line": "Demo Logistics: Senior Software Engineer, May 2021 - present",
+        "detail": "The line was kept as body text, not read as a role. It starts with words followed by a colon."
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Java Developer",
+          "employer": "Example Mutual",
+          "start": "2017-09",
+          "end": "2021-04"
+        },
+        "cause": "not_a_header",
+        "line": "Example Mutual: Java Developer, Sep 2017 - Apr 2021",
+        "detail": "The line was kept as body text, not read as a role. It starts with words followed by a colon."
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Associate Developer",
+          "employer": "Sample Software Co",
+          "start": "2016-06",
+          "end": "2017-08"
+        },
+        "cause": "fields_differ",
+        "line": "Sample Software Co: Associate Developer, Jun 2016 - Aug 2017",
+        "detail": "Read as a role with title 'Sample Software Co: Associate Developer' and employer None."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Backend Developer",
+          "employer": "Sample Retail Group",
+          "start": "2023-02",
+          "end": null
+        },
+        "cause": "outside_section",
+        "line": "Backend Developer, Sample Retail Group | Feb 2023 - Present",
+        "detail": "The line is in the header section, and roles are only read from an experience section."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Python Developer",
+          "employer": "Demo Startup Labs",
+          "start": "2020-04",
+          "end": "2023-01"
+        },
+        "cause": "outside_section",
+        "line": "Python Developer, Demo Startup Labs | Apr 2020 - Jan 2023",
+        "detail": "The line is in the header section, and roles are only read from an experience section."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "pdf_inline",
+        "gold": {
+          "title": "Junior Developer",
+          "employer": "Placeholder Web Studio",
+          "start": "2019-07",
+          "end": "2020-03"
+        },
+        "cause": "outside_section",
+        "line": "Junior Developer, Placeholder Web Studio | Jul 2019 - Mar 2020",
+        "detail": "The line is in the header section, and roles are only read from an experience section."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "pdf_inline",
+        "gold": {
+          "degree": "B.S. Computer Science",
+          "school": "Example University",
+          "year": 2019
+        },
+        "cause": "outside_section",
+        "line": "B.S. Computer Science, Example University, 2019",
+        "detail": "The line is in the header section, and education is only read from an education section."
+      },
+      {
+        "resume": "r11_cloud_data_architect",
+        "format": "pdf_inline",
+        "gold": {
+          "degree": "B.Tech Electronics",
+          "school": "Sample Institute of Technology",
+          "year": 2011
+        },
+        "cause": "joined_lines",
+        "line": "M.S. Information Technology, Example University, 2013 B.Tech Electronics, Sample Institute of Technology, 2011",
+        "detail": "The entry was joined with a neighbouring line during extraction."
+      },
+      {
+        "resume": "r11_cloud_data_architect",
+        "format": "pdf_inline",
+        "gold": {
+          "degree": "M.S. Information Technology",
+          "school": "Example University",
+          "year": 2013
+        },
+        "cause": "joined_lines",
+        "line": "M.S. Information Technology, Example University, 2013 B.Tech Electronics, Sample Institute of Technology, 2011",
+        "detail": "Read the year 2011, labeled 2013."
+      },
+      {
+        "resume": "r03_react_frontend",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Senior Front-End Engineer",
+          "employer": "Sample Retail Group",
+          "start": "2022-03",
+          "end": null
+        },
+        "cause": "dates_unreadable",
+        "line": "Senior Front-End Engineer at Sample Retail Group, Mar 2022 · Present",
+        "detail": "The role was found, but its dates couldn't be read. Between the file and the extracted text, '–' became '·'."
+      },
+      {
+        "resume": "r03_react_frontend",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Front-End Developer",
+          "employer": "Demo Media",
+          "start": "2019-06",
+          "end": "2022-02"
+        },
+        "cause": "dates_unreadable",
+        "line": "Front-End Developer at Demo Media, Jun 2019 · Feb 2022",
+        "detail": "The role was found, but its dates couldn't be read. Between the file and the extracted text, '–' became '·'."
+      },
+      {
+        "resume": "r03_react_frontend",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Web Developer Intern",
+          "employer": "Example Agency",
+          "start": "2019-01",
+          "end": "2019-05"
+        },
+        "cause": "dates_unreadable",
+        "line": "Web Developer Intern at Example Agency, Jan 2019 · May 2019",
+        "detail": "The role was found, but its dates couldn't be read. Between the file and the extracted text, '–' became '·'."
+      },
+      {
+        "resume": "r08_guidewire_developer",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Senior Guidewire Developer",
+          "employer": "Example Mutual",
+          "start": "2022-04",
+          "end": null
+        },
+        "cause": "fields_differ",
+        "line": "Senior Guidewire Developer, Example Mutual, Jacksonville, FL | Apr 2022 - Till date",
+        "detail": "Read as a role with title 'Senior Guidewire Developer' and employer 'Example Mutual, Jacksonville, FL'."
+      },
+      {
+        "resume": "r08_guidewire_developer",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Software Engineer",
+          "employer": "Demo Tech Solutions",
+          "start": "2018-07",
+          "end": "2019-12"
+        },
+        "cause": "joined_lines",
+        "line": "Environment: Guidewire BillingCenter 9, CustomerEngage, Gosu, Angular, SQL Server, Bitbucket, Jira Software Engineer, Demo Tech Solutions | Jul 2018 - Dec 2019",
+        "detail": "The header was joined with a neighbouring line during extraction."
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Senior Software Engineer",
+          "employer": "Demo Logistics",
+          "start": "2021-05",
+          "end": null
+        },
+        "cause": "not_a_header",
+        "line": "Demo Logistics: Senior Software Engineer, May 2021 - present",
+        "detail": "The line was kept as body text, not read as a role. It starts with words followed by a colon."
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Java Developer",
+          "employer": "Example Mutual",
+          "start": "2017-09",
+          "end": "2021-04"
+        },
+        "cause": "not_a_header",
+        "line": "Example Mutual: Java Developer, Sep 2017 - Apr 2021",
+        "detail": "The line was kept as body text, not read as a role. It starts with words followed by a colon."
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Associate Developer",
+          "employer": "Sample Software Co",
+          "start": "2016-06",
+          "end": "2017-08"
+        },
+        "cause": "fields_differ",
+        "line": "Sample Software Co: Associate Developer, Jun 2016 - Aug 2017",
+        "detail": "Read as a role with title 'Sample Software Co: Associate Developer' and employer None."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Backend Developer",
+          "employer": "Sample Retail Group",
+          "start": "2023-02",
+          "end": null
+        },
+        "cause": "outside_section",
+        "line": "Backend Developer, Sample Retail Group | Feb 2023 - Present",
+        "detail": "The line is in the header section, and roles are only read from an experience section."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Python Developer",
+          "employer": "Demo Startup Labs",
+          "start": "2020-04",
+          "end": "2023-01"
+        },
+        "cause": "outside_section",
+        "line": "Python Developer, Demo Startup Labs | Apr 2020 - Jan 2023",
+        "detail": "The line is in the header section, and roles are only read from an experience section."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "pdf_separate",
+        "gold": {
+          "title": "Junior Developer",
+          "employer": "Placeholder Web Studio",
+          "start": "2019-07",
+          "end": "2020-03"
+        },
+        "cause": "outside_section",
+        "line": "Junior Developer, Placeholder Web Studio | Jul 2019 - Mar 2020",
+        "detail": "The line is in the header section, and roles are only read from an experience section."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "pdf_separate",
+        "gold": {
+          "degree": "B.S. Computer Science",
+          "school": "Example University",
+          "year": 2019
+        },
+        "cause": "outside_section",
+        "line": "B.S. Computer Science, Example University, 2019",
+        "detail": "The line is in the header section, and education is only read from an education section."
+      },
+      {
+        "resume": "r11_cloud_data_architect",
+        "format": "pdf_separate",
+        "gold": {
+          "degree": "B.Tech Electronics",
+          "school": "Sample Institute of Technology",
+          "year": 2011
+        },
+        "cause": "joined_lines",
+        "line": "M.S. Information Technology, Example University, 2013 B.Tech Electronics, Sample Institute of Technology, 2011",
+        "detail": "The entry was joined with a neighbouring line during extraction."
+      },
+      {
+        "resume": "r11_cloud_data_architect",
+        "format": "pdf_separate",
+        "gold": {
+          "degree": "M.S. Information Technology",
+          "school": "Example University",
+          "year": 2013
+        },
+        "cause": "joined_lines",
+        "line": "M.S. Information Technology, Example University, 2013 B.Tech Electronics, Sample Institute of Technology, 2011",
+        "detail": "Read the year 2011, labeled 2013."
+      },
+      {
+        "resume": "r08_guidewire_developer",
+        "format": "docx",
+        "gold": {
+          "title": "Senior Guidewire Developer",
+          "employer": "Example Mutual",
+          "start": "2022-04",
+          "end": null
+        },
+        "cause": "fields_differ",
+        "line": "Senior Guidewire Developer, Example Mutual, Jacksonville, FL | Apr 2022 - Till date",
+        "detail": "Read as a role with title 'Senior Guidewire Developer' and employer 'Example Mutual, Jacksonville, FL'."
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "docx",
+        "gold": {
+          "title": "Senior Software Engineer",
+          "employer": "Demo Logistics",
+          "start": "2021-05",
+          "end": null
+        },
+        "cause": "not_a_header",
+        "line": "Demo Logistics: Senior Software Engineer, May 2021 - present",
+        "detail": "The line was kept as body text, not read as a role. It starts with words followed by a colon."
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "docx",
+        "gold": {
+          "title": "Java Developer",
+          "employer": "Example Mutual",
+          "start": "2017-09",
+          "end": "2021-04"
+        },
+        "cause": "not_a_header",
+        "line": "Example Mutual: Java Developer, Sep 2017 - Apr 2021",
+        "detail": "The line was kept as body text, not read as a role. It starts with words followed by a colon."
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "docx",
+        "gold": {
+          "title": "Associate Developer",
+          "employer": "Sample Software Co",
+          "start": "2016-06",
+          "end": "2017-08"
+        },
+        "cause": "fields_differ",
+        "line": "Sample Software Co: Associate Developer, Jun 2016 - Aug 2017",
+        "detail": "Read as a role with title 'Sample Software Co: Associate Developer' and employer None."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "docx",
+        "gold": {
+          "title": "Backend Developer",
+          "employer": "Sample Retail Group",
+          "start": "2023-02",
+          "end": null
+        },
+        "cause": "outside_section",
+        "line": "Backend Developer, Sample Retail Group | Feb 2023 - Present",
+        "detail": "The line is in the header section, and roles are only read from an experience section."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "docx",
+        "gold": {
+          "title": "Python Developer",
+          "employer": "Demo Startup Labs",
+          "start": "2020-04",
+          "end": "2023-01"
+        },
+        "cause": "outside_section",
+        "line": "Python Developer, Demo Startup Labs | Apr 2020 - Jan 2023",
+        "detail": "The line is in the header section, and roles are only read from an experience section."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "docx",
+        "gold": {
+          "title": "Junior Developer",
+          "employer": "Placeholder Web Studio",
+          "start": "2019-07",
+          "end": "2020-03"
+        },
+        "cause": "outside_section",
+        "line": "Junior Developer, Placeholder Web Studio | Jul 2019 - Mar 2020",
+        "detail": "The line is in the header section, and roles are only read from an experience section."
+      },
+      {
+        "resume": "r10_python_backend",
+        "format": "docx",
+        "gold": {
+          "degree": "B.S. Computer Science",
+          "school": "Example University",
+          "year": 2019
+        },
+        "cause": "outside_section",
+        "line": "B.S. Computer Science, Example University, 2019",
+        "detail": "The line is in the header section, and education is only read from an education section."
+      }
+    ],
+    "extra_roles": [
+      {
+        "resume": "r08_guidewire_developer",
+        "format": "pdf_inline",
+        "predicted": {
+          "title": "Senior Guidewire Developer",
+          "employer": "Example Mutual, Jacksonville, FL",
+          "start": "2022-04",
+          "end": null
+        }
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "pdf_inline",
+        "predicted": {
+          "title": "Sample Software Co: Associate Developer",
+          "employer": null,
+          "start": "2016-06",
+          "end": "2017-08"
+        }
+      },
+      {
+        "resume": "r08_guidewire_developer",
+        "format": "pdf_separate",
+        "predicted": {
+          "title": "Senior Guidewire Developer",
+          "employer": "Example Mutual, Jacksonville, FL",
+          "start": "2022-04",
+          "end": null
+        }
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "pdf_separate",
+        "predicted": {
+          "title": "Sample Software Co: Associate Developer",
+          "employer": null,
+          "start": "2016-06",
+          "end": "2017-08"
+        }
+      },
+      {
+        "resume": "r08_guidewire_developer",
+        "format": "docx",
+        "predicted": {
+          "title": "Senior Guidewire Developer",
+          "employer": "Example Mutual, Jacksonville, FL",
+          "start": "2022-04",
+          "end": null
+        }
+      },
+      {
+        "resume": "r09_java_backend",
+        "format": "docx",
+        "predicted": {
+          "title": "Sample Software Co: Associate Developer",
+          "employer": null,
+          "start": "2016-06",
+          "end": "2017-08"
+        }
+      }
+    ],
+    "requirements_per_job": [
+      {
+        "job": "j01_senior_data_engineer",
+        "gold": 16,
+        "predicted": 24,
+        "matched": 16,
+        "priority_correct": 15,
+        "min_years_gold": 5,
+        "min_years_app": 5,
+        "title_ok": true
+      },
+      {
+        "job": "j02_dotnet_fullstack_developer",
+        "gold": 15,
+        "predicted": 17,
+        "matched": 15,
+        "priority_correct": 15,
+        "min_years_gold": 3,
+        "min_years_app": 3,
+        "title_ok": true
+      },
+      {
+        "job": "j03_frontend_react_engineer",
+        "gold": 12,
+        "predicted": 12,
+        "matched": 12,
+        "priority_correct": 7,
+        "min_years_gold": 4,
+        "min_years_app": 4,
+        "title_ok": true
+      },
+      {
+        "job": "j04_ml_engineer",
+        "gold": 15,
+        "predicted": 16,
+        "matched": 15,
+        "priority_correct": 10,
+        "min_years_gold": 4,
+        "min_years_app": 4,
+        "title_ok": true
+      },
+      {
+        "job": "j05_site_reliability_engineer",
+        "gold": 17,
+        "predicted": 19,
+        "matched": 17,
+        "priority_correct": 17,
+        "min_years_gold": 5,
+        "min_years_app": 5,
+        "title_ok": true
+      },
+      {
+        "job": "j06_qa_automation_engineer",
+        "gold": 15,
+        "predicted": 15,
+        "matched": 15,
+        "priority_correct": 15,
+        "min_years_gold": 3,
+        "min_years_app": 3,
+        "title_ok": true
+      },
+      {
+        "job": "j07_backend_java_developer",
+        "gold": 15,
+        "predicted": 16,
+        "matched": 15,
+        "priority_correct": 15,
+        "min_years_gold": 5,
+        "min_years_app": 5,
+        "title_ok": true
+      },
+      {
+        "job": "j08_guidewire_policycenter_developer",
+        "gold": 16,
+        "predicted": 18,
+        "matched": 16,
+        "priority_correct": 16,
+        "min_years_gold": 6,
+        "min_years_app": 6,
+        "title_ok": true
+      }
+    ],
+    "requirement_failures": {
+      "not_a_requirement": [
+        {
+          "job": "j01_senior_data_engineer",
+          "text": "What we offer",
+          "predicted": "preferred"
+        },
+        {
+          "job": "j01_senior_data_engineer",
+          "text": "Salary range: $150,000 - $175,000 plus annual bonus",
+          "predicted": "preferred"
+        },
+        {
+          "job": "j01_senior_data_engineer",
+          "text": "Medical, dental and vision insurance",
+          "predicted": "preferred"
+        },
+        {
+          "job": "j01_senior_data_engineer",
+          "text": "401(k) with 5% match",
+          "predicted": "preferred"
+        },
+        {
+          "job": "j01_senior_data_engineer",
+          "text": "Four weeks of paid time off",
+          "predicted": "preferred"
+        },
+        {
+          "job": "j01_senior_data_engineer",
+          "text": "Example Analytics Co. is an equal opportunity employer.",
+          "predicted": "preferred"
+        },
+        {
+          "job": "j01_senior_data_engineer",
+          "text": "We consider all qualified applicants without regard to race, color, religion, sex, sexual orientation, gender identity, national origin, disability or veteran status.",
+          "predicted": "preferred"
+        },
+        {
+          "job": "j01_senior_data_engineer",
+          "text": "To apply, send your resume to careers@example.com.",
+          "predicted": "preferred"
+        },
+        {
+          "job": "j02_dotnet_fullstack_developer",
+          "text": "Company: Sample Insurance Holdings",
+          "predicted": "context"
+        },
+        {
+          "job": "j02_dotnet_fullstack_developer",
+          "text": "Sample Insurance Holdings is replacing its policyholder and agent portals, and this role sits on the six-person team doing that work.",
+          "predicted": "context"
+        },
+        {
+          "job": "j04_ml_engineer",
+          "text": "What we need:",
+          "predicted": "context"
+        },
+        {
+          "job": "j05_site_reliability_engineer",
+          "text": "Compensation: $160,000 - $190,000 base, plus equity.",
+          "predicted": "preferred"
+        },
+        {
+          "job": "j05_site_reliability_engineer",
+          "text": "Placeholder Cloud Services provides equal employment opportunity to all applicants.",
+          "predicted": "preferred"
+        },
+        {
+          "job": "j07_backend_java_developer",
+          "text": "Demo Freight Systems is growing the team that runs our order and shipment platform.",
+          "predicted": "context"
+        },
+        {
+          "job": "j08_guidewire_policycenter_developer",
+          "text": "Client: Example Coastal Insurance",
+          "predicted": "context"
+        },
+        {
+          "job": "j08_guidewire_policycenter_developer",
+          "text": "Excellent compensation and benefits. Example Coastal Insurance is an Equal Opportunity Employer. Please share your updated resume and visa status to jobs@example.com.",
+          "predicted": "preferred"
+        }
+      ],
+      "not_extracted": [],
+      "priority_errors": [
+        {
+          "job": "j01_senior_data_engineer",
+          "text": "Familiarity with Git and CI/CD workflows",
+          "gold": "required",
+          "predicted": "preferred"
+        },
+        {
+          "job": "j03_frontend_react_engineer",
+          "text": "We are looking for someone with 4+ years of professional front-end development experience.",
+          "gold": "required",
+          "predicted": "context"
+        },
+        {
+          "job": "j03_frontend_react_engineer",
+          "text": "You should be comfortable writing unit tests with Jest or a similar framework.",
+          "gold": "required",
+          "predicted": "context"
+        },
+        {
+          "job": "j03_frontend_react_engineer",
+          "text": "You should understand web accessibility standards such as WCAG.",
+          "gold": "required",
+          "predicted": "context"
+        },
+        {
+          "job": "j03_frontend_react_engineer",
+          "text": "Clear written communication is essential on our distributed team.",
+          "gold": "required",
+          "predicted": "context"
+        },
+        {
+          "job": "j03_frontend_react_engineer",
+          "text": "It would be great if you have worked with GraphQL.",
+          "gold": "preferred",
+          "predicted": "context"
+        },
+        {
+          "job": "j04_ml_engineer",
+          "text": "Experience with PyTorch or TensorFlow",
+          "gold": "required",
+          "predicted": "context"
+        },
+        {
+          "job": "j04_ml_engineer",
+          "text": "Hands-on NLP experience, including transformer models",
+          "gold": "required",
+          "predicted": "context"
+        },
+        {
+          "job": "j04_ml_engineer",
+          "text": "Experience deploying models with Docker and Kubernetes",
+          "gold": "required",
+          "predicted": "context"
+        },
+        {
+          "job": "j04_ml_engineer",
+          "text": "Experience with MLflow or a similar experiment tracking tool",
+          "gold": "required",
+          "predicted": "context"
+        },
+        {
+          "job": "j04_ml_engineer",
+          "text": "Solid understanding of statistics and model evaluation",
+          "gold": "required",
+          "predicted": "context"
+        }
+      ]
+    },
+    "pairs_per_pair": [
+      {
+        "pair": "r01_data_engineer x j01_senior_data_engineer",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 11,
+        "correct": 10
+      },
+      {
+        "pair": "r11_cloud_data_architect x j01_senior_data_engineer",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 11,
+        "correct": 10
+      },
+      {
+        "pair": "r03_react_frontend x j01_senior_data_engineer",
+        "fit": "wrong",
+        "format": "pdf_inline",
+        "items": 11,
+        "correct": 8
+      },
+      {
+        "pair": "r02_dotnet_fullstack x j02_dotnet_fullstack_developer",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 10,
+        "correct": 8
+      },
+      {
+        "pair": "r08_guidewire_developer x j02_dotnet_fullstack_developer",
+        "fit": "mixed",
+        "format": "pdf_inline",
+        "items": 10,
+        "correct": 6
+      },
+      {
+        "pair": "r03_react_frontend x j03_frontend_react_engineer",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 9,
+        "correct": 4
+      },
+      {
+        "pair": "r12_junior_developer x j03_frontend_react_engineer",
+        "fit": "mixed",
+        "format": "pdf_inline",
+        "items": 9,
+        "correct": 4
+      },
+      {
+        "pair": "r04_ml_engineer x j04_ml_engineer",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 11,
+        "correct": 7
+      },
+      {
+        "pair": "r06_qa_automation x j04_ml_engineer",
+        "fit": "wrong",
+        "format": "pdf_inline",
+        "items": 11,
+        "correct": 8
+      },
+      {
+        "pair": "r05_devops_sre x j05_site_reliability_engineer",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 12,
+        "correct": 8
+      },
+      {
+        "pair": "r10_python_backend x j05_site_reliability_engineer",
+        "fit": "mixed",
+        "format": "pdf_inline",
+        "items": 12,
+        "correct": 5
+      },
+      {
+        "pair": "r06_qa_automation x j06_qa_automation_engineer",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 11,
+        "correct": 6
+      },
+      {
+        "pair": "r09_java_backend x j07_backend_java_developer",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 12,
+        "correct": 8
+      },
+      {
+        "pair": "r12_junior_developer x j07_backend_java_developer",
+        "fit": "mixed",
+        "format": "pdf_inline",
+        "items": 12,
+        "correct": 8
+      },
+      {
+        "pair": "r08_guidewire_developer x j08_guidewire_policycenter_developer",
+        "fit": "strong",
+        "format": "pdf_inline",
+        "items": 12,
+        "correct": 10
+      },
+      {
+        "pair": "r07_data_analyst x j08_guidewire_policycenter_developer",
+        "fit": "wrong",
+        "format": "pdf_inline",
+        "items": 12,
+        "correct": 10
+      },
+      {
+        "pair": "r01_data_engineer x j01_senior_data_engineer",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 11,
+        "correct": 10
+      },
+      {
+        "pair": "r11_cloud_data_architect x j01_senior_data_engineer",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 11,
+        "correct": 10
+      },
+      {
+        "pair": "r03_react_frontend x j01_senior_data_engineer",
+        "fit": "wrong",
+        "format": "pdf_separate",
+        "items": 11,
+        "correct": 8
+      },
+      {
+        "pair": "r02_dotnet_fullstack x j02_dotnet_fullstack_developer",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 10,
+        "correct": 8
+      },
+      {
+        "pair": "r08_guidewire_developer x j02_dotnet_fullstack_developer",
+        "fit": "mixed",
+        "format": "pdf_separate",
+        "items": 10,
+        "correct": 6
+      },
+      {
+        "pair": "r03_react_frontend x j03_frontend_react_engineer",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 9,
+        "correct": 4
+      },
+      {
+        "pair": "r12_junior_developer x j03_frontend_react_engineer",
+        "fit": "mixed",
+        "format": "pdf_separate",
+        "items": 9,
+        "correct": 4
+      },
+      {
+        "pair": "r04_ml_engineer x j04_ml_engineer",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 11,
+        "correct": 7
+      },
+      {
+        "pair": "r06_qa_automation x j04_ml_engineer",
+        "fit": "wrong",
+        "format": "pdf_separate",
+        "items": 11,
+        "correct": 8
+      },
+      {
+        "pair": "r05_devops_sre x j05_site_reliability_engineer",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 12,
+        "correct": 8
+      },
+      {
+        "pair": "r10_python_backend x j05_site_reliability_engineer",
+        "fit": "mixed",
+        "format": "pdf_separate",
+        "items": 12,
+        "correct": 5
+      },
+      {
+        "pair": "r06_qa_automation x j06_qa_automation_engineer",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 11,
+        "correct": 6
+      },
+      {
+        "pair": "r09_java_backend x j07_backend_java_developer",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 12,
+        "correct": 8
+      },
+      {
+        "pair": "r12_junior_developer x j07_backend_java_developer",
+        "fit": "mixed",
+        "format": "pdf_separate",
+        "items": 12,
+        "correct": 8
+      },
+      {
+        "pair": "r08_guidewire_developer x j08_guidewire_policycenter_developer",
+        "fit": "strong",
+        "format": "pdf_separate",
+        "items": 12,
+        "correct": 10
+      },
+      {
+        "pair": "r07_data_analyst x j08_guidewire_policycenter_developer",
+        "fit": "wrong",
+        "format": "pdf_separate",
+        "items": 12,
+        "correct": 10
+      },
+      {
+        "pair": "r01_data_engineer x j01_senior_data_engineer",
+        "fit": "strong",
+        "format": "docx",
+        "items": 11,
+        "correct": 10
+      },
+      {
+        "pair": "r11_cloud_data_architect x j01_senior_data_engineer",
+        "fit": "strong",
+        "format": "docx",
+        "items": 11,
+        "correct": 10
+      },
+      {
+        "pair": "r03_react_frontend x j01_senior_data_engineer",
+        "fit": "wrong",
+        "format": "docx",
+        "items": 11,
+        "correct": 9
+      },
+      {
+        "pair": "r02_dotnet_fullstack x j02_dotnet_fullstack_developer",
+        "fit": "strong",
+        "format": "docx",
+        "items": 10,
+        "correct": 8
+      },
+      {
+        "pair": "r08_guidewire_developer x j02_dotnet_fullstack_developer",
+        "fit": "mixed",
+        "format": "docx",
+        "items": 10,
+        "correct": 6
+      },
+      {
+        "pair": "r03_react_frontend x j03_frontend_react_engineer",
+        "fit": "strong",
+        "format": "docx",
+        "items": 9,
+        "correct": 5
+      },
+      {
+        "pair": "r12_junior_developer x j03_frontend_react_engineer",
+        "fit": "mixed",
+        "format": "docx",
+        "items": 9,
+        "correct": 4
+      },
+      {
+        "pair": "r04_ml_engineer x j04_ml_engineer",
+        "fit": "strong",
+        "format": "docx",
+        "items": 11,
+        "correct": 7
+      },
+      {
+        "pair": "r06_qa_automation x j04_ml_engineer",
+        "fit": "wrong",
+        "format": "docx",
+        "items": 11,
+        "correct": 8
+      },
+      {
+        "pair": "r05_devops_sre x j05_site_reliability_engineer",
+        "fit": "strong",
+        "format": "docx",
+        "items": 12,
+        "correct": 8
+      },
+      {
+        "pair": "r10_python_backend x j05_site_reliability_engineer",
+        "fit": "mixed",
+        "format": "docx",
+        "items": 12,
+        "correct": 5
+      },
+      {
+        "pair": "r06_qa_automation x j06_qa_automation_engineer",
+        "fit": "strong",
+        "format": "docx",
+        "items": 11,
+        "correct": 6
+      },
+      {
+        "pair": "r09_java_backend x j07_backend_java_developer",
+        "fit": "strong",
+        "format": "docx",
+        "items": 12,
+        "correct": 8
+      },
+      {
+        "pair": "r12_junior_developer x j07_backend_java_developer",
+        "fit": "mixed",
+        "format": "docx",
+        "items": 12,
+        "correct": 8
+      },
+      {
+        "pair": "r08_guidewire_developer x j08_guidewire_policycenter_developer",
+        "fit": "strong",
+        "format": "docx",
+        "items": 12,
+        "correct": 10
+      },
+      {
+        "pair": "r07_data_analyst x j08_guidewire_policycenter_developer",
+        "fit": "wrong",
+        "format": "docx",
+        "items": 12,
+        "correct": 10
+      }
+    ],
+    "status_errors": [
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r01_data_engineer x j01_senior_data_engineer",
+        "mode": "exact",
+        "text": "Background in the insurance industry",
+        "gold": "direct",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Insurance": "listed"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Data engineer with seven years of experience building batch and streaming pipelines for insurance and logistics companies. Recent work centers on Databricks, Snowflake and dbt.",
+            "section": "summary",
+            "source": "exact",
+            "detail": "Insurance via 'insurance'"
+          }
+        ],
+        "gold_evidence": [
+          "Designed a Kafka-based streaming feed for first notice of loss events, delivering new claims to adjusters within 2 minutes.",
+          "ingest claims, policy and billing data into Snowflake"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r11_cloud_data_architect x j01_senior_data_engineer",
+        "mode": "exact",
+        "text": "Experience with GitHub Actions",
+        "gold": "adjacent",
+        "app": "gap",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "GitHub Actions": null,
+          "Git": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Implemented CI/CD for data pipelines with Azure DevOps."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate"
+        ],
+        "pair": "r03_react_frontend x j01_senior_data_engineer",
+        "mode": "exact",
+        "text": "5+ years of professional software or data engineering experience",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": true,
+        "skills": {},
+        "min_years": 5,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Senior Front-End Engineer at Sample Retail Group, Mar 2022 – Present",
+          "Front-End Developer at Demo Media, Jun 2019 – Feb 2022",
+          "Web Developer Intern at Example Agency, Jan 2019 – May 2019"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r03_react_frontend x j01_senior_data_engineer",
+        "mode": "exact",
+        "text": "Familiarity with Git and CI/CD workflows",
+        "gold": "direct",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Git": "demonstrated",
+          "CI/CD": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Set up GitLab CI pipelines that run lint, tests and preview deploys for every merge request.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Git via 'GitLab'"
+          },
+          {
+            "text": "Testing and tools: Jest, React Testing Library, Playwright, Storybook, Webpack, Vite, Git",
+            "section": "skills",
+            "source": "exact",
+            "detail": "Git via 'Git'"
+          }
+        ],
+        "gold_evidence": [
+          "Set up GitLab CI pipelines that run lint, tests and preview deploys for every merge request."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r03_react_frontend x j01_senior_data_engineer",
+        "mode": "exact",
+        "text": "Experience with GitHub Actions",
+        "gold": "adjacent",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "GitHub Actions": null,
+          "Git": "demonstrated"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Set up GitLab CI pipelines that run lint, tests and preview deploys for every merge request.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Git via 'GitLab'"
+          },
+          {
+            "text": "Testing and tools: Jest, React Testing Library, Playwright, Storybook, Webpack, Vite, Git",
+            "section": "skills",
+            "source": "exact",
+            "detail": "Git via 'Git'"
+          }
+        ],
+        "gold_evidence": [
+          "Set up GitLab CI pipelines that run lint, tests and preview deploys for every merge request."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r02_dotnet_fullstack x j02_dotnet_fullstack_developer",
+        "mode": "exact",
+        "text": "Knowledge of Guidewire or other insurance platforms",
+        "gold": "adjacent",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Guidewire": null,
+          "Insurance": "listed"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Full stack .NET developer with close to ten years of experience in C#, ASP.NET and Angular, mostly on banking and insurance portals.",
+            "section": "summary",
+            "source": "exact",
+            "detail": "Insurance via 'insurance'"
+          }
+        ],
+        "gold_evidence": [
+          "Built Angular and TypeScript screens for an agent quoting portal."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r02_dotnet_fullstack x j02_dotnet_fullstack_developer",
+        "mode": "exact",
+        "text": "Experience with RxJS and NgRx",
+        "gold": "partial",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "C#, ASP.NET Core, .NET Framework, Entity Framework Core, Angular, TypeScript, RxJS, SQL Server, Azure, Azure DevOps, Docker, xUnit, Git"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r08_guidewire_developer x j02_dotnet_fullstack_developer",
+        "mode": "exact",
+        "text": "Strong C# and ASP.NET Core skills",
+        "gold": "adjacent",
+        "app": "gap",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "C#": null,
+          ".NET": null,
+          "ASP.NET": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Built Java and Spring web services for an internal claims tracking tool."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r08_guidewire_developer x j02_dotnet_fullstack_developer",
+        "mode": "exact",
+        "text": "Experience with Angular 12 or later",
+        "gold": "partial",
+        "app": "direct",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Angular": "demonstrated"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Customized CustomerEngage Angular screens for policy servicing and online payments.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Angular via 'Angular'"
+          },
+          {
+            "text": "Environment: Guidewire BillingCenter 9, CustomerEngage, Gosu, Angular, SQL Server, Bitbucket, Jira Software Engineer, Demo Tech Solutions | Jul 2018 - Dec 2019",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Angular via 'Angular'"
+          }
+        ],
+        "gold_evidence": [
+          "Customized CustomerEngage Angular screens for policy servicing and online payments."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r08_guidewire_developer x j02_dotnet_fullstack_developer",
+        "mode": "exact",
+        "text": "Experience with Azure DevOps or GitHub Actions",
+        "gold": "adjacent",
+        "app": "direct",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Azure": null,
+          "Azure DevOps": null,
+          "GitHub Actions": null,
+          "Git": "demonstrated"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Environment: Guidewire PolicyCenter 10, Guidewire Cloud, Gosu, PCF, SOAP, REST, Jenkins, Git, Oracle, Jira",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Git via 'Git'"
+          },
+          {
+            "text": "Environment: Guidewire BillingCenter 9, CustomerEngage, Gosu, Angular, SQL Server, Bitbucket, Jira Software Engineer, Demo Tech Solutions | Jul 2018 - Dec 2019",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Git via 'Bitbucket'"
+          },
+          {
+            "text": "Tools: Jenkins, Git, Bitbucket, Jira, SoapUI, Postman, GUnit",
+            "section": "skills",
+            "source": "exact",
+            "detail": "Git via 'Git'"
+          }
+        ],
+        "gold_evidence": [
+          "Environment: Guidewire PolicyCenter 10, Guidewire Cloud, Gosu, PCF, SOAP, REST, Jenkins, Git, Oracle, Jira"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r08_guidewire_developer x j02_dotnet_fullstack_developer",
+        "mode": "exact",
+        "text": "Experience with RxJS and NgRx",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate"
+        ],
+        "pair": "r03_react_frontend x j03_frontend_react_engineer",
+        "mode": "exact",
+        "text": "We are looking for someone with 4+ years of professional front-end development experience.",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": true,
+        "skills": {},
+        "min_years": 4,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Senior Front-End Engineer at Sample Retail Group, Mar 2022 – Present",
+          "Front-End Developer at Demo Media, Jun 2019 – Feb 2022",
+          "Web Developer Intern at Example Agency, Jan 2019 – May 2019"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r03_react_frontend x j03_frontend_react_engineer",
+        "mode": "exact",
+        "text": "Experience with Next.js or another server-side rendering framework is required.",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Built Next.js marketing pages with server-side rendering"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r03_react_frontend x j03_frontend_react_engineer",
+        "mode": "exact",
+        "text": "You should understand web accessibility standards such as WCAG.",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Fixed WCAG 2.1 AA issues found in an accessibility audit, closing 120 tickets in one quarter."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r03_react_frontend x j03_frontend_react_engineer",
+        "mode": "exact",
+        "text": "Experience building or maintaining a design system in Storybook is a plus.",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Created a shared component library with Storybook used by 6 product teams."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r03_react_frontend x j03_frontend_react_engineer",
+        "mode": "exact",
+        "text": "Familiarity with Cypress or Playwright for end-to-end testing is also a plus.",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "end-to-end tests with Playwright"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r12_junior_developer x j03_frontend_react_engineer",
+        "mode": "exact",
+        "text": "You should be comfortable writing unit tests with Jest or a similar framework.",
+        "gold": "adjacent",
+        "app": "direct",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Unit testing": "demonstrated"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Wrote JUnit tests for the endpoint and fixed 12 bugs from the team backlog.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Unit testing via 'JUnit'"
+          }
+        ],
+        "gold_evidence": [
+          "Wrote JUnit tests for the endpoint and fixed 12 bugs from the team backlog.",
+          "Set up GitHub Actions to run pytest on every push."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r12_junior_developer x j03_frontend_react_engineer",
+        "mode": "exact",
+        "text": "Experience with Next.js or another server-side rendering framework is required.",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r12_junior_developer x j03_frontend_react_engineer",
+        "mode": "exact",
+        "text": "You should understand web accessibility standards such as WCAG.",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r12_junior_developer x j03_frontend_react_engineer",
+        "mode": "exact",
+        "text": "Experience building or maintaining a design system in Storybook is a plus.",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r12_junior_developer x j03_frontend_react_engineer",
+        "mode": "exact",
+        "text": "Familiarity with Cypress or Playwright for end-to-end testing is also a plus.",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Wrote Cypress tests for the newsletter sign-up flow."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r04_ml_engineer x j04_ml_engineer",
+        "mode": "exact",
+        "text": "Hands-on NLP experience, including transformer models",
+        "gold": "direct",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "NLP": "listed"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "ML engineer with five years of production experience in NLP and tabular models. Also teaches part time.",
+            "section": "summary",
+            "source": "exact",
+            "detail": "NLP via 'NLP'"
+          }
+        ],
+        "gold_evidence": [
+          "Fine-tuned BERT-based models with PyTorch and Hugging Face Transformers to classify 2 million clinical notes a month."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r04_ml_engineer x j04_ml_engineer",
+        "mode": "exact",
+        "text": "Solid understanding of statistics and model evaluation",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Designed offline evaluation with cross-validation, calibration curves and precision-recall analysis before each model release."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r04_ml_engineer x j04_ml_engineer",
+        "mode": "exact",
+        "text": "Experience with LLMs and retrieval-augmented generation",
+        "gold": "direct",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "LLMs": null,
+          "RAG": "demonstrated"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Built a retrieval-augmented generation service with LangChain and FAISS that answers policy questions for 300 internal users.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "RAG via 'retrieval-augmented generation'"
+          }
+        ],
+        "gold_evidence": [
+          "Built a retrieval-augmented generation service with LangChain and FAISS"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r04_ml_engineer x j04_ml_engineer",
+        "mode": "exact",
+        "text": "A master's degree or PhD in a quantitative field",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "M.S. Data Science, Example Tech University, 2019"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r06_qa_automation x j04_ml_engineer",
+        "mode": "exact",
+        "text": "Solid understanding of statistics and model evaluation",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r06_qa_automation x j04_ml_engineer",
+        "mode": "exact",
+        "text": "Healthcare or insurance data experience",
+        "gold": "adjacent",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Insurance": "listed"
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "QA engineer with eight years of experience testing web, API and mobile applications for banking and insurance, the last six focused on automation.",
+            "section": "summary",
+            "source": "exact",
+            "detail": "Insurance via 'insurance'"
+          }
+        ],
+        "gold_evidence": [
+          "Wrote Cucumber BDD scenarios in Gherkin with business analysts for policy and billing workflows.",
+          "Automated Guidewire PolicyCenter UI tests with Selenium"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r06_qa_automation x j04_ml_engineer",
+        "mode": "exact",
+        "text": "A master's degree or PhD in a quantitative field",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r05_devops_sre x j05_site_reliability_engineer",
+        "mode": "exact",
+        "text": "Experience with Prometheus, Grafana or Datadog",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Built Prometheus and Grafana dashboards and moved alert routing to PagerDuty."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r05_devops_sre x j05_site_reliability_engineer",
+        "mode": "exact",
+        "text": "Experience with service mesh tools such as Istio or Linkerd",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r05_devops_sre x j05_site_reliability_engineer",
+        "mode": "exact",
+        "text": "Experience in payments or financial services",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Defined SLOs and error budgets for the payments API"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r05_devops_sre x j05_site_reliability_engineer",
+        "mode": "exact",
+        "text": "Experience with Argo CD or Flux",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Run 14 production EKS clusters with Terraform and Argo CD"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r10_python_backend x j05_site_reliability_engineer",
+        "mode": "exact",
+        "text": "5+ years of experience in software engineering, DevOps or systems administration",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": true,
+        "skills": {},
+        "min_years": 5,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Backend Developer, Sample Retail Group | Feb 2023 - Present",
+          "Python Developer, Demo Startup Labs | Apr 2020 - Jan 2023",
+          "Junior Developer, Placeholder Web Studio | Jul 2019 - Mar 2020"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r10_python_backend x j05_site_reliability_engineer",
+        "mode": "exact",
+        "text": "Production experience with Kubernetes",
+        "gold": "adjacent",
+        "app": "gap",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Kubernetes": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Containerized services with Docker and deployed them to AWS ECS using GitHub Actions."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r10_python_backend x j05_site_reliability_engineer",
+        "mode": "exact",
+        "text": "Experience with Prometheus, Grafana or Datadog",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r10_python_backend x j05_site_reliability_engineer",
+        "mode": "exact",
+        "text": "Scripting in Python, Go or Bash",
+        "gold": "direct",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Python": "listed",
+          "Go": null,
+          "Bash": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [
+          {
+            "text": "Python Backend Developer | jesse.testfield@example.com | (555) 010-0110 | Seattle, WA",
+            "section": "header",
+            "source": "exact",
+            "detail": "Python via 'Python'"
+          },
+          {
+            "text": "Backend developer who builds Python APIs and the databases behind them. Seven years of experience at a startup, a web studio and a mid-size retailer.",
+            "section": "header",
+            "source": "exact",
+            "detail": "Python via 'Python'"
+          },
+          {
+            "text": "Python Developer, Demo Startup Labs | Apr 2020 - Jan 2023",
+            "section": "header",
+            "source": "exact",
+            "detail": "Python via 'Python'"
+          }
+        ],
+        "gold_evidence": [
+          "Python Developer, Demo Startup Labs | Apr 2020 - Jan 2023",
+          "Built Flask admin tools and fixed bugs in client websites."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r10_python_backend x j05_site_reliability_engineer",
+        "mode": "exact",
+        "text": "Experience with service mesh tools such as Istio or Linkerd",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r10_python_backend x j05_site_reliability_engineer",
+        "mode": "exact",
+        "text": "Experience in payments or financial services",
+        "gold": "adjacent",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Integrated a payments provider and SMS notifications into the booking flow."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r10_python_backend x j05_site_reliability_engineer",
+        "mode": "exact",
+        "text": "Experience with Argo CD or Flux",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r06_qa_automation x j06_qa_automation_engineer",
+        "mode": "exact",
+        "text": "API testing with Rest Assured, Postman or similar tools",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Automated REST API tests with Rest Assured and Postman, reducing manual API testing effort by 65%."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r06_qa_automation x j06_qa_automation_engineer",
+        "mode": "exact",
+        "text": "Experience with BDD frameworks such as Cucumber or SpecFlow",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Wrote Cucumber BDD scenarios in Gherkin with business analysts for policy and billing workflows."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r06_qa_automation x j06_qa_automation_engineer",
+        "mode": "exact",
+        "text": "Performance testing with JMeter or Gatling",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Performed load testing with JMeter for the agent portal before two major releases."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r06_qa_automation x j06_qa_automation_engineer",
+        "mode": "exact",
+        "text": "ISTQB certification",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "ISTQB Certified Tester Foundation Level"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r06_qa_automation x j06_qa_automation_engineer",
+        "mode": "exact",
+        "text": "Experience with mobile test automation using Appium",
+        "gold": "partial",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Selenium, Playwright, Cypress, TestNG, JUnit, Cucumber, Rest Assured, Postman, JMeter, Appium, Jenkins, Git, Jira, Java, TypeScript, SQL"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r09_java_backend x j07_backend_java_developer",
+        "mode": "exact",
+        "text": "5+ years of backend software development experience",
+        "gold": "direct",
+        "app": "gap",
+        "app_text": null,
+        "years_only": true,
+        "skills": {},
+        "min_years": 5,
+        "years_found": 1.3,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Demo Logistics: Senior Software Engineer, May 2021 - present",
+          "Example Mutual: Java Developer, Sep 2017 - Apr 2021",
+          "Sample Software Co: Associate Developer, Jun 2016 - Aug 2017"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r09_java_backend x j07_backend_java_developer",
+        "mode": "exact",
+        "text": "4+ years with Java",
+        "gold": "direct",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Java": "demonstrated"
+        },
+        "min_years": 4,
+        "years_found": 1.3,
+        "top_evidence": [
+          {
+            "text": "Example Mutual: Java Developer, Sep 2017 - Apr 2021",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Java via 'Java'"
+          },
+          {
+            "text": "Built REST APIs in Java 8 and Spring MVC for policy and claims systems.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Java via 'Java'"
+          },
+          {
+            "text": "Maintained a Java Swing desktop tool and fixed customer-reported defects.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Java via 'Java'"
+          }
+        ],
+        "gold_evidence": [
+          "Example Mutual: Java Developer, Sep 2017 - Apr 2021",
+          "Built REST APIs in Java 8 and Spring MVC for policy and claims systems.",
+          "Designed Spring Boot microservices for shipment tracking"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r09_java_backend x j07_backend_java_developer",
+        "mode": "exact",
+        "text": "Experience in logistics or supply chain software",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Designed Spring Boot microservices for shipment tracking"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r09_java_backend x j07_backend_java_developer",
+        "mode": "exact",
+        "text": "Experience mentoring other developers",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Mentored 4 developers and ran the team's design review meetings."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r12_junior_developer x j07_backend_java_developer",
+        "mode": "exact",
+        "text": "4+ years with Java",
+        "gold": "gap",
+        "app": "partial",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "Java": "demonstrated"
+        },
+        "min_years": 4,
+        "years_found": 0.3,
+        "top_evidence": [
+          {
+            "text": "Added a store-locator search endpoint to an internal Java Spring Boot service.",
+            "section": "experience",
+            "source": "exact",
+            "detail": "Java via 'Java'"
+          },
+          {
+            "text": "JavaScript, TypeScript, React, HTML, CSS, Java, Spring Boot, Python, Flask, SQL, MongoDB, Git, GitHub Actions",
+            "section": "skills",
+            "source": "exact",
+            "detail": "Java via 'Java'"
+          }
+        ],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r12_junior_developer x j07_backend_java_developer",
+        "mode": "exact",
+        "text": "Experience with relational databases such as PostgreSQL or Oracle",
+        "gold": "direct",
+        "app": "gap",
+        "app_text": null,
+        "years_only": false,
+        "skills": {
+          "PostgreSQL": null,
+          "Oracle Database": null
+        },
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "A Python and Flask app with a SQLite database that tracks grocery expiry dates."
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r12_junior_developer x j07_backend_java_developer",
+        "mode": "exact",
+        "text": "Experience in logistics or supply chain software",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r12_junior_developer x j07_backend_java_developer",
+        "mode": "exact",
+        "text": "Experience mentoring other developers",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r08_guidewire_developer x j08_guidewire_policycenter_developer",
+        "mode": "exact",
+        "text": "Experience with PCF and data model changes (entities and typelists)",
+        "gold": "direct",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "including PCF screens, product model changes and typelist extensions"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r08_guidewire_developer x j08_guidewire_policycenter_developer",
+        "mode": "exact",
+        "text": "GUnit testing experience",
+        "gold": "partial",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": [
+          "Tools: Jenkins, Git, Bitbucket, Jira, SoapUI, Postman, GUnit"
+        ]
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r07_data_analyst x j08_guidewire_policycenter_developer",
+        "mode": "exact",
+        "text": "Experience with PCF and data model changes (entities and typelists)",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      },
+      {
+        "formats": [
+          "pdf_inline",
+          "pdf_separate",
+          "docx"
+        ],
+        "pair": "r07_data_analyst x j08_guidewire_policycenter_developer",
+        "mode": "exact",
+        "text": "GUnit testing experience",
+        "gold": "gap",
+        "app": "needs_check",
+        "app_text": null,
+        "years_only": false,
+        "skills": {},
+        "min_years": null,
+        "years_found": null,
+        "top_evidence": [],
+        "gold_evidence": []
+      }
+    ],
+    "factcheck_disagreements": {
+      "holdout": [
+        {
+          "id": "ho010",
+          "category": "tricky_faithful",
+          "gold": "faithful",
+          "checker": "rejected",
+          "source": "Moved nightly batch workers from EC2 instances to K8s CronJobs.",
+          "rewrite": "Moved nightly batch workers from EC2 instances to Kubernetes CronJobs.",
+          "gold_added": [],
+          "checker_reasons": [
+            "\"Kubernetes\" looks like the name of an organization or product that isn't in the original line."
+          ]
+        }
+      ],
+      "development": [
+        {
+          "id": "fc057",
+          "category": "faithful_reword",
+          "gold": "faithful",
+          "checker": "rejected",
+          "source": "Mentored 4 developers and ran the team's design review meetings.",
+          "rewrite": "Mentored four developers and led the team's design review meetings.",
+          "gold_added": [],
+          "checker_reasons": [
+            "\"led\" claims more responsibility than the original line does."
+          ]
+        }
+      ]
+    }
+  }
+}

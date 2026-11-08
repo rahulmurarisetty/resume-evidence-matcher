@@ -1,0 +1,37 @@
+Senior Data Engineer
+Example Analytics Co. | Remote (US)
+
+About Us
+Example Analytics Co. builds data products for property and casualty insurers. We are a team of 120 people, and our platform processes more than two billion policy and claims records a year.
+
+Responsibilities
+- Design, build and maintain batch and streaming data pipelines on Databricks
+- Model claims, policy and billing data in Snowflake for analytics and actuarial teams
+- Orchestrate and monitor workflows with Airflow
+- Work with analysts and data scientists to define data contracts and quality checks
+- Mentor junior engineers and review their code
+
+Requirements
+- 5+ years of professional software or data engineering experience
+- Strong Python and SQL skills
+- Hands-on experience with PySpark and Databricks
+- Experience with Snowflake or Redshift
+- Experience building data pipelines on AWS or Azure
+- Experience with dbt
+- Familiarity with Git and CI/CD workflows
+
+Nice to have
+- Experience with Kafka or Kinesis
+- Infrastructure as code with Terraform
+- Experience with GitHub Actions
+- Background in the insurance industry
+
+What we offer
+- Salary range: $150,000 - $175,000 plus annual bonus
+- Medical, dental and vision insurance
+- 401(k) with 5% match
+- Four weeks of paid time off
+
+Example Analytics Co. is an equal opportunity employer. We consider all qualified applicants without regard to race, color, religion, sex, sexual orientation, gender identity, national origin, disability or veteran status.
+
+To apply, send your resume to careers@example.com.

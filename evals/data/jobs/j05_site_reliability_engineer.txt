@@ -1,0 +1,29 @@
+Site Reliability Engineer
+
+Placeholder Cloud Services is hiring a Site Reliability Engineer to keep our payments platform fast and available. The role is remote within the United States.
+
+Key Responsibilities:
+* Operate and scale Kubernetes clusters running more than 150 services
+* Define SLOs, manage error budgets and lead incident response
+* Build and maintain infrastructure as code
+* Improve CI/CD pipelines and release safety
+* Participate in an on-call rotation (one week in six)
+
+Qualifications:
+* 5+ years of experience in software engineering, DevOps or systems administration
+* Production experience with Kubernetes
+* Strong experience with Terraform or Pulumi
+* Experience with AWS or GCP
+* Experience with Prometheus, Grafana or Datadog
+* Scripting in Python, Go or Bash
+* CI/CD experience with GitHub Actions or Jenkins
+* Calm and clear communicator during incidents
+
+Preferred:
+* Certified Kubernetes Administrator (CKA) or similar certification
+* Experience with service mesh tools such as Istio or Linkerd
+* Experience in payments or financial services
+* Experience with Argo CD or Flux
+
+Compensation: $160,000 - $190,000 base, plus equity.
+Placeholder Cloud Services provides equal employment opportunity to all applicants.

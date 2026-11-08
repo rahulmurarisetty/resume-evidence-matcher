@@ -1,0 +1,32 @@
+Machine Learning Engineer
+Demo Health Systems - Boston, MA or remote
+
+About Demo Health Systems:
+Demo Health Systems builds software that helps hospitals and payers reduce claim denials. Our data science group has 25 people and supports products used by 400 hospitals.
+
+What you will do:
+1. Train, evaluate and deploy machine learning models for claims and clinical text
+2. Build and maintain model serving APIs and batch scoring jobs
+3. Monitor models in production for drift and performance
+4. Work with product managers and clinicians to turn problems into ML tasks
+
+What we need:
+1. Minimum 4 yrs of professional experience in a software or data role
+2. Strong Python skills
+3. Experience with PyTorch or TensorFlow
+4. Hands-on NLP experience, including transformer models
+5. Experience deploying models with Docker and Kubernetes
+6. Experience with MLflow or a similar experiment tracking tool
+7. Solid understanding of statistics and model evaluation
+
+Bonus points:
+1. Experience with LLMs and retrieval-augmented generation
+2. Healthcare or insurance data experience
+3. Experience with AWS SageMaker or Azure Machine Learning
+4. A master's degree or PhD in a quantitative field
+
+Our benefits:
+1. Fully covered health insurance
+2. Annual learning budget of $3,000
+
+Demo Health Systems is an equal opportunity employer.

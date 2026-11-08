@@ -1,0 +1,41 @@
+{
+  "_comment": [
+    "Thresholds for python -m evals.run --check, which CI runs on every push.",
+    "Each key is a dotted path into the metrics part of evals/results/latest.json; a rate uses its rate value.",
+    "Floors are the measured default-run value minus 0.02, rounded down to two decimals. The default run is deterministic, so the margin only absorbs small differences between machines or library builds. On the small sets (8 jobs, 40 held-out cases) one or two more errors cross a floor; on the 528 pooled pair labels it takes about ten.",
+    "Ceilings are set to the measured value with no margin: the held-out fact checker false-pass rate (the hard rule), the development false-pass rate and the false proven rate of pair statuses may not rise at all.",
+    "Measured on pipeline 0.4.0-exact. After a change that moves a number on purpose, rerun the evaluation and update the value here in the same commit."
+  ],
+  "floors": {
+    "structure.overall.role_precision": 0.91,
+    "structure.overall.role_recall": 0.76,
+    "structure.overall.start_month_accuracy": 0.9,
+    "structure.overall.end_month_accuracy": 0.93,
+    "structure.overall.total_years_within_half": 0.7,
+    "structure.overall.education_recall": 0.86,
+    "structure.by_format.pdf_inline.role_recall": 0.75,
+    "structure.by_format.pdf_separate.role_recall": 0.75,
+    "structure.by_format.docx.role_recall": 0.78,
+    "requirements.rules.extraction_precision": 0.86,
+    "requirements.rules.extraction_recall": 0.98,
+    "requirements.rules.priority_accuracy": 0.88,
+    "requirements.rules.min_years_accuracy": 0.98,
+    "pairs.exact.overall.status_accuracy": 0.66,
+    "pairs.exact.by_format.pdf_inline.status_accuracy": 0.66,
+    "pairs.exact.by_format.pdf_separate.status_accuracy": 0.66,
+    "pairs.exact.by_format.docx.status_accuracy": 0.67,
+    "pairs.exact.overall.gap_precision": 0.85,
+    "pairs.exact.overall.gap_recall": 0.67,
+    "pairs.exact.overall.evidence_recall_at_1": 0.51,
+    "pairs.exact.overall.evidence_recall_at_3": 0.55,
+    "factcheck.holdout.accuracy": 0.95,
+    "factcheck.holdout.precision": 0.93,
+    "factcheck.holdout.recall": 0.98,
+    "factcheck.development.accuracy": 0.96
+  },
+  "ceilings": {
+    "factcheck.holdout.false_pass_rate": 0.0,
+    "factcheck.development.false_pass_rate": 0.0,
+    "pairs.exact.overall.false_proven_rate": 0.0
+  }
+}

@@ -1,0 +1,28 @@
+Job Title: Guidewire PolicyCenter Developer
+Client: Example Coastal Insurance
+Location: Tampa, FL (Onsite 2 days a week)
+Job Type: Full-time
+
+Roles & Responsibilities:
+- Configure Guidewire PolicyCenter product model, PCF screens and Gosu rules for personal lines
+- Build and support integrations between PolicyCenter and external rating, document and billing systems
+- Take part in the Guidewire Cloud upgrade and fix upgrade defects
+- Work with business analysts to refine user stories and estimates
+
+Mandatory Skills:
+- 6+ years of IT experience
+- Minimum 3 years of hands-on Guidewire PolicyCenter or BillingCenter configuration
+- Strong Gosu programming skills
+- Experience with PCF and data model changes (entities and typelists)
+- Experience with SOAP and REST web service integrations
+- Working knowledge of SQL and Oracle or SQL Server
+- Experience with Git and Jenkins
+
+Desired Skills:
+- Guidewire certification (Associate or Specialist)
+- Experience with Guidewire Cloud
+- Experience with CustomerEngage or Jutro digital portals
+- GUnit testing experience
+- Property and casualty insurance domain knowledge
+
+Excellent compensation and benefits. Example Coastal Insurance is an Equal Opportunity Employer. Please share your updated resume and visa status to jobs@example.com.

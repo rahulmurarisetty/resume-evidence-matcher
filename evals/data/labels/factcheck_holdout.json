@@ -1,0 +1,322 @@
+[
+  {
+    "id": "ho001",
+    "source": "Built a Spark pipeline that loads daily card transactions into the data lake.",
+    "rewrite": "Built a Spark pipeline for a Fortune 500 bank that loads daily card transactions into the data lake.",
+    "label": "adds_fact",
+    "added": ["for a Fortune 500 bank"],
+    "category": "added_employer"
+  },
+  {
+    "id": "ho002",
+    "source": "Wrote C# background services that send policy renewal reminders by email.",
+    "rewrite": "Developed C# background services that email policy renewal reminders.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_reword"
+  },
+  {
+    "id": "ho003",
+    "source": "Worked with a team of testers to automate smoke tests for the mobile app.",
+    "rewrite": "Worked with a team of 6 testers to automate smoke tests for the mobile app.",
+    "label": "adds_fact",
+    "added": ["team of 6"],
+    "category": "added_number"
+  },
+  {
+    "id": "ho004",
+    "source": "Set up CI/CD pipelines in GitLab for three Node.js microservices.",
+    "rewrite": "Set up continuous integration and deployment pipelines in GitLab for three Node.js microservices.",
+    "label": "faithful",
+    "added": [],
+    "category": "tricky_faithful"
+  },
+  {
+    "id": "ho005",
+    "source": "Deployed the claims intake API to AWS Lambda behind API Gateway.",
+    "rewrite": "Deployed the claims intake API to Azure Functions behind API Management.",
+    "label": "adds_fact",
+    "added": ["Azure Functions", "API Management"],
+    "category": "added_tool"
+  },
+  {
+    "id": "ho006",
+    "source": "Using SQL and Excel, reconciled monthly premium figures between the billing system and the general ledger.",
+    "rewrite": "Reconciled monthly premium figures between the billing system and the general ledger using SQL and Excel.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_reorder"
+  },
+  {
+    "id": "ho007",
+    "source": "Fixed 140 defects found during the PolicyCenter 10 upgrade.",
+    "rewrite": "Resolved 190 defects found during the PolicyCenter 10 upgrade.",
+    "label": "adds_fact",
+    "added": ["190 defects"],
+    "category": "changed_number"
+  },
+  {
+    "id": "ho008",
+    "source": "Answered phone and chat requests from agents about login problems, password resets and printing issues, and escalated hardware faults to the field team.",
+    "rewrite": "Answered phone and chat requests from agents about login problems and password resets.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_trim"
+  },
+  {
+    "id": "ho009",
+    "source": "Rebuilt the account settings page in React with TypeScript and React Query.",
+    "rewrite": "In Q3 2024, rebuilt the account settings page in React with TypeScript and React Query.",
+    "label": "adds_fact",
+    "added": ["Q3 2024"],
+    "category": "added_date"
+  },
+  {
+    "id": "ho010",
+    "source": "Moved nightly batch workers from EC2 instances to K8s CronJobs.",
+    "rewrite": "Moved nightly batch workers from EC2 instances to Kubernetes CronJobs.",
+    "label": "faithful",
+    "added": [],
+    "category": "tricky_faithful"
+  },
+  {
+    "id": "ho011",
+    "source": "Helped build a churn prediction model in Python with scikit-learn.",
+    "rewrite": "Led development of a churn prediction model in Python with scikit-learn.",
+    "label": "adds_fact",
+    "added": ["Led development"],
+    "category": "added_scope"
+  },
+  {
+    "id": "ho012",
+    "source": "Regression test results were reviewed by me with the release manager before each deployment.",
+    "rewrite": "Reviewed regression test results with the release manager before each deployment.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_reword"
+  },
+  {
+    "id": "ho013",
+    "source": "Managed IAM roles, S3 bucket policies and CloudTrail alerts for the data platform account.",
+    "rewrite": "As an AWS Certified Solutions Architect, managed IAM roles, S3 bucket policies and CloudTrail alerts for the data platform account.",
+    "label": "adds_fact",
+    "added": ["AWS Certified Solutions Architect"],
+    "category": "added_certification"
+  },
+  {
+    "id": "ho014",
+    "source": "Built 50+ Power BI reports for the sales and finance teams.",
+    "rewrite": "Built more than 50 Power BI reports for the sales and finance teams.",
+    "label": "faithful",
+    "added": [],
+    "category": "tricky_faithful"
+  },
+  {
+    "id": "ho015",
+    "source": "Archived cold claim records from the production Oracle database to object storage.",
+    "rewrite": "Archived cold claim records from the production Oracle database to object storage, reducing storage costs.",
+    "label": "adds_fact",
+    "added": ["reducing storage costs"],
+    "category": "added_result"
+  },
+  {
+    "id": "ho016",
+    "source": "Maintained WCF services in C# on .NET Framework 4.8, fixed production defects and wrote runbooks for the on-call rotation.",
+    "rewrite": "Maintained WCF services in C# on .NET Framework 4.8.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_trim"
+  },
+  {
+    "id": "ho017",
+    "source": "Made the product search page load faster by lazy loading images and splitting the JavaScript bundle.",
+    "rewrite": "Made the product search page load 40% faster by lazy loading images and splitting the JavaScript bundle.",
+    "label": "adds_fact",
+    "added": ["40% faster"],
+    "category": "added_number"
+  },
+  {
+    "id": "ho018",
+    "source": "Migrated two legacy Web Forms modules to ASP.NET Core MVC.",
+    "rewrite": "Migrated 2 legacy Web Forms modules to ASP.NET Core MVC.",
+    "label": "faithful",
+    "added": [],
+    "category": "tricky_faithful"
+  },
+  {
+    "id": "ho019",
+    "source": "Built a weekly inventory dashboard in Tableau for store operations managers.",
+    "rewrite": "Built a weekly inventory dashboard in Tableau for store operations managers at Sample Retail Group.",
+    "label": "adds_fact",
+    "added": ["at Sample Retail Group"],
+    "category": "added_employer"
+  },
+  {
+    "id": "ho020",
+    "source": "For the homeowners line, configured PCF screens and typelist extensions in PolicyCenter.",
+    "rewrite": "Configured PCF screens and typelist extensions in PolicyCenter for the homeowners line.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_reorder"
+  },
+  {
+    "id": "ho021",
+    "source": "Handled 30-50 customer chats per shift for the billing support queue.",
+    "rewrite": "Handled 45-50 customer chats per shift for the billing support queue.",
+    "label": "adds_fact",
+    "added": ["45-50"],
+    "category": "changed_number"
+  },
+  {
+    "id": "ho022",
+    "source": "Organised the defect backlog, prioritised fixes with the product owner and analysed recurring failures in the nightly test run.",
+    "rewrite": "Organized the defect backlog, prioritized fixes with the product owner and analyzed recurring failures in the nightly test run.",
+    "label": "faithful",
+    "added": [],
+    "category": "tricky_faithful"
+  },
+  {
+    "id": "ho023",
+    "source": "Automated build, test and deployment of the Java services with Jenkins pipelines.",
+    "rewrite": "Automated build, test and deployment of the Java services with GitHub Actions workflows.",
+    "label": "adds_fact",
+    "added": ["GitHub Actions"],
+    "category": "added_tool"
+  },
+  {
+    "id": "ho024",
+    "source": "Migrated 12 cron jobs to Apache Airflow; added retries and failure alerts to the DAGs.",
+    "rewrite": "Migrated 12 cron jobs to Apache Airflow and added retries and failure alerts to the DAGs.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_reword"
+  },
+  {
+    "id": "ho025",
+    "source": "Supported the BillingCenter payment plan configuration for the personal auto rollout.",
+    "rewrite": "Owned the BillingCenter payment plan configuration for the personal auto rollout.",
+    "label": "adds_fact",
+    "added": ["Owned"],
+    "category": "added_scope"
+  },
+  {
+    "id": "ho026",
+    "source": "Resolved 1,200 help desk tickets in the first year with a 95% first-contact resolution rate.",
+    "rewrite": "Resolved 1200 help desk tickets in year one with a 95% first-contact resolution rate.",
+    "label": "faithful",
+    "added": [],
+    "category": "tricky_faithful"
+  },
+  {
+    "id": "ho027",
+    "source": "Improved email campaign click-through rate by rebuilding the audience segmentation model.",
+    "rewrite": "Doubled email campaign click-through rate by rebuilding the audience segmentation model.",
+    "label": "adds_fact",
+    "added": ["Doubled"],
+    "category": "added_number"
+  },
+  {
+    "id": "ho028",
+    "source": "Built reusable Angular form components with reactive validation, wrote Jasmine unit tests for them and documented usage in Storybook.",
+    "rewrite": "Built reusable Angular form components with reactive validation and documented them in Storybook.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_trim"
+  },
+  {
+    "id": "ho029",
+    "source": "Led the migration of the regression suite from Selenium to Playwright.",
+    "rewrite": "Led the 2023 migration of the regression suite from Selenium to Playwright.",
+    "label": "adds_fact",
+    "added": ["2023"],
+    "category": "added_date"
+  },
+  {
+    "id": "ho030",
+    "source": "Reviewed every pull request for the payments service before merge.",
+    "rewrite": "Reviewed each one of the payments service's pull requests before merge.",
+    "label": "faithful",
+    "added": [],
+    "category": "tricky_faithful"
+  },
+  {
+    "id": "ho031",
+    "source": "Worked on-site three days a week to gather reporting requirements from the client's finance team.",
+    "rewrite": "Worked on-site three days a week with Example Mutual's finance team to gather reporting requirements.",
+    "label": "adds_fact",
+    "added": ["with Example Mutual"],
+    "category": "added_employer"
+  },
+  {
+    "id": "ho032",
+    "source": "To catch drift early, added weekly feature distribution checks to the fraud model's monitoring job.",
+    "rewrite": "Added weekly feature distribution checks to the fraud model's monitoring job to catch drift early.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_reorder"
+  },
+  {
+    "id": "ho033",
+    "source": "Ran daily stand-ups, sprint planning and retrospectives for two development squads.",
+    "rewrite": "Ran daily stand-ups, sprint planning and retrospectives for two development squads as a Certified ScrumMaster.",
+    "label": "adds_fact",
+    "added": ["Certified ScrumMaster"],
+    "category": "added_certification"
+  },
+  {
+    "id": "ho034",
+    "source": "Rotated TLS certificates on all public load balancers before they expired.",
+    "rewrite": "TLS certificates on all public load balancers were rotated by me before they expired.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_reword"
+  },
+  {
+    "id": "ho035",
+    "source": "Rewrote the onboarding help articles for the agent portal in plain language.",
+    "rewrite": "Rewrote the onboarding help articles for the agent portal in plain language, cutting support calls from new agents.",
+    "label": "adds_fact",
+    "added": ["cutting support calls from new agents"],
+    "category": "added_result"
+  },
+  {
+    "id": "ho036",
+    "source": "Was among the first engineers on the web team to adopt Playwright for end-to-end tests.",
+    "rewrite": "Was one of the first engineers on the web team to adopt Playwright for end-to-end tests.",
+    "label": "faithful",
+    "added": [],
+    "category": "tricky_faithful"
+  },
+  {
+    "id": "ho037",
+    "source": "Added a cache in front of the quote pricing API to absorb peak traffic.",
+    "rewrite": "Added a Redis cache in front of the quote pricing API to absorb peak traffic.",
+    "label": "adds_fact",
+    "added": ["Redis"],
+    "category": "added_tool"
+  },
+  {
+    "id": "ho038",
+    "source": "Wrote Gosu rules for underwriting referrals on the dwelling fire line and paired with business analysts to test them in the QA environment.",
+    "rewrite": "Wrote Gosu underwriting referral rules for the dwelling fire line.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_trim"
+  },
+  {
+    "id": "ho039",
+    "source": "Shortened the nightly ETL window by 20-25% by partitioning the largest fact tables.",
+    "rewrite": "Shortened the nightly ETL window by 20-40% by partitioning the largest fact tables.",
+    "label": "adds_fact",
+    "added": ["20-40%"],
+    "category": "changed_number"
+  },
+  {
+    "id": "ho040",
+    "source": "Made an offline mode for the field inspection app using SQLite on iOS and Android.",
+    "rewrite": "Built an offline mode for the field inspection app using SQLite on iOS and Android.",
+    "label": "faithful",
+    "added": [],
+    "category": "faithful_reword"
+  }
+]
