@@ -47,7 +47,7 @@ from app.models import (
     SpanKind,
 )
 from app.services.semantic import SemanticMatcher
-from app.services.skills import SkillCatalog
+from app.services.skills import SkillCatalog, phrase_pattern
 from app.services.structure import parse_profile, years_with_spans
 
 logger = logging.getLogger("app.matcher")
@@ -99,25 +99,36 @@ def _has_headings(resume: ResumeDocument) -> bool:
 def index_evidence(
     resume: ResumeDocument, skills: Iterable[str], catalog: SkillCatalog
 ) -> dict[str, list[Evidence]]:
+    """Evidence per skill. Catalog skills match through their catalog terms. A skill
+    the catalog doesn't know (a free-text skill from the Claude parser) matches as a
+    case-insensitive whole phrase."""
     wanted = set(skills)
+    free_text = {skill: phrase_pattern(skill) for skill in wanted if not catalog.knows(skill)}
     has_headings = _has_headings(resume)
     index: dict[str, list[Evidence]] = {skill: [] for skill in wanted}
+
+    def add(skill: str, span: Span, term: str) -> None:
+        index[skill].append(
+            Evidence(
+                span_id=span.id,
+                text=span.text,
+                section=span.section,
+                page=span.page,
+                matched_term=term,
+                strength=_strength(span, has_headings),
+            )
+        )
+
     for span in resume.spans:
         if span.kind is SpanKind.HEADING:
             continue
         for hit in catalog.find(span.text):
-            if hit.skill not in wanted:
-                continue
-            index[hit.skill].append(
-                Evidence(
-                    span_id=span.id,
-                    text=span.text,
-                    section=span.section,
-                    page=span.page,
-                    matched_term=hit.term,
-                    strength=_strength(span, has_headings),
-                )
-            )
+            if hit.skill in wanted:
+                add(hit.skill, span, hit.term)
+        for skill, pattern in free_text.items():
+            found = pattern.search(span.text)
+            if found is not None:
+                add(skill, span, found.group())
     for evidence in index.values():
         # Demonstrated evidence first, then reading order (stable sort).
         evidence.sort(key=lambda e: e.strength is not EvidenceStrength.DEMONSTRATED)

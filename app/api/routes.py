@@ -1,18 +1,18 @@
 import hashlib
 import logging
-from collections.abc import Iterator
 from datetime import timedelta
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, Request, Response, UploadFile, status
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, File, Form, Request, Response, UploadFile, status
 
+from app.api.deps import SessionDep, SettingsDep
 from app.api.errors import ApiError
 from app.api.schemas import AnalysisResponse, ErrorResponse, ExtractResponse, HealthResponse
 from app.config import Settings
 from app.models import AnalysisReport
 from app.services.analysis import analyze
+from app.services.claude_jd_parser import ClaudeJobParser
 from app.services.extraction import ExtractionLimits, extract_resume
+from app.services.jd_parser import JobParser, RuleJobParser
 from app.storage.db import AnalysisRecord
 from app.storage.repository import AnalysisRepository
 
@@ -23,19 +23,6 @@ router = APIRouter()
 _ERRORS: dict[int | str, dict[str, object]] = {
     code: {"model": ErrorResponse} for code in (404, 413, 415, 422)
 }
-
-
-def get_settings(request: Request) -> Settings:
-    settings: Settings = request.app.state.settings
-    return settings
-
-
-def get_session(request: Request) -> Iterator[Session]:
-    yield from request.app.state.db.session()
-
-
-SettingsDep = Annotated[Settings, Depends(get_settings)]
-SessionDep = Annotated[Session, Depends(get_session)]
 
 
 def _limits(settings: Settings) -> ExtractionLimits:
@@ -119,6 +106,11 @@ def create_analysis(
         )
 
     data = _read_upload(resume, settings)
+    # Built at startup; None when Claude is off.
+    llm = request.app.state.llm
+    job_parser: JobParser = (
+        ClaudeJobParser(llm, settings.llm_parse_model) if llm is not None else RuleJobParser()
+    )
     resume_doc, report = analyze(
         data,
         job_text,
@@ -128,6 +120,7 @@ def create_analysis(
         reranker=request.app.state.reranker,
         semantic_top_k=settings.semantic_top_k,
         semantic_threshold=settings.semantic_threshold,
+        job_parser=job_parser,
     )
 
     repo = AnalysisRepository(session)
@@ -137,6 +130,8 @@ def create_analysis(
         file_type=resume_doc.file_type,
         file_sha256=hashlib.sha256(data).hexdigest(),
         retention=timedelta(hours=settings.retention_hours),
+        # The lines are kept for corrections and export, never the file itself.
+        resume=resume_doc,
     )
     logger.info(
         "analysis created",
@@ -146,6 +141,7 @@ def create_analysis(
             "spans": len(resume_doc.spans),
             "requirements": len(report.matches),
             "matching_mode": report.matching_mode.value,
+            "parser": report.job_parser.name.value,
         },
     )
     response.headers["Location"] = f"/api/v1/analyses/{record.id}"

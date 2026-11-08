@@ -40,6 +40,12 @@ def _term_regex(term: str) -> str:
     return r"[\s\-]+".join(parts)
 
 
+def phrase_pattern(phrase: str) -> re.Pattern[str]:
+    """A free-text skill ("Great Expectations") as a case-insensitive whole phrase.
+    It must not touch a letter or digit on either side, like catalog terms."""
+    return re.compile(f"{_BEFORE}{_term_regex(phrase)}{_AFTER}", re.IGNORECASE)
+
+
 class SkillCatalog:
     def __init__(self, entries: list[dict[str, object]]) -> None:
         self.categories: dict[str, str] = {}
@@ -70,6 +76,10 @@ class SkillCatalog:
     @property
     def skill_names(self) -> list[str]:
         return list(self.categories)
+
+    def knows(self, skill: str) -> bool:
+        """Is this a canonical catalog name (not a free-text skill)?"""
+        return skill in self.categories
 
     def find(self, text: str) -> list[SkillHit]:
         """Every catalog skill mentioned in the text, first mention per skill, in

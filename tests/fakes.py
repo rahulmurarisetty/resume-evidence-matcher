@@ -1,16 +1,23 @@
-"""Deterministic stand-ins for the sentence-transformers models.
+"""Deterministic stand-ins for the sentence-transformers models and for Claude.
 
 The fake encoder hashes word stems into a fixed-size vector, with a small synonym
 table so a few different words count as the same idea. The fake reranker scores
 the share of the query's words that a passage covers. Neither needs a download,
 and both give the same answer on every run and every machine.
+
+FakeLLMClient replays scripted answers instead of calling the Anthropic API.
 """
 
 import hashlib
 import re
+from collections.abc import Callable
+from dataclasses import dataclass
 
 import numpy as np
 from numpy.typing import NDArray
+from pydantic import BaseModel, ValidationError
+
+from app.llm.client import LLMOutputError, LLMResult, OutputT, Usage
 
 _STOPWORDS = {
     "a",
@@ -116,3 +123,70 @@ class FakeReranker:
 class BrokenEncoder:
     def encode(self, texts: list[str]) -> NDArray[np.float32]:
         raise RuntimeError("model failed")
+
+
+# ---------------------------------------------------------------------------
+# Claude
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class LLMCall:
+    system: str
+    user: str
+    output_type: type[BaseModel]
+    model: str
+    prompt_version: str
+    max_tokens: int
+
+
+class FakeLLMClient:
+    """A scriptable LLMClient that records every call.
+
+    Give it responses in order, or a `handler` that picks one per call. A response
+    is an output object, a dict (validated against the call's output type, as the
+    real client does with the tool input) or an exception to raise.
+    """
+
+    def __init__(
+        self,
+        *responses: object,
+        handler: Callable[[LLMCall], object] | None = None,
+        usage: tuple[int, int] = (120, 40),
+        model: str | None = None,
+    ) -> None:
+        self.responses = list(responses)
+        self.handler = handler
+        self.usage = usage
+        self.model = model
+        self.calls: list[LLMCall] = []
+
+    def generate(
+        self,
+        *,
+        system: str,
+        user: str,
+        output_type: type[OutputT],
+        model: str,
+        prompt_version: str,
+        max_tokens: int = 2048,
+    ) -> LLMResult[OutputT]:
+        call = LLMCall(system, user, output_type, model, prompt_version, max_tokens)
+        self.calls.append(call)
+        if self.handler is not None:
+            response = self.handler(call)
+        elif self.responses:
+            response = self.responses.pop(0)
+        else:
+            raise AssertionError("FakeLLMClient got a call it had no response for")
+        if isinstance(response, BaseException):
+            raise response
+        try:
+            output = (
+                response
+                if isinstance(response, output_type)
+                else output_type.model_validate(response)
+            )
+        except ValidationError as exc:
+            raise LLMOutputError("fake output didn't match the schema") from exc
+        return LLMResult(output=output, usage=Usage(*self.usage), model=self.model or model)

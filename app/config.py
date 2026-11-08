@@ -4,6 +4,7 @@ from typing import Literal
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.llm.client import DEFAULT_PARSE_MODEL, DEFAULT_REWRITE_MODEL
 from app.services.semantic import (
     DEFAULT_EMBEDDING_MODEL,
     DEFAULT_RERANK_MODEL,
@@ -12,6 +13,7 @@ from app.services.semantic import (
 )
 
 SemanticSetting = Literal["off", "on", "auto"]
+LLMSetting = Literal["off", "on", "auto"]
 
 
 class Settings(BaseSettings):
@@ -38,12 +40,31 @@ class Settings(BaseSettings):
     embedding_model: str = DEFAULT_EMBEDDING_MODEL
     rerank_model: str = DEFAULT_RERANK_MODEL
 
+    # Claude. "auto" turns it on only when a key is set, "on" fails at startup
+    # without one. The key is a SecretStr so it never shows up in a repr or a log.
+    llm_enabled: LLMSetting = "auto"
     anthropic_api_key: SecretStr | None = None
+    llm_parse_model: str = DEFAULT_PARSE_MODEL
+    llm_rewrite_model: str = DEFAULT_REWRITE_MODEL
+    # Per attempt. The client retries a failed call up to twice.
+    llm_timeout_seconds: float = Field(default=30, gt=0, le=600)
+    # Rewrite candidates Claude may be asked for over the life of one analysis.
+    llm_max_suggestions: int = Field(default=20, ge=0, le=200)
 
-    @field_validator("semantic_matching", mode="before")
+    @field_validator("semantic_matching", "llm_enabled", mode="before")
     @classmethod
     def _lowercase(cls, value: object) -> object:
         return value.strip().lower() if isinstance(value, str) else value
+
+    @field_validator("anthropic_api_key", mode="before")
+    @classmethod
+    def _blank_key_is_no_key(cls, value: object) -> object:
+        # ANTHROPIC_API_KEY= in a .env file means "no key", not an empty key.
+        if isinstance(value, str) and not value.strip():
+            return None
+        if isinstance(value, SecretStr) and not value.get_secret_value().strip():
+            return None
+        return value
 
     @property
     def max_upload_bytes(self) -> int:

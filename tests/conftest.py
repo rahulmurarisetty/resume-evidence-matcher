@@ -12,6 +12,16 @@ ROOT = Path(__file__).resolve().parent.parent
 SAMPLES = ROOT / "samples"
 
 
+@pytest.fixture(autouse=True)
+def no_real_claude(monkeypatch: pytest.MonkeyPatch) -> None:
+    """No test may call the real Anthropic API. A key in the developer's environment
+    is removed, so LLM_ENABLED=auto stays off, and any SDK client that is built
+    anyway points at a closed local port."""
+    for name in ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_PROFILE", "LLM_ENABLED"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("ANTHROPIC_BASE_URL", "http://127.0.0.1:9")
+
+
 @pytest.fixture(scope="session")
 def catalog() -> SkillCatalog:
     return get_catalog()
@@ -47,6 +57,8 @@ def settings(tmp_path: Path) -> Settings:
         log_level="WARNING",
         # Tests never load real models. Matching by meaning is tested with fakes.
         semantic_matching="off",
+        # Tests never call Claude. The LLM features are tested with a fake client.
+        llm_enabled="off",
     )
 
 

@@ -1,14 +1,24 @@
 """Rule-based job-description parser.
 
 Splits a pasted job description into requirements and labels each one required,
-preferred or context (responsibilities and background). v0.3 adds a Claude-based
-parser behind the same interface; this one stays as the fallback and the baseline
-it is measured against.
+preferred or context (responsibilities and background). The Claude-based parser
+in claude_jd_parser.py sits behind the same JobParser interface; this one stays as
+its fallback and as the baseline it is measured against.
 """
 
 import re
+from dataclasses import dataclass, field
+from typing import Protocol
 
-from app.models import JobDescription, MatchMode, Priority, Requirement, Seniority
+from app.models import (
+    JobDescription,
+    JobParserInfo,
+    JobParserName,
+    MatchMode,
+    Priority,
+    Requirement,
+    Seniority,
+)
 from app.services.skills import SkillCatalog
 from app.services.text import BULLET_ONLY_RE, normalize, strip_bullet
 
@@ -106,12 +116,13 @@ def _line_priority(text: str, section: Priority) -> Priority:
     return section
 
 
-def _min_years(text: str) -> int | None:
+def min_years_in(text: str) -> int | None:
+    """The years a line asks for: 5 for "5+ years", 3 for "3-5 years"."""
     match = _YEARS.search(text)
     return int(match.group(1)) if match else None
 
 
-def _seniority(title: str | None, min_years: int | None) -> Seniority:
+def seniority_for(title: str | None, min_years: int | None) -> Seniority:
     if title:
         for pattern, level in _SENIORITY_RULES:
             if pattern.search(title):
@@ -139,6 +150,20 @@ def _items(lines: list[str]) -> list[str]:
         else:
             items.extend(s.strip() for s in _SENTENCE_SPLIT.split(text) if s.strip())
     return items
+
+
+def job_min_years(requirements: list[Requirement]) -> int | None:
+    """The job's years: the first required line that states years, else the first
+    line of any priority that does."""
+    required_years = [
+        r.min_years for r in requirements if r.priority is Priority.REQUIRED and r.min_years
+    ]
+    any_years = [r.min_years for r in requirements if r.min_years]
+    return required_years[0] if required_years else (any_years[0] if any_years else None)
+
+
+def match_mode_for(text: str) -> MatchMode:
+    return MatchMode.ANY if _ANY_OF.search(text) else MatchMode.ALL
 
 
 def parse_job_description(raw: str, catalog: SkillCatalog) -> JobDescription:
@@ -169,7 +194,7 @@ def parse_job_description(raw: str, catalog: SkillCatalog) -> JobDescription:
                 title = text
                 continue
             # Company intros are skipped unless they name a skill or a years requirement.
-            if not (catalog.skills_in(text) or _min_years(text)):
+            if not (catalog.skills_in(text) or min_years_in(text)):
                 continue
             for item in _items([line]):
                 grouped.append((_line_priority(item, Priority.CONTEXT), item))
@@ -192,20 +217,42 @@ def parse_job_description(raw: str, catalog: SkillCatalog) -> JobDescription:
                 text=text,
                 priority=priority,
                 skills=catalog.skills_in(text),
-                match_mode=MatchMode.ANY if _ANY_OF.search(text) else MatchMode.ALL,
-                min_years=_min_years(text),
+                match_mode=match_mode_for(text),
+                min_years=min_years_in(text),
             )
         )
 
-    required_years = [
-        r.min_years for r in requirements if r.priority is Priority.REQUIRED and r.min_years
-    ]
-    any_years = [r.min_years for r in requirements if r.min_years]
-    job_years = required_years[0] if required_years else (any_years[0] if any_years else None)
+    job_years = job_min_years(requirements)
 
     return JobDescription(
         title=title,
-        seniority=_seniority(title, job_years),
+        seniority=seniority_for(title, job_years),
         min_years=job_years,
         requirements=requirements,
     )
+
+
+# ---------------------------------------------------------------------------
+# The parser interface
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class ParsedJob:
+    job: JobDescription
+    parser: JobParserInfo
+    warnings: list[str] = field(default_factory=list)
+
+
+class JobParser(Protocol):
+    def parse(self, raw: str, catalog: SkillCatalog) -> ParsedJob: ...
+
+
+class RuleJobParser:
+    """The rule-based parser above, behind the JobParser interface."""
+
+    def parse(self, raw: str, catalog: SkillCatalog) -> ParsedJob:
+        return ParsedJob(
+            job=parse_job_description(raw, catalog),
+            parser=JobParserInfo(name=JobParserName.RULES),
+        )

@@ -15,6 +15,9 @@ services:
     environment:
       SEMANTIC_MATCHING: ${SEMANTIC_MATCHING:-auto}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      # Claude stays off unless ANTHROPIC_API_KEY is set in your shell or local .env.
+      LLM_ENABLED: ${LLM_ENABLED:-auto}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:
       - "8000:8000"
     volumes:

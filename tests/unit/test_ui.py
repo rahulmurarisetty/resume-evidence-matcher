@@ -9,6 +9,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tests.builders import build_docx, build_pdf
+from tests.fakes import FakeLLMClient
 
 UI_APP = Path(__file__).resolve().parents[2] / "ui" / "app.py"
 
@@ -79,3 +80,75 @@ def test_screen_renders_without_errors() -> None:
     screen = AppTest.from_file(str(UI_APP)).run()
     assert not screen.exception
     assert screen.title[0].value == "Resume evidence matcher"
+
+
+def test_edit_helpers_against_the_api(
+    ui: ModuleType, tmp_path: Path, data_engineer_markup: str, data_engineer_jd: str
+) -> None:
+    from app.config import Settings
+    from app.main import create_app
+    from tests.integration.test_edits_api import rewrite_handler
+
+    settings = Settings(
+        _env_file=None,  # type: ignore[call-arg]
+        database_url=f"sqlite:///{tmp_path / 'ui.db'}",
+        log_level="WARNING",
+        semantic_matching="off",
+        llm_enabled="on",
+    )
+    fake = FakeLLMClient(handler=rewrite_handler)
+    with TestClient(create_app(settings, llm_client=fake)) as client:
+        analysis = ui.create_analysis(
+            client, "resume.pdf", build_pdf(data_engineer_markup), data_engineer_jd
+        )
+        analysis_id = analysis["id"]
+        matches = {m["requirement"]["id"]: m for m in analysis["report"]["matches"]}
+        assert ui.can_suggest(matches["r6"])
+        assert not ui.can_suggest(matches["r5"])  # years only
+        assert not ui.can_suggest(matches["r11"])  # a gap
+
+        edits = ui.load_edits(client, analysis_id)
+        assert edits["suggestions"] == [] and edits["changes"] == []
+        assert edits["lines_stored"] is True
+        assert set(edits["questions"]) == {"r11", "r12"}
+        assert edits["spans"][0]["text"] == "Jordan Example"
+
+        batch = ui.request_suggestions(client, analysis_id, ["r6"])
+        assert ui._batch_note(batch) == (
+            "1 new suggestion. 1 more were thrown away because they added facts."
+        )
+        [suggestion] = ui.suggestions_for(ui.list_suggestions(client, analysis_id), "r6")
+        assert ui.decide_suggestion(client, analysis_id, suggestion["id"], True)["status"] == (
+            "accepted"
+        )
+        ui.correct_line(client, analysis_id, "s3", "A corrected summary line.")
+        ui.save_gap_answer(client, analysis_id, "r11", "Only in a course.")
+
+        edits = ui.load_edits(client, analysis_id)
+        assert edits["questions"]["r11"]["answer"] == "Only in a course."
+        assert ui.change_rows(edits["changes"]) == [
+            {
+                "Change": "Your correction",
+                "Before": edits["spans"][3]["original_text"],
+                "After": "A corrected summary line.",
+            },
+            {
+                "Change": "Accepted rewrite",
+                "Before": suggestion["original"],
+                "After": suggestion["text"],
+            },
+        ]
+        data = ui.download_export(client, analysis_id)
+        assert data.startswith(b"PK")
+        with pytest.raises(ui.ApiError) as error:
+            ui.decide_suggestion(client, analysis_id, "missing", False)
+        assert error.value.code == "suggestion_not_found"
+
+
+def test_suggestions_off_message(
+    ui: ModuleType, client: TestClient, dotnet_markup: str, dotnet_jd: str
+) -> None:
+    analysis = ui.create_analysis(client, "r.docx", build_docx(dotnet_markup), dotnet_jd)
+    with pytest.raises(ui.ApiError, match="need Claude") as error:
+        ui.request_suggestions(client, analysis["id"])
+    assert error.value.code == "llm_disabled"

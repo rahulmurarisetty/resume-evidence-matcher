@@ -15,6 +15,17 @@ class FileType(StrEnum):
     DOCX = "docx"
 
 
+class SuggestionStatus(StrEnum):
+    PROPOSED = "proposed"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+
+
+class ChangeKind(StrEnum):
+    CORRECTION = "correction"  # the person fixed text the app read wrongly
+    REWRITE = "rewrite"  # an accepted suggestion that passed the fact checker
+
+
 class Section(StrEnum):
     HEADER = "header"  # name and contact block above the first heading
     SUMMARY = "summary"
@@ -72,9 +83,21 @@ class Requirement(BaseModel):
     id: str
     text: str
     priority: Priority
-    skills: list[str] = Field(description="Canonical skill names recognized in the requirement")
+    skills: list[str] = Field(
+        description=(
+            "Skills named in the requirement: canonical catalog names, plus any free-text "
+            "skills listed in free_text_skills"
+        )
+    )
     match_mode: MatchMode = MatchMode.ALL
     min_years: int | None = None
+    free_text_skills: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Skills in `skills` that aren't in the catalog. Exact matching looks for each "
+            "one in the resume as a whole phrase."
+        ),
+    )
 
 
 class Seniority(StrEnum):
@@ -210,9 +233,36 @@ class MatchingMode(StrEnum):
     SEMANTIC = "semantic"  # skill catalog plus matching by meaning
 
 
+class JobParserName(StrEnum):
+    RULES = "rules"
+    CLAUDE = "claude"
+
+
+class JobParserInfo(BaseModel):
+    """Which job-description parser produced the requirements, and how."""
+
+    name: JobParserName = JobParserName.RULES
+    prompt_version: str | None = Field(
+        default=None, description='The prompt file Claude used, such as "jd_parse_v1"'
+    )
+    model: str | None = None
+    fallback_reason: str | None = Field(
+        default=None,
+        description=(
+            "Set when Claude was tried and the rule parser ran instead: timeout, api_error "
+            "or invalid_output"
+        ),
+    )
+    dropped_requirements: int = Field(
+        default=0,
+        description="Requirements Claude returned whose text isn't in the job description",
+    )
+
+
 class AnalysisReport(BaseModel):
     pipeline_version: str
     matching_mode: MatchingMode = MatchingMode.EXACT
+    job_parser: JobParserInfo = Field(default_factory=JobParserInfo)
     job: JobDescription
     resume_sections: list[Section]
     warnings: list[str] = Field(default_factory=list)

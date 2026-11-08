@@ -11,9 +11,11 @@ from fastapi.responses import JSONResponse
 from starlette.formparsers import MultiPartParser
 
 from app import __version__
+from app.api.edits import router as edits_router
 from app.api.errors import install_error_handlers
 from app.api.routes import router
 from app.config import Settings, get_settings
+from app.llm import LLMClient, start_llm
 from app.logging_setup import configure_logging
 from app.services.semantic import (
     Encoder,
@@ -57,13 +59,25 @@ def start_semantic(settings: Settings) -> tuple[Encoder | None, Reranker | None]
         return None, None
 
 
+def start_claude(settings: Settings) -> LLMClient | None:
+    """The Claude client, or None when LLM_ENABLED is off or no key is set."""
+    key = settings.anthropic_api_key
+    return start_llm(
+        settings.llm_enabled,
+        key.get_secret_value() if key is not None else None,
+        timeout_seconds=settings.llm_timeout_seconds,
+    )
+
+
 def create_app(
     settings: Settings | None = None,
     *,
     encoder: Encoder | None = None,
     reranker: Reranker | None = None,
+    llm_client: LLMClient | None = None,
 ) -> FastAPI:
-    """Build the app. Tests pass `encoder` and `reranker` to skip loading real models."""
+    """Build the app. Tests pass `encoder` and `reranker` to skip loading real models,
+    and `llm_client` to use a fake Claude. LLM_ENABLED=off ignores `llm_client`."""
     settings = settings or get_settings()
     configure_logging(settings.log_level)
 
@@ -83,8 +97,17 @@ def create_app(
             if app.state.encoder is None:
                 # Warm the models now so the first analysis doesn't wait for a download.
                 app.state.encoder, app.state.reranker = start_semantic(settings)
+            if app.state.llm is None:
+                app.state.llm = start_claude(settings)
             mode = "semantic" if app.state.encoder is not None else "exact"
-            logger.info("startup complete", extra={"purged": purged, "matching_mode": mode})
+            logger.info(
+                "startup complete",
+                extra={
+                    "purged": purged,
+                    "matching_mode": mode,
+                    "llm": "on" if app.state.llm is not None else "off",
+                },
+            )
             yield
         finally:
             # Also on a failed startup, so no database connection is left open.
@@ -103,11 +126,12 @@ def create_app(
     app.state.db = db
     app.state.encoder = encoder
     app.state.reranker = reranker
+    app.state.llm = llm_client if settings.llm_enabled != "off" else None
 
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origin_list,
-        allow_methods=["GET", "POST", "DELETE"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Content-Type", "X-Request-ID"],
     )
 
@@ -146,4 +170,5 @@ def create_app(
 
     install_error_handlers(app)
     app.include_router(router)
+    app.include_router(edits_router)
     return app

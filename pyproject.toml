@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "resume-evidence-matcher"
-version = "0.2.0"
+version = "0.3.0"
 description = "Maps job-description requirements to evidence in a resume, shows gaps, and never invents experience."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -20,6 +20,9 @@ dependencies = [
     "pydantic-settings>=2.3",
     "sqlalchemy>=2.0",
     "numpy>=1.26",
+    # Claude, only used when ANTHROPIC_API_KEY is set. Checked against 2.6: the 2.x SDK
+    # uses httpx2 and has no temperature parameter.
+    "anthropic>=2.6,<3",
 ]
 
 [project.optional-dependencies]
@@ -40,7 +43,7 @@ dev = [
 include = ["app*"]
 
 [tool.setuptools.package-data]
-app = ["data/*.json"]
+app = ["data/*.json", "llm/prompts/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
