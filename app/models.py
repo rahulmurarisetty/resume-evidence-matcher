@@ -117,13 +117,35 @@ class MatchStatus(StrEnum):
     DIRECT = "direct"  # every skill is shown in experience or project work
     PARTIAL = "partial"  # some skills missing, or only listed in the skills section
     GAP = "gap"  # none of the skills appear anywhere
-    NOT_ASSESSED = "not_assessed"  # no recognizable skill; needs a human (or matching by meaning)
+    ADJACENT = "adjacent"  # no exact evidence, but related work was found by meaning
+    NOT_ASSESSED = "not_assessed"  # no recognizable skill; needs a human
+
+
+class RelatedEvidence(BaseModel):
+    """A resume span that matching by meaning found related to a requirement. It is
+    never exact evidence: the person has to confirm it."""
+
+    span_id: str
+    text: str
+    section: Section
+    page: int | None
+    score: float = Field(description="Reranker score from 0 to 1, rounded to 3 decimals")
 
 
 class RequirementMatch(BaseModel):
     requirement: Requirement
     status: MatchStatus
     skills: list[SkillMatch]
+    related_evidence: list[RelatedEvidence] = Field(
+        default_factory=list, description="Empty when matching by meaning is off"
+    )
+    years_found: float | None = Field(
+        default=None,
+        description=(
+            "For requirements that ask for years: the years the resume shows in total, or "
+            "with the requirement's skills. None when no role dates could be read."
+        ),
+    )
     next_action: str
 
 
@@ -132,15 +154,70 @@ class CategoryCoverage(BaseModel):
     direct: int = 0
     partial: int = 0
     gap: int = 0
+    adjacent: int = 0
     not_assessed: int = 0
+
+
+class Role(BaseModel):
+    """One job (or dated project) read from a header line such as
+    'Senior Data Engineer, Example Mutual Insurance | Mar 2022 - Present'."""
+
+    title: str | None
+    employer: str | None
+    section: Section
+    start: str | None = Field(description="YYYY-MM, or None when no start date could be read")
+    end: str | None = Field(description="YYYY-MM; None for a current role or an unread date")
+    is_current: bool
+    months: int | None = Field(
+        description="Months in the role, counting the start and end months. None if unknown."
+    )
+    header_span_id: str
+    bullet_span_ids: list[str] = Field(
+        default_factory=list, description="Bullets and other body lines under this role"
+    )
+
+
+class Education(BaseModel):
+    degree: str | None
+    school: str | None
+    year: int | None
+    span_ids: list[str]
+
+
+class Profile(BaseModel):
+    """Structure read from the resume: roles with dates, education and measurable results."""
+
+    roles: list[Role] = Field(default_factory=list)
+    total_years: float | None = Field(
+        default=None,
+        description=(
+            "Years across experience roles, with overlapping roles counted once. None when "
+            "no role dates could be read."
+        ),
+    )
+    education: list[Education] = Field(default_factory=list)
+    metric_bullets: list[str] = Field(
+        default_factory=list, description="Span ids of bullets that contain a measurable result"
+    )
+    metrics: dict[str, list[str]] = Field(
+        default_factory=dict, description="The metric strings found, keyed by span id"
+    )
+    warnings: list[str] = Field(default_factory=list)
+
+
+class MatchingMode(StrEnum):
+    EXACT = "exact"  # skill catalog only
+    SEMANTIC = "semantic"  # skill catalog plus matching by meaning
 
 
 class AnalysisReport(BaseModel):
     pipeline_version: str
+    matching_mode: MatchingMode = MatchingMode.EXACT
     job: JobDescription
     resume_sections: list[Section]
     warnings: list[str] = Field(default_factory=list)
     coverage: dict[Priority, CategoryCoverage]
     missing_required_skills: list[str]
     listed_but_not_demonstrated: list[str]
+    profile: Profile = Field(default_factory=Profile)
     matches: list[RequirementMatch]

@@ -1,5 +1,12 @@
 # syntax=docker/dockerfile:1
-FROM python:3.12-slim
+
+# INSTALL_ML=true adds sentence-transformers for matching by meaning. PyTorch then
+# comes from the CPU-only index (https://download.pytorch.org/whl/cpu), because the
+# default Linux wheel pulls several GB of CUDA libraries this service does not use.
+# With the default (false) the ml-true stage below is never built.
+ARG INSTALL_ML=false
+
+FROM python:3.12-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -7,14 +14,24 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
-RUN useradd --create-home --uid 10001 appuser
+# The data and model-cache folders exist in the image so named volumes mounted
+# there start out owned by appuser.
+RUN useradd --create-home --uid 10001 appuser \
+    && install -d -o appuser -g appuser \
+        /home/appuser/data /home/appuser/.cache /home/appuser/.cache/huggingface
 
 # Pinned, hash-checked dependencies first so this layer is cached between builds.
-# v0.2 adds sentence-transformers. Install PyTorch from the CPU-only index then
-# (https://download.pytorch.org/whl/cpu); the default Linux wheel pulls several GB
-# of CUDA libraries this service does not need.
 COPY requirements.lock .
 RUN pip install --require-hashes -r requirements.lock
+
+FROM base AS ml-false
+
+FROM base AS ml-true
+# Not hash-locked: see the ml extra in pyproject.toml.
+RUN pip install --index-url https://download.pytorch.org/whl/cpu torch \
+    && pip install "sentence-transformers>=3"
+
+FROM ml-${INSTALL_ML}
 
 COPY pyproject.toml README.md LICENSE ./
 COPY app ./app

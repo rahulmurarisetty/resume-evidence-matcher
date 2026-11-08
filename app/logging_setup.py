@@ -15,6 +15,8 @@ _EXTRA_FIELDS = (
     "spans",
     "requirements",
     "purged",
+    "matching_mode",
+    "model",
 )
 
 

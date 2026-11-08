@@ -58,7 +58,12 @@ jobs:
             -F resume=@samples/generated/jordan_example_data_engineer.pdf \
             -F job_description="<samples/jobs/data_engineer.txt" \
             -o /tmp/analysis.json
-          python3 -c "import json; r = json.load(open('/tmp/analysis.json'))['report']; assert r['coverage']['required']['direct'] == 4, r['coverage']"
+          # v0.2: the "5+ years" requirement is now checked against the role dates.
+          # The default image has no ML packages, so matching stays exact.
+          python3 -c "import json; r = json.load(open('/tmp/analysis.json'))['report']; assert r['coverage']['required']['direct'] == 5, r['coverage']; assert r['matching_mode'] == 'exact', r['pipeline_version']; assert r['profile']['total_years'] >= 7.5, r['profile']"
+
+      - name: Check compose file
+        run: docker compose config --quiet
 
       - name: Container logs
         if: always()

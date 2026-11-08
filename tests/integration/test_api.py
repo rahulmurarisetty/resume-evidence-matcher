@@ -37,8 +37,10 @@ def test_create_get_delete(
     body = created.json()
     analysis_id = body["id"]
     assert created.headers["Location"] == f"/api/v1/analyses/{analysis_id}"
-    assert body["report"]["coverage"]["required"]["direct"] == 4
-    assert body["report"]["pipeline_version"].endswith("exact")
+    # v0.2: "5+ years of experience" is now checked against the role dates.
+    assert body["report"]["coverage"]["required"]["direct"] == 5
+    assert body["report"]["pipeline_version"] == "0.2.0-exact"
+    assert body["report"]["matching_mode"] == "exact"
 
     fetched = client.get(f"/api/v1/analyses/{analysis_id}")
     assert fetched.status_code == 200
@@ -52,7 +54,8 @@ def test_create_get_delete(
 def test_docx_upload(client: TestClient, dotnet_markup: str, dotnet_jd: str) -> None:
     response = _post(client, build_docx(dotnet_markup), dotnet_jd, "resume.docx", DOCX)
     assert response.status_code == 201, response.text
-    assert response.json()["report"]["coverage"]["required"]["direct"] == 4
+    # v0.2: "3-5 years of professional software development experience" now counts.
+    assert response.json()["report"]["coverage"]["required"]["direct"] == 5
 
 
 def test_file_type_comes_from_bytes_not_name(client: TestClient, data_engineer_jd: str) -> None:
@@ -138,6 +141,7 @@ def test_uploads_under_the_limit_stay_in_memory(
         database_url=f"sqlite:///{tmp_path / 'spool.db'}",
         max_upload_mb=5,
         log_level="WARNING",
+        semantic_matching="off",
     )
     padded = build_pdf(data_engineer_markup) + b"%" + b"0" * (3 * 1024 * 1024)
     rollover = tempfile.SpooledTemporaryFile.rollover

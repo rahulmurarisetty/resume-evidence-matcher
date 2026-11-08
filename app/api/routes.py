@@ -101,6 +101,7 @@ def extract(settings: SettingsDep, resume: UploadFile = File(...)) -> ExtractRes
     summary="Match a resume against a job description.",
 )
 def create_analysis(
+    request: Request,
     response: Response,
     settings: SettingsDep,
     session: SessionDep,
@@ -118,7 +119,16 @@ def create_analysis(
         )
 
     data = _read_upload(resume, settings)
-    resume_doc, report = analyze(data, job_text, _limits(settings))
+    resume_doc, report = analyze(
+        data,
+        job_text,
+        _limits(settings),
+        # Built at startup; None when matching by meaning is off.
+        encoder=request.app.state.encoder,
+        reranker=request.app.state.reranker,
+        semantic_top_k=settings.semantic_top_k,
+        semantic_threshold=settings.semantic_threshold,
+    )
 
     repo = AnalysisRepository(session)
     repo.purge_expired()
@@ -135,6 +145,7 @@ def create_analysis(
             "file_type": resume_doc.file_type.value,
             "spans": len(resume_doc.spans),
             "requirements": len(report.matches),
+            "matching_mode": report.matching_mode.value,
         },
     )
     response.headers["Location"] = f"/api/v1/analyses/{record.id}"

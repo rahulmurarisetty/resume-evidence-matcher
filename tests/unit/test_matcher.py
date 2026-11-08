@@ -104,8 +104,10 @@ def test_report_end_to_end(
 ) -> None:
     _, report = analyze(build_pdf(data_engineer_markup), data_engineer_jd)
     required = report.coverage[Priority.REQUIRED]
-    assert (required.total, required.direct, required.partial) == (6, 4, 1)
+    # v0.2: "5+ years of experience in data engineering" is proven by the role dates.
+    assert (required.total, required.direct, required.partial) == (6, 5, 1)
     assert required.gap == 0
+    assert required.not_assessed == 0
     assert report.missing_required_skills == []
     assert report.listed_but_not_demonstrated == ["Git", "CI/CD", "Kubernetes"]
     statuses = {m.requirement.text: m.status for m in report.matches}
@@ -123,6 +125,11 @@ def test_wrong_resume_for_the_job(
     catalog: SkillCatalog, dotnet_markup: str, data_engineer_jd: str
 ) -> None:
     _, report = analyze(build_pdf(dotnet_markup), data_engineer_jd)
-    assert report.coverage[Priority.REQUIRED].direct == 0
+    # v0.2: total years (5.4 across all roles) meet "5+ years", but no skill
+    # requirement is proven, and the next step says to check the kind of work.
+    direct = [m for m in report.matches if m.status is MatchStatus.DIRECT]
+    assert [m.requirement.text for m in direct] == ["5+ years of experience in data engineering"]
+    assert "kind of work" in direct[0].next_action
+    assert all(not m.requirement.skills for m in direct)
     assert "Python" in report.missing_required_skills
     assert "Databricks" in report.missing_required_skills

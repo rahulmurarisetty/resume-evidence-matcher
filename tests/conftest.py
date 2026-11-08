@@ -45,6 +45,8 @@ def settings(tmp_path: Path) -> Settings:
         max_upload_mb=1,
         retention_hours=24,
         log_level="WARNING",
+        # Tests never load real models. Matching by meaning is tested with fakes.
+        semantic_matching="off",
     )
 
 

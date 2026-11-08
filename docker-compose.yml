@@ -1,0 +1,49 @@
+# The API and the Streamlit screen.
+#
+#   docker compose up --build                     exact matching only
+#   INSTALL_ML=true docker compose up --build     adds matching by meaning
+#
+# With INSTALL_ML=true the API downloads two models (about 180 MB) on its first
+# start and keeps them in the model-cache volume.
+services:
+  api:
+    build:
+      context: .
+      args:
+        INSTALL_ML: ${INSTALL_ML:-false}
+    image: resume-evidence-matcher:local
+    environment:
+      SEMANTIC_MATCHING: ${SEMANTIC_MATCHING:-auto}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "8000:8000"
+    volumes:
+      - app-data:/home/appuser/data
+      - model-cache:/home/appuser/.cache/huggingface
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import sys, urllib.request; sys.exit(urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2).status != 200)"
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      # The first start with INSTALL_ML=true waits for the model download.
+      start_period: 300s
+
+  ui:
+    build:
+      context: ./ui
+    image: resume-evidence-matcher-ui:local
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  app-data:
+  model-cache:
