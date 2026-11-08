@@ -1,0 +1,32 @@
+Senior Data Engineer
+
+About Northwind Analytics
+Northwind Analytics helps regional insurers turn claims and policy data into faster decisions. We are a remote-first team of 40.
+
+What you'll do
+- Design and build batch and streaming data pipelines on Databricks and Snowflake
+- Own data models for claims, policy and billing data used by actuarial and finance teams
+- Orchestrate workflows with Airflow and keep them observable
+- Partner with analysts to define metrics and data contracts
+- Mentor two junior engineers and review their code
+
+Requirements
+- 5+ years of experience in data engineering
+- Strong Python and SQL
+- Hands-on experience with PySpark on Databricks
+- Experience with Snowflake or another cloud data warehouse
+- Experience building ETL pipelines on AWS
+- Comfortable with Git and CI/CD practices
+
+Nice to have
+- Experience with dbt
+- Kafka or other streaming tools
+- Familiarity with Kubernetes
+- Insurance industry experience is a plus
+
+Benefits
+- Medical, dental and vision coverage
+- 401(k) with 4% match
+- Home office stipend
+
+Northwind Analytics is an equal opportunity employer.

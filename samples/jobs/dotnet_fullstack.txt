@@ -1,0 +1,28 @@
+Job Title: Full Stack .NET Developer
+Location: Orlando, FL (hybrid)
+
+About the role
+Contoso Mutual is rebuilding its customer and agent portals. You will work across the stack, from C# services to Angular front ends, on a team that ships every two weeks.
+
+Responsibilities
+* Build and maintain REST APIs in C# and ASP.NET Core
+* Develop Angular front-end features with TypeScript
+* Write unit tests and take part in code reviews
+* Deploy services to Azure using Azure DevOps pipelines
+* Work with product owners in an Agile team
+
+Qualifications
+* 3-5 years of professional software development experience
+* Strong C# and .NET skills
+* Experience with Angular and TypeScript
+* Experience with SQL Server and Entity Framework
+* Must have experience with Azure
+* Excellent communication skills
+
+Preferred
+* Experience with Guidewire CustomerEngage or ProducerEngage
+* Docker and Kubernetes
+* Property and casualty insurance background
+
+About Contoso Mutual
+We have insured families across the Southeast since 1962.
