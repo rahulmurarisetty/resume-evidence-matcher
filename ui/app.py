@@ -1,11 +1,18 @@
 """Streamlit screen for the resume evidence matcher.
 
 It talks to the API over HTTP and keeps nothing itself. A person logs in or
-creates an account first (unless the API runs with AUTH_MODE=disabled). Next to
-each requirement it shows rewrite suggestions to accept or reject and gap
-questions to answer, and below the report a form to fix lines the app read
-wrongly, the list of changes and a button that downloads the Word file. The
-sidebar has Log out and "Delete my account and data".
+creates an account first (unless the API runs with AUTH_MODE=disabled). Before an
+upload it shows the consent notice from the API with a required box, and a second,
+optional box for Claude when Claude is on. Next to each requirement it shows
+rewrite suggestions to accept or reject and gap questions to answer, then the
+section order advice, the terms noticed in the posting and questions about bullets
+without a number, and below the report a form to fix lines the app read wrongly,
+the list of changes and buttons that download the Word file and the match report.
+The sidebar has Log out and "Delete my account and data".
+
+Accessibility: every input has a visible label, statuses are written in words,
+headings go h1, h2, h3 in order, nothing is shown by color alone, and an error is
+written next to the input or button that caused it.
 
 The session token lives only in st.session_state, which Streamlit keeps in the
 server's memory for one browser tab. It is never put in a URL, a cookie or a log,
@@ -58,7 +65,28 @@ SUGGESTION_STATUSES = {"direct", "partial", "adjacent"}
 MIN_PASSWORD_LENGTH = 12
 _MAX_FORWARDED = 2000
 # What the screen keeps per browser tab. Logging out or deleting the account clears it.
-SESSION_KEYS = ("token", "user", "analysis", "edits", "export", "confirm_delete")
+SESSION_KEYS = (
+    "token",
+    "user",
+    "analysis",
+    "edits",
+    "reports",
+    "confirm_delete",
+    "consent_notice",
+)
+EMPLOYER_SYSTEMS_NOTE = (
+    "Employers use different applicant tracking systems and different criteria, so there "
+    "is no universal ATS score, and this app doesn't produce one. It shows which of your "
+    "lines support each requirement of this job description. It doesn't predict any "
+    "employer's decision."
+)
+TERMS_NOTE = (
+    "These lines describe how the job is contracted or who may apply. They aren't "
+    "requirements and weren't used to score anything."
+)
+# Where an API error is shown: next to the input that caused it.
+_JOB_ERRORS = {"job_description_too_short", "job_description_too_long"}
+_FORM_ERRORS = {"rate_limited", "invalid_request"}
 
 
 class ApiError(Exception):
@@ -148,17 +176,47 @@ def delete_account(client: httpx.Client) -> None:
     _check(client.delete("/api/v1/auth/me"))
 
 
+def consent_notice(client: httpx.Client) -> dict[str, Any]:
+    """The notice to show before an upload, built by the API from its settings."""
+    result: dict[str, Any] = _json(client.get("/api/v1/consent"))
+    return result
+
+
 def create_analysis(
-    client: httpx.Client, file_name: str, data: bytes, job_description: str
+    client: httpx.Client,
+    file_name: str,
+    data: bytes,
+    job_description: str,
+    *,
+    consent: bool,
+    llm_consent: bool = False,
 ) -> dict[str, Any]:
+    """Send the resume and the job description. `consent` is the required box;
+    `llm_consent` the optional one for Claude."""
     response = client.post(
         "/api/v1/analyses",
         files={"resume": (file_name, data, mime_type(file_name))},
-        data={"job_description": job_description},
+        data={
+            "job_description": job_description,
+            "consent": "true" if consent else "false",
+            "llm_consent": "true" if llm_consent else "false",
+        },
     )
     _check(response)
     body: dict[str, Any] = response.json()
     return body
+
+
+def error_place(code: str) -> str:
+    """Which input an analysis error belongs next to: "job", "consent", "form" (the
+    button) or "file"."""
+    if code in _JOB_ERRORS:
+        return "job"
+    if code == "consent_required":
+        return "consent"
+    if code in _FORM_ERRORS or not code:
+        return "form"
+    return "file"
 
 
 def extract_text(client: httpx.Client, file_name: str, data: bytes) -> dict[str, Any]:
@@ -242,12 +300,21 @@ def download_export(client: httpx.Client, analysis_id: str) -> bytes:
     return response.content
 
 
+def download_report(client: httpx.Client, analysis_id: str, kind: str) -> bytes:
+    """The match report: kind "html" or "md"."""
+    response = client.get(_url(analysis_id, f"report.{kind}"))
+    _check(response)
+    return response.content
+
+
 def load_edits(client: httpx.Client, analysis_id: str) -> dict[str, Any]:
     """Everything the edit views show. Analyses made before v0.3 have no stored
     lines, so their lines, changes and export are left empty."""
+    questions = list_gap_questions(client, analysis_id)
     edits: dict[str, Any] = {
         "suggestions": list_suggestions(client, analysis_id),
-        "questions": {q["requirement_id"]: q for q in list_gap_questions(client, analysis_id)},
+        "questions": {q["requirement_id"]: q for q in questions if q["kind"] == "gap"},
+        "metric_questions": [q for q in questions if q["kind"] == "metric"],
         "spans": [],
         "changes": [],
         "lines_stored": True,
@@ -288,6 +355,11 @@ def change_rows(changes: list[dict[str, Any]]) -> list[dict[str, str]]:
         }
         for c in changes
     ]
+
+
+def status_text(status: str) -> str:
+    """A status in words, with its label, so it never depends on color or bold."""
+    return f"Status: {STATUS_LABELS.get(status, status.replace('_', ' '))}"
 
 
 def coverage_rows(report: dict[str, Any]) -> list[dict[str, Any]]:
@@ -364,28 +436,33 @@ def _session_ended(st: Any, exc: ApiError) -> bool:
     if exc.code != "not_authenticated":
         return False
     _clear(st)
-    st.session_state["notice"] = ("error", "Your session ended. Log in again.")
+    st.session_state["notice"] = ("error", "Your session ended. Log in again.", "top")
     return True
 
 
 def _act(
-    st: Any, analysis_id: str, action: Callable[[httpx.Client], object], note: str = ""
+    st: Any,
+    analysis_id: str,
+    action: Callable[[httpx.Client], object],
+    note: str = "",
+    where: str = "top",
 ) -> None:
     """Run one API action, reload the edit views and redraw the screen. An action
-    that returns text shows it as a notice."""
+    that returns text shows it as a notice. The notice, or the error, is shown at
+    `where`: next to the button or form that ran the action."""
     try:
         with _client(st) as client:
             result = action(client)
             st.session_state["edits"] = load_edits(client, analysis_id)
     except ApiError as exc:
         if not _session_ended(st, exc):
-            st.session_state["notice"] = ("error", str(exc))
+            st.session_state["notice"] = ("error", str(exc), where)
     except httpx.HTTPError:
-        st.session_state["notice"] = ("error", f"Couldn't reach the API at {API_URL}.")
+        st.session_state["notice"] = ("error", f"Couldn't reach the API at {API_URL}.", where)
     else:
         message = result if isinstance(result, str) else note
         if message:
-            st.session_state["notice"] = ("info", message)
+            st.session_state["notice"] = ("info", message, where)
     st.rerun()
 
 
@@ -407,16 +484,26 @@ def _render_suggestions(
             left, right = st.columns(2)
             left.caption("Your line")
             left.markdown(escape_markdown(suggestion["original"]))
-            right.caption(f"Suggested rewrite ({suggestion['status']})")
+            right.caption(f"Suggested rewrite, {suggestion['status']}")
             right.markdown(escape_markdown(suggestion["text"]))
             accept, reject = st.columns(2)
             sid = suggestion["id"]
             for column, label, accept_it in ((accept, "Accept", True), (reject, "Reject", False)):
                 done = "accepted" if accept_it else "rejected"
                 if suggestion["status"] != done and column.button(label, key=f"{label}-{sid}"):
-                    _act(st, analysis_id, partial(_decide, analysis_id, sid, accept_it))
+                    _act(
+                        st,
+                        analysis_id,
+                        partial(_decide, analysis_id, sid, accept_it),
+                        where=f"req-{requirement_id}",
+                    )
     if st.button("Suggest rewrites", key=f"suggest-{requirement_id}"):
-        _act(st, analysis_id, partial(_suggest, analysis_id, requirement_id))
+        _act(
+            st,
+            analysis_id,
+            partial(_suggest, analysis_id, requirement_id),
+            where=f"req-{requirement_id}",
+        )
 
 
 def _decide(analysis_id: str, suggestion_id: str, accept: bool, client: httpx.Client) -> None:
@@ -428,29 +515,32 @@ def _suggest(analysis_id: str, requirement_id: str, client: httpx.Client) -> str
 
 
 def _render_question(st: Any, analysis_id: str, question: dict[str, Any]) -> None:
-    requirement_id = question["requirement_id"]
+    question_id = question["id"]
     st.markdown(f"Question: {escape_markdown(question['question'])}")
-    with st.form(f"gap-{requirement_id}"):
+    with st.form(f"gap-{question_id}"):
         answer = st.text_area(
             "Your answer. It is kept with this analysis and never added to your resume.",
             value=question["answer"] or "",
-            key=f"answer-{requirement_id}",
+            key=f"answer-{question_id}",
         )
         if st.form_submit_button("Save answer"):
             _act(
                 st,
                 analysis_id,
-                partial(_answer, analysis_id, requirement_id, answer),
+                partial(_answer, analysis_id, question_id, answer),
                 note="Answer saved.",
+                where=f"q-{question_id}",
             )
+    _show_notice(st, f"q-{question_id}")
 
 
-def _answer(analysis_id: str, requirement_id: str, answer: str, client: httpx.Client) -> None:
-    save_gap_answer(client, analysis_id, requirement_id, answer)
+def _answer(analysis_id: str, question_id: str, answer: str, client: httpx.Client) -> None:
+    save_gap_answer(client, analysis_id, question_id, answer)
 
 
 def _render_corrections(st: Any, analysis_id: str, spans: list[dict[str, Any]]) -> None:
-    with st.expander("Fix text the app read wrongly"):
+    st.subheader("Fix text the app read wrongly")
+    with st.expander("Show every line the app read, to correct it"):
         st.caption(
             "Corrections are your own words, so the fact checker doesn't check them. They "
             "show up as corrections, apart from rewrites, in the list of changes."
@@ -470,11 +560,35 @@ def _render_corrections(st: Any, analysis_id: str, spans: list[dict[str, Any]]) 
                         correct_line(client, analysis_id, span_id, text)
                     return f"Saved {len(changed)} correction{'s' if len(changed) != 1 else ''}."
 
-                _act(st, analysis_id, save)
+                _act(st, analysis_id, save, where="corrections")
+        _show_notice(st, "corrections")
 
 
 def _text_of(spans: list[dict[str, Any]], span_id: str) -> str:
     return next(str(s["text"]) for s in spans if s["id"] == span_id)
+
+
+def _cached_download(
+    st: Any, key: str, fetch: Callable[[httpx.Client], bytes], what: str
+) -> bytes | None:
+    """A download the API counts against the export limit, fetched again only when
+    `key` changes. On an error, says so where the button would be."""
+    cache: dict[str, tuple[str, bytes]] = st.session_state.setdefault("reports", {})
+    cached = cache.get(what)
+    if cached is not None and cached[0] == key:
+        return cached[1]
+    try:
+        with _client(st) as client:
+            data = fetch(client)
+    except ApiError as exc:
+        if not _session_ended(st, exc):
+            st.error(f"The {what} couldn't be built: {exc}")
+        return None
+    except httpx.HTTPError as exc:
+        st.error(f"The {what} couldn't be built: {exc}")
+        return None
+    cache[what] = (key, data)
+    return data
 
 
 def _render_export(st: Any, analysis_id: str, edits: dict[str, Any]) -> None:
@@ -484,34 +598,79 @@ def _render_export(st: Any, analysis_id: str, edits: dict[str, Any]) -> None:
         st.table(rows)
     else:
         st.write("No changes yet. Accept a rewrite or fix a line to see it here.")
-    # Downloads count against the API's export limit, so the file is fetched again
-    # only when the changes differ from the last time.
+    st.subheader("Downloads")
+    # Downloads count against the API's export limit, so a file is fetched again
+    # only when the changes (or, for the report, the answers too) differ.
     key = export_key(analysis_id, edits["changes"])
-    cached = st.session_state.get("export")
-    if cached is not None and cached[0] == key:
-        data = cached[1]
-    else:
-        try:
-            with _client(st) as client:
-                data = download_export(client, analysis_id)
-        except ApiError as exc:
-            if not _session_ended(st, exc):
-                st.error(f"The Word file couldn't be built: {exc}")
-            return
-        except httpx.HTTPError as exc:
-            st.error(f"The Word file couldn't be built: {exc}")
-            return
-        st.session_state["export"] = (key, data)
-    st.download_button(
-        "Download Word file",
-        data=data,
-        file_name="resume.docx",
-        mime=MIME_TYPES["docx"],
-    )
+    data = _cached_download(st, key, partial(download_export, analysis_id=analysis_id), "Word file")
+    if data is not None:
+        st.download_button(
+            "Download Word file", data=data, file_name="resume.docx", mime=MIME_TYPES["docx"]
+        )
+        st.caption(
+            "A plain single-column file: your lines in their original order, with your "
+            "corrections and accepted rewrites. Your uploaded file is not changed or stored."
+        )
+    answers = [
+        (q["id"], q["answer"])
+        for q in [*edits["questions"].values(), *edits.get("metric_questions", [])]
+    ]
+    report_key = json.dumps([key, answers], sort_keys=True)
+    for kind, label, mime in (
+        ("html", "Download match report (HTML)", "text/html"),
+        ("md", "Download match report (Markdown)", "text/markdown"),
+    ):
+        report = _cached_download(
+            st,
+            report_key,
+            partial(_report_file, analysis_id=analysis_id, kind=kind),
+            f"match report ({kind})",
+        )
+        if report is not None:
+            st.download_button(
+                label, data=report, file_name=f"match-report.{kind}", mime=mime, key=f"dl-{kind}"
+            )
     st.caption(
-        "A plain single-column file: your lines in their original order, with your "
-        "corrections and accepted rewrites. Your uploaded file is not changed or stored."
+        "The match report lists every requirement with its status in words, the lines that "
+        "support it, the next step, your questions and answers, and the advice below. It "
+        "needs no internet connection to open."
     )
+
+
+def _report_file(client: httpx.Client, *, analysis_id: str, kind: str) -> bytes:
+    return download_report(client, analysis_id, kind)
+
+
+def _render_requirement(
+    st: Any, analysis_id: str, match: dict[str, Any], edits: dict[str, Any] | None
+) -> None:
+    with st.container(border=True):
+        st.markdown(escape_markdown(status_text(match["status"])))
+        st.markdown(f"Requirement: {escape_markdown(match['requirement']['text'])}")
+        evidence = exact_evidence(match)
+        if evidence:
+            st.markdown("Exact evidence:")
+            for quote, place in evidence:
+                st.markdown(f"> {escape_markdown(quote)}  \n> {escape_markdown(place)}")
+        related = match.get("related_evidence", [])
+        if related:
+            st.markdown("Related by meaning (confirm before you rely on it):")
+            for item in related:
+                place = where(item["section"], item["page"])
+                st.markdown(
+                    f"> {escape_markdown(item['text'])}  \n"
+                    f"> {escape_markdown(place)}, score {item['score']:.2f}"
+                )
+        st.markdown(f"Next step: {escape_markdown(match['next_action'])}")
+        if edits is None:
+            return
+        requirement_id = match["requirement"]["id"]
+        if can_suggest(match) and edits["lines_stored"]:
+            _render_suggestions(st, analysis_id, match, edits["suggestions"])
+        _show_notice(st, f"req-{requirement_id}")
+        question = edits["questions"].get(requirement_id)
+        if question is not None:
+            _render_question(st, analysis_id, question)
 
 
 def _render_report(st: Any, analysis: dict[str, Any], edits: dict[str, Any] | None) -> None:
@@ -519,8 +678,10 @@ def _render_report(st: Any, analysis: dict[str, Any], edits: dict[str, Any] | No
     profile = report.get("profile", {})
     analysis_id = analysis["id"]
 
+    st.header("Results")
+    st.info(EMPLOYER_SYSTEMS_NOTE)
     for warning in [*report["warnings"], *profile.get("warnings", [])]:
-        st.info(warning)
+        st.warning(f"Warning: {warning}")
 
     st.subheader("Coverage")
     st.table(coverage_rows(report))
@@ -535,31 +696,32 @@ def _render_report(st: Any, analysis: dict[str, Any], edits: dict[str, Any] | No
     for label, matches in matches_by_priority(report):
         st.subheader(label)
         for match in matches:
-            with st.container(border=True):
-                st.markdown(f"**{STATUS_LABELS.get(match['status'], match['status'])}**")
-                st.markdown(escape_markdown(match["requirement"]["text"]))
-                evidence = exact_evidence(match)
-                if evidence:
-                    st.markdown("Exact evidence:")
-                    for quote, place in evidence:
-                        st.markdown(f"> {escape_markdown(quote)}  \n> _{escape_markdown(place)}_")
-                related = match.get("related_evidence", [])
-                if related:
-                    st.markdown("Related by meaning (confirm before you rely on it):")
-                    for item in related:
-                        place = where(item["section"], item["page"])
-                        st.markdown(
-                            f"> {escape_markdown(item['text'])}  \n"
-                            f"> _{escape_markdown(place)}, score {item['score']:.2f}_"
-                        )
-                st.markdown(f"Next step: {escape_markdown(match['next_action'])}")
-                if edits is None:
-                    continue
-                if can_suggest(match) and edits["lines_stored"]:
-                    _render_suggestions(st, analysis_id, match, edits["suggestions"])
-                question = edits["questions"].get(match["requirement"]["id"])
-                if question is not None:
-                    _render_question(st, analysis_id, question)
+            _render_requirement(st, analysis_id, match, edits)
+
+    st.subheader("Section order advice")
+    advice = report.get("section_advice", [])
+    if advice:
+        st.caption("Advice only. Nothing in your resume is moved unless you move it.")
+        for item in advice:
+            st.markdown(f"- {escape_markdown(item['message'])}")
+    else:
+        st.write("No advice about the order of your lines or sections.")
+
+    terms = report.get("job", {}).get("employment_terms", [])
+    if terms:
+        st.subheader("Terms noticed in the posting")
+        st.caption(TERMS_NOTE)
+        for term in terms:
+            st.markdown(f"- {escape_markdown(term)}")
+
+    if edits is not None and edits.get("metric_questions"):
+        st.subheader("Bullets without a number")
+        st.caption(
+            "Add a number only if you know it. Your answers are kept with this analysis and "
+            "never added to your resume."
+        )
+        for question in edits["metric_questions"]:
+            _render_question(st, analysis_id, question)
 
     if edits is None or not edits["lines_stored"]:
         return
@@ -666,7 +828,7 @@ def _render_account(st: Any, user: dict[str, Any]) -> None:
                 _unreachable(st)
                 return
             _clear(st)
-            st.session_state["notice"] = ("info", "Logged out.")
+            st.session_state["notice"] = ("info", "Logged out.", "top")
             st.rerun()
 
     if not st.session_state.get("confirm_delete"):
@@ -699,15 +861,105 @@ def _render_account(st: Any, user: dict[str, Any]) -> None:
             "Your account and all of its data were deleted."
             if not disabled
             else "All of the local account's data was deleted.",
+            "top",
         )
         st.rerun()
 
 
-def _show_notice(st: Any) -> None:
-    notice = st.session_state.pop("notice", None)
+def _show_notice(st: Any, where: str = "top") -> None:
+    """Show the notice meant for this place on the screen, once."""
+    notice = st.session_state.get("notice")
+    if notice is None:
+        return
+    kind, message, place = notice if len(notice) == 3 else (*notice, "top")
+    if place != where:
+        return
+    st.session_state.pop("notice", None)
+    (st.error if kind == "error" else st.info)(message)
+
+
+def _consent(st: Any) -> dict[str, Any] | None:
+    """The API's consent notice, fetched once per tab."""
+    notice: dict[str, Any] | None = st.session_state.get("consent_notice")
     if notice is not None:
-        kind, message = notice
-        (st.error if kind == "error" else st.info)(message)
+        return notice
+    try:
+        with _client(st) as client:
+            notice = consent_notice(client)
+    except ApiError as exc:
+        if _session_ended(st, exc):
+            st.rerun()
+        st.error(f"The consent notice couldn't be loaded: {exc}")
+        return None
+    except httpx.HTTPError:
+        _unreachable(st)
+        return None
+    st.session_state["consent_notice"] = notice
+    return notice
+
+
+def _render_upload(st: Any) -> None:
+    """The consent notice, the two boxes and the upload form. Each error is written
+    next to the input it is about."""
+    notice = _consent(st)
+    if notice is None:
+        return
+    st.header("Check your resume against a job")
+    with st.form("analyze"):
+        st.markdown("Before you upload:")
+        for point in notice["points"]:
+            st.markdown(f"- {escape_markdown(point)}")
+        consent = st.checkbox(notice["checkbox"], key="consent")
+        consent_error = st.empty()
+        llm_consent = False
+        if notice["llm_available"]:
+            st.markdown("Claude, optional:")
+            for point in notice["llm_points"]:
+                st.markdown(f"- {escape_markdown(point)}")
+            llm_consent = st.checkbox(notice["llm_checkbox"], key="llm-consent")
+        upload = st.file_uploader("Resume (PDF or Word)", type=["pdf", "docx"])
+        file_error = st.empty()
+        job_text = st.text_area("Job description", height=260)
+        job_error = st.empty()
+        submitted = st.form_submit_button("Check my resume")
+        form_error = st.empty()
+    places = {"consent": consent_error, "file": file_error, "job": job_error, "form": form_error}
+
+    if not submitted:
+        return
+    problems = {
+        "consent": "Tick the box above to agree before the resume is read." if not consent else "",
+        "file": "Choose a PDF or Word file." if upload is None else "",
+        "job": "Paste the job description." if not job_text.strip() else "",
+    }
+    if any(problems.values()):
+        for place, message in problems.items():
+            if message:
+                places[place].error(message)
+        return
+    assert upload is not None
+    try:
+        with (
+            _client(st) as client,
+            st.spinner("Reading the resume and the job description..."),
+        ):
+            analysis = create_analysis(
+                client,
+                upload.name,
+                upload.getvalue(),
+                job_text,
+                consent=consent,
+                llm_consent=llm_consent,
+            )
+            st.session_state["analysis"] = analysis
+            st.session_state["edits"] = load_edits(client, analysis["id"])
+            st.session_state.pop("reports", None)
+    except ApiError as exc:
+        if _session_ended(st, exc):
+            st.rerun()
+        places[error_place(exc.code)].error(str(exc))
+    except httpx.HTTPError:
+        form_error.error(f"Couldn't reach the API at {API_URL}. Is it running?")
 
 
 def main() -> None:
@@ -726,31 +978,7 @@ def main() -> None:
         _render_login(st)
         return
     _render_account(st, user)
-
-    with st.form("analyze"):
-        upload = st.file_uploader("Resume (PDF or Word)", type=["pdf", "docx"])
-        job_text = st.text_area("Job description", height=260)
-        submitted = st.form_submit_button("Check my resume")
-
-    if submitted:
-        if upload is None or not job_text.strip():
-            st.warning("Add a resume and paste the job description first.")
-        else:
-            data = upload.getvalue()
-            try:
-                with (
-                    _client(st) as client,
-                    st.spinner("Reading the resume and the job description..."),
-                ):
-                    analysis = create_analysis(client, upload.name, data, job_text)
-                    st.session_state["analysis"] = analysis
-                    st.session_state["edits"] = load_edits(client, analysis["id"])
-            except ApiError as exc:
-                if _session_ended(st, exc):
-                    st.rerun()
-                st.error(str(exc))
-            except httpx.HTTPError:
-                _unreachable(st)
+    _render_upload(st)
 
     if st.session_state.pop("deleted", False):
         st.success("Deleted. Nothing from that analysis is stored any more.")
@@ -771,7 +999,7 @@ def main() -> None:
         except httpx.HTTPError:
             _unreachable(st)
         else:
-            for key in ("analysis", "edits", "export"):
+            for key in ("analysis", "edits", "reports"):
                 st.session_state.pop(key, None)
             st.session_state["deleted"] = True
             st.rerun()

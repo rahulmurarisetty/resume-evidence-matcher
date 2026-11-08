@@ -1,33 +1,67 @@
-"""Gap questions: one plain question per gap or adjacent requirement.
+"""Questions for the person: one gap question per gap or adjacent requirement, and
+metric questions for experience bullets that have no measurable result.
 
-They are built from the report alone, with no model call, so the same report
-always gets the same questions. The person's answers are stored with the
-analysis and never put into the resume.
+They are built from the report (and, for metric questions, the lines the app
+read), with no model call, so the same analysis always gets the same questions.
+The person's answers are stored with the analysis and never put into the resume:
+the app never fills in a number.
 """
 
+import re
+from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import Literal
 
 from app.models import (
     AnalysisReport,
+    EvidenceStrength,
     MatchMode,
     MatchStatus,
     Priority,
     RequirementMatch,
+    ResumeDocument,
+    Section,
+    SpanKind,
 )
 from app.services.credentials import CredentialAsk, credential_ask, with_article
 from app.services.skills import SkillCatalog, get_catalog
 
 QUESTION_STATUSES = {MatchStatus.GAP, MatchStatus.ADJACENT}
+# Statuses whose demonstrated evidence counts as support for a bullet.
+SUPPORT_STATUSES = {MatchStatus.DIRECT, MatchStatus.PARTIAL}
+MAX_METRIC_QUESTIONS = 5
+METRIC_PREFIX = "metric-"
+METRIC_ASK = "How many, how much, how fast or how often? Add a number only if you know it."
 _MAX_QUOTE_CHARS = 140
+_PRIORITY_ORDER = (Priority.REQUIRED, Priority.PREFERRED, Priority.CONTEXT)
+# Numbers written as words, which the metric patterns don't read ("three engineers").
+# A bullet with one already has a number, so it gets no metric question.
+_NUMBER_WORDS = re.compile(
+    r"\b(?:two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty"
+    r"|thirty|forty|fifty|hundreds?|thousands?|millions?|billions?|dozens?|half|twice"
+    r"|double[ds]?|tripled?|halved)\b",
+    re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
 class GapQuestion:
-    requirement_id: str
-    requirement_text: str
-    priority: Priority
-    status: MatchStatus
+    requirement_id: str | None
+    requirement_text: str | None
+    priority: Priority | None
+    status: MatchStatus | None
     question: str
+    kind: Literal["gap", "metric"] = "gap"
+    span_id: str | None = None
+    line: str | None = None
+
+    @property
+    def id(self) -> str:
+        """The key answers are stored under: the requirement id for a gap question,
+        "metric-<span id>" for a metric question."""
+        if self.kind == "metric":
+            return f"{METRIC_PREFIX}{self.span_id}"
+        return self.requirement_id or ""
 
 
 def _join(names: list[str], word: str) -> str:
@@ -40,6 +74,11 @@ def _quote(text: str) -> str:
     if len(text) > _MAX_QUOTE_CHARS:
         text = text[:_MAX_QUOTE_CHARS].rsplit(" ", 1)[0].rstrip(",;:") + "..."
     return f'"{text}"'
+
+
+def _ended(quote: str) -> str:
+    """A quote that ends a sentence: a full stop after it unless the line has one."""
+    return quote if quote[-2:-1] in (".", "!", "?") else f"{quote}."
 
 
 def _ask_about(skills: list[str], mode: MatchMode, catalog: SkillCatalog) -> str:
@@ -115,4 +154,93 @@ def gap_questions(report: AnalysisReport, catalog: SkillCatalog | None = None) -
                     question=question,
                 )
             )
+    return questions
+
+
+def supported_requirements(
+    matches: Sequence[RequirementMatch],
+) -> dict[str, list[RequirementMatch]]:
+    """For each resume line, the requirements it proves: it is demonstrated evidence
+    of a direct or partial requirement. Required requirements come first, then
+    preferred, then job duties, each in the job's order."""
+    support: dict[str, list[RequirementMatch]] = {}
+    for priority in _PRIORITY_ORDER:
+        for match in matches:
+            if match.requirement.priority is not priority or match.status not in SUPPORT_STATUSES:
+                continue
+            for skill in match.skills:
+                for evidence in skill.evidence:
+                    if evidence.strength is not EvidenceStrength.DEMONSTRATED:
+                        continue
+                    proven = support.setdefault(evidence.span_id, [])
+                    if match not in proven:
+                        proven.append(match)
+    return support
+
+
+def _experience_bullets(report: AnalysisReport, resume: ResumeDocument) -> list[str]:
+    role_bullets = {
+        span_id
+        for role in report.profile.roles
+        if role.section is Section.EXPERIENCE
+        for span_id in role.bullet_span_ids
+    }
+    return [
+        span.id
+        for span in resume.spans
+        if span.kind is SpanKind.BULLET
+        and (span.section is Section.EXPERIENCE or span.id in role_bullets)
+    ]
+
+
+def metric_questions(
+    report: AnalysisReport, resume: ResumeDocument, limit: int = MAX_METRIC_QUESTIONS
+) -> list[GapQuestion]:
+    """Up to `limit` questions about experience bullets with no measurable result.
+    Bullets that support required requirements come first, then preferred, then
+    job duties, then the rest, each in reading order."""
+    with_metrics = set(report.profile.metric_bullets)
+    support = supported_requirements(report.matches)
+    texts = {span.id: span.text for span in resume.spans}
+
+    def rank(span_id: str) -> tuple[int, ...]:
+        proven = support.get(span_id, [])
+        return tuple(-sum(m.requirement.priority is p for m in proven) for p in _PRIORITY_ORDER)
+
+    candidates = [
+        i
+        for i in _experience_bullets(report, resume)
+        if i not in with_metrics and not _NUMBER_WORDS.search(texts[i])
+    ]
+    # sorted() is stable, so equal ranks keep reading order.
+    chosen = sorted(candidates, key=rank)[:limit]
+    questions: list[GapQuestion] = []
+    for span_id in chosen:
+        proven = support.get(span_id, [])
+        first = proven[0] if proven else None
+        questions.append(
+            GapQuestion(
+                requirement_id=first.requirement.id if first else None,
+                requirement_text=first.requirement.text if first else None,
+                priority=first.requirement.priority if first else None,
+                status=first.status if first else None,
+                question=f"No number in this bullet: {_ended(_quote(texts[span_id]))} {METRIC_ASK}",
+                kind="metric",
+                span_id=span_id,
+                line=texts[span_id],
+            )
+        )
+    return questions
+
+
+def all_questions(
+    report: AnalysisReport,
+    resume: ResumeDocument | None,
+    catalog: SkillCatalog | None = None,
+) -> list[GapQuestion]:
+    """Gap questions, then metric questions. Without the resume lines (analyses from
+    before v0.3) there are no metric questions."""
+    questions = gap_questions(report, catalog)
+    if resume is not None:
+        questions += metric_questions(report, resume)
     return questions

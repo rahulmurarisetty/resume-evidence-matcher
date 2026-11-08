@@ -181,15 +181,22 @@ jobs:
             | python3 -c "import json, sys; print(json.load(sys.stdin)['token'])")
           auth="Authorization: Bearer $token"
 
+          # v1.0: without consent nothing is read.
+          status=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$api/api/v1/analyses" -H "$auth" \
+            -F resume=@samples/generated/jordan_example_data_engineer.pdf \
+            -F job_description="<samples/jobs/data_engineer.txt")
+          [ "$status" = 422 ]
           curl -fsS -X POST "$api/api/v1/analyses" -H "$auth" \
             -F resume=@samples/generated/jordan_example_data_engineer.pdf \
             -F job_description="<samples/jobs/data_engineer.txt" \
+            -F consent=true \
             -o /tmp/analysis.json
           # v0.2: the "5+ years" requirement is checked against the role dates.
           # The default image has no ML packages, so matching stays exact.
           python3 -c "import json; r = json.load(open('/tmp/analysis.json'))['report']; assert r['coverage']['required']['direct'] == 5, r['coverage']; assert r['matching_mode'] == 'exact', r['pipeline_version']; assert r['profile']['total_years'] >= 7.5, r['profile']"
           id=$(python3 -c "import json; print(json.load(open('/tmp/analysis.json'))['id'])")
           curl -fsS -H "$auth" "$api/api/v1/analyses/$id" -o /dev/null
+          curl -fsS -H "$auth" "$api/api/v1/analyses/$id/report.html" | grep -q '<html lang="en">'
 
           # Deleting the account deletes the analysis and ends the session.
           curl -fsS -X DELETE -H "$auth" "$api/api/v1/auth/me"

@@ -42,7 +42,11 @@ class AnalysisRepository:
         file_sha256: str,
         retention: timedelta,
         resume: ResumeDocument | None = None,
+        *,
+        consent_version: str | None = None,
+        llm_consent: bool = False,
     ) -> AnalysisRecord:
+        """Store an analysis. With `consent_version`, the consent time is now."""
         now = utcnow()
         record = AnalysisRecord(
             id=uuid.uuid4().hex,
@@ -53,6 +57,9 @@ class AnalysisRepository:
             file_type=file_type.value,
             file_sha256=file_sha256,
             report_json=report.model_dump_json(),
+            consent_at=now if consent_version is not None else None,
+            consent_version=consent_version,
+            llm_consent=llm_consent,
         )
         self.session.add(record)
         if resume is not None:
@@ -73,6 +80,8 @@ class AnalysisRepository:
             return None
         record.created_at = _aware(record.created_at)
         record.expires_at = _aware(record.expires_at)
+        if record.consent_at is not None:
+            record.consent_at = _aware(record.consent_at)
         return record
 
     def list_for_owner(self, owner_id: str) -> list[AnalysisRecord]:

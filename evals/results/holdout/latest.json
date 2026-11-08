@@ -7,10 +7,10 @@
       "factcheck_labels": false
     },
     "date": "2026-11-08",
-    "git_commit": "6b763ac",
+    "git_commit": "fb009ce",
     "uncommitted_changes": true,
-    "app_version": "0.5.0",
-    "pipeline_version": "0.5.0-exact",
+    "app_version": "1.0.0",
+    "pipeline_version": "1.0.0-exact",
     "as_of": "2026-11-01",
     "formats": [
       {
@@ -54,24 +54,24 @@
       "overall": {
         "resumes": 18,
         "role_precision": {
-          "rate": 0.7778,
-          "count": 42,
+          "rate": 0.8333,
+          "count": 45,
           "total": 54
         },
         "role_recall": {
-          "rate": 0.7778,
-          "count": 42,
+          "rate": 0.8333,
+          "count": 45,
           "total": 54
         },
         "start_month_accuracy": {
           "rate": 1.0,
-          "count": 42,
-          "total": 42
+          "count": 45,
+          "total": 45
         },
         "end_month_accuracy": {
           "rate": 1.0,
-          "count": 42,
-          "total": 42
+          "count": 45,
+          "total": 45
         },
         "total_years_mae": 0.4333,
         "total_years_measured": {
@@ -104,24 +104,24 @@
         "pdf_inline": {
           "resumes": 6,
           "role_precision": {
-            "rate": 0.7778,
-            "count": 14,
+            "rate": 0.8333,
+            "count": 15,
             "total": 18
           },
           "role_recall": {
-            "rate": 0.7778,
-            "count": 14,
+            "rate": 0.8333,
+            "count": 15,
             "total": 18
           },
           "start_month_accuracy": {
             "rate": 1.0,
-            "count": 14,
-            "total": 14
+            "count": 15,
+            "total": 15
           },
           "end_month_accuracy": {
             "rate": 1.0,
-            "count": 14,
-            "total": 14
+            "count": 15,
+            "total": 15
           },
           "total_years_mae": 0.4333,
           "total_years_measured": {
@@ -153,24 +153,24 @@
         "pdf_separate": {
           "resumes": 6,
           "role_precision": {
-            "rate": 0.7778,
-            "count": 14,
+            "rate": 0.8333,
+            "count": 15,
             "total": 18
           },
           "role_recall": {
-            "rate": 0.7778,
-            "count": 14,
+            "rate": 0.8333,
+            "count": 15,
             "total": 18
           },
           "start_month_accuracy": {
             "rate": 1.0,
-            "count": 14,
-            "total": 14
+            "count": 15,
+            "total": 15
           },
           "end_month_accuracy": {
             "rate": 1.0,
-            "count": 14,
-            "total": 14
+            "count": 15,
+            "total": 15
           },
           "total_years_mae": 0.4333,
           "total_years_measured": {
@@ -202,24 +202,24 @@
         "docx": {
           "resumes": 6,
           "role_precision": {
-            "rate": 0.7778,
-            "count": 14,
+            "rate": 0.8333,
+            "count": 15,
             "total": 18
           },
           "role_recall": {
-            "rate": 0.7778,
-            "count": 14,
+            "rate": 0.8333,
+            "count": 15,
             "total": 18
           },
           "start_month_accuracy": {
             "rate": 1.0,
-            "count": 14,
-            "total": 14
+            "count": 15,
+            "total": 15
           },
           "end_month_accuracy": {
             "rate": 1.0,
-            "count": 14,
-            "total": 14
+            "count": 15,
+            "total": 15
           },
           "total_years_mae": 0.4333,
           "total_years_measured": {
@@ -254,9 +254,9 @@
       "rules": {
         "jobs": 5,
         "extraction_precision": {
-          "rate": 0.9362,
+          "rate": 0.9565,
           "count": 88,
-          "total": 94
+          "total": 92
         },
         "extraction_recall": {
           "rate": 0.9778,
@@ -271,9 +271,9 @@
         "per_class": {
           "required": {
             "precision": {
-              "rate": 0.9512,
+              "rate": 0.975,
               "count": 39,
-              "total": 41
+              "total": 40
             },
             "recall": {
               "rate": 0.9512,
@@ -283,9 +283,9 @@
           },
           "preferred": {
             "precision": {
-              "rate": 0.875,
+              "rate": 0.9333,
               "count": 28,
-              "total": 32
+              "total": 30
             },
             "recall": {
               "rate": 1.0,
@@ -295,9 +295,9 @@
           },
           "context": {
             "precision": {
-              "rate": 0.9524,
+              "rate": 0.9091,
               "count": 20,
-              "total": 21
+              "total": 22
             },
             "recall": {
               "rate": 0.9524,
@@ -339,9 +339,9 @@
               0
             ],
             [
-              1,
-              4,
-              1,
+              0,
+              2,
+              2,
               0
             ]
           ]
@@ -1156,6 +1156,318 @@
       "semantic": null,
       "claude": null
     },
+    "document_quality": {
+      "overall": {
+        "files": 18,
+        "pairs": 24,
+        "sections_unchanged": {
+          "rate": 1.0,
+          "count": 18,
+          "total": 18
+        },
+        "roles_unchanged": {
+          "rate": 1.0,
+          "count": 18,
+          "total": 18
+        },
+        "total_years_unchanged": {
+          "rate": 1.0,
+          "count": 18,
+          "total": 18
+        },
+        "statuses_unchanged": {
+          "rate": 1.0,
+          "count": 24,
+          "total": 24
+        },
+        "round_trip_unchanged": {
+          "rate": 1.0,
+          "count": 18,
+          "total": 18
+        },
+        "structure_ok": {
+          "rate": 1.0,
+          "count": 18,
+          "total": 18
+        },
+        "without_section_headings": 0,
+        "structure_checks": {
+          "no_tables": {
+            "rate": 1.0,
+            "count": 18,
+            "total": 18
+          },
+          "no_text_boxes": {
+            "rate": 1.0,
+            "count": 18,
+            "total": 18
+          },
+          "no_images": {
+            "rate": 1.0,
+            "count": 18,
+            "total": 18
+          },
+          "no_headers_or_footers": {
+            "rate": 1.0,
+            "count": 18,
+            "total": 18
+          },
+          "one_column": {
+            "rate": 1.0,
+            "count": 18,
+            "total": 18
+          },
+          "heading_styles": {
+            "rate": 1.0,
+            "count": 18,
+            "total": 18
+          },
+          "list_styles": {
+            "rate": 1.0,
+            "count": 18,
+            "total": 18
+          },
+          "language": {
+            "rate": 1.0,
+            "count": 18,
+            "total": 18
+          }
+        }
+      },
+      "by_format": {
+        "pdf_inline": {
+          "files": 6,
+          "pairs": 8,
+          "sections_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "roles_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "total_years_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "statuses_unchanged": {
+            "rate": 1.0,
+            "count": 8,
+            "total": 8
+          },
+          "round_trip_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "structure_ok": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "without_section_headings": 0,
+          "structure_checks": {
+            "no_tables": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "no_text_boxes": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "no_images": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "no_headers_or_footers": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "one_column": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "heading_styles": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "list_styles": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "language": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            }
+          }
+        },
+        "pdf_separate": {
+          "files": 6,
+          "pairs": 8,
+          "sections_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "roles_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "total_years_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "statuses_unchanged": {
+            "rate": 1.0,
+            "count": 8,
+            "total": 8
+          },
+          "round_trip_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "structure_ok": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "without_section_headings": 0,
+          "structure_checks": {
+            "no_tables": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "no_text_boxes": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "no_images": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "no_headers_or_footers": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "one_column": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "heading_styles": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "list_styles": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "language": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            }
+          }
+        },
+        "docx": {
+          "files": 6,
+          "pairs": 8,
+          "sections_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "roles_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "total_years_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "statuses_unchanged": {
+            "rate": 1.0,
+            "count": 8,
+            "total": 8
+          },
+          "round_trip_unchanged": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "structure_ok": {
+            "rate": 1.0,
+            "count": 6,
+            "total": 6
+          },
+          "without_section_headings": 0,
+          "structure_checks": {
+            "no_tables": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "no_text_boxes": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "no_images": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "no_headers_or_footers": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "one_column": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "heading_styles": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "list_styles": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            },
+            "language": {
+              "rate": 1.0,
+              "count": 6,
+              "total": 6
+            }
+          }
+        }
+      }
+    },
     "factcheck": {
       "holdout": {
         "cases": 0,
@@ -1233,14 +1545,369 @@
       }
     }
   },
-  "comparison": null,
+  "comparison": {
+    "runs": [
+      {
+        "label": "v0.4 (blind)",
+        "pipeline_version": "0.4.0-exact",
+        "git_commit": "6b763ac",
+        "note": "The v0.4 app at 6b763ac, measured with the v0.5 evaluation code and PDF builder (02c3195). Run after v0.5 was finished, before anyone had read the set."
+      },
+      {
+        "label": "v0.5 (blind)",
+        "pipeline_version": "0.5.0-exact",
+        "git_commit": "02c3195",
+        "note": "The v0.5 app, run once on the set after v0.5 was finished. v1.0 before the reading fixes gives the same numbers."
+      }
+    ],
+    "rows": [
+      {
+        "metric": "Role precision (all formats)",
+        "path": "structure.overall.role_precision",
+        "before": [
+          {
+            "rate": 0.4444,
+            "count": 24,
+            "total": 54
+          },
+          {
+            "rate": 0.7778,
+            "count": 42,
+            "total": 54
+          }
+        ],
+        "now": {
+          "rate": 0.8333,
+          "count": 45,
+          "total": 54
+        }
+      },
+      {
+        "metric": "Role recall (all formats)",
+        "path": "structure.overall.role_recall",
+        "before": [
+          {
+            "rate": 0.4444,
+            "count": 24,
+            "total": 54
+          },
+          {
+            "rate": 0.7778,
+            "count": 42,
+            "total": 54
+          }
+        ],
+        "now": {
+          "rate": 0.8333,
+          "count": 45,
+          "total": 54
+        }
+      },
+      {
+        "metric": "Start month correct (matched roles)",
+        "path": "structure.overall.start_month_accuracy",
+        "before": [
+          {
+            "rate": 1.0,
+            "count": 24,
+            "total": 24
+          },
+          {
+            "rate": 1.0,
+            "count": 42,
+            "total": 42
+          }
+        ],
+        "now": {
+          "rate": 1.0,
+          "count": 45,
+          "total": 45
+        }
+      },
+      {
+        "metric": "End month correct (matched roles)",
+        "path": "structure.overall.end_month_accuracy",
+        "before": [
+          {
+            "rate": 1.0,
+            "count": 24,
+            "total": 24
+          },
+          {
+            "rate": 1.0,
+            "count": 42,
+            "total": 42
+          }
+        ],
+        "now": {
+          "rate": 1.0,
+          "count": 45,
+          "total": 45
+        }
+      },
+      {
+        "metric": "Total years within 0.5 of the label",
+        "path": "structure.overall.total_years_within_half",
+        "before": [
+          {
+            "rate": 0.8333,
+            "count": 15,
+            "total": 18
+          },
+          {
+            "rate": 0.8333,
+            "count": 15,
+            "total": 18
+          }
+        ],
+        "now": {
+          "rate": 0.8333,
+          "count": 15,
+          "total": 18
+        }
+      },
+      {
+        "metric": "Education recall",
+        "path": "structure.overall.education_recall",
+        "before": [
+          {
+            "rate": 0.7778,
+            "count": 21,
+            "total": 27
+          },
+          {
+            "rate": 0.7778,
+            "count": 21,
+            "total": 27
+          }
+        ],
+        "now": {
+          "rate": 0.7778,
+          "count": 21,
+          "total": 27
+        }
+      },
+      {
+        "metric": "Requirement extraction precision",
+        "path": "requirements.rules.extraction_precision",
+        "before": [
+          {
+            "rate": 0.8302,
+            "count": 88,
+            "total": 106
+          },
+          {
+            "rate": 0.9362,
+            "count": 88,
+            "total": 94
+          }
+        ],
+        "now": {
+          "rate": 0.9565,
+          "count": 88,
+          "total": 92
+        }
+      },
+      {
+        "metric": "Requirement extraction recall",
+        "path": "requirements.rules.extraction_recall",
+        "before": [
+          {
+            "rate": 0.9778,
+            "count": 88,
+            "total": 90
+          },
+          {
+            "rate": 0.9778,
+            "count": 88,
+            "total": 90
+          }
+        ],
+        "now": {
+          "rate": 0.9778,
+          "count": 88,
+          "total": 90
+        }
+      },
+      {
+        "metric": "Priority accuracy on extracted requirements",
+        "path": "requirements.rules.priority_accuracy",
+        "before": [
+          {
+            "rate": 0.9205,
+            "count": 81,
+            "total": 88
+          },
+          {
+            "rate": 0.9886,
+            "count": 87,
+            "total": 88
+          }
+        ],
+        "now": {
+          "rate": 0.9886,
+          "count": 87,
+          "total": 88
+        }
+      },
+      {
+        "metric": "Pair status accuracy (all formats)",
+        "path": "pairs.exact.overall.status_accuracy",
+        "before": [
+          {
+            "rate": 0.5091,
+            "count": 168,
+            "total": 330
+          },
+          {
+            "rate": 0.6455,
+            "count": 213,
+            "total": 330
+          }
+        ],
+        "now": {
+          "rate": 0.6455,
+          "count": 213,
+          "total": 330
+        }
+      },
+      {
+        "metric": "False proven",
+        "path": "pairs.exact.overall.false_proven_rate",
+        "before": [
+          {
+            "rate": 0.04,
+            "count": 6,
+            "total": 150
+          },
+          {
+            "rate": 0.02,
+            "count": 3,
+            "total": 150
+          }
+        ],
+        "now": {
+          "rate": 0.02,
+          "count": 3,
+          "total": 150
+        }
+      },
+      {
+        "metric": "Direct where the label isn't direct",
+        "path": "pairs.exact.overall.overclaim_rate",
+        "before": [
+          {
+            "rate": 0.0938,
+            "count": 18,
+            "total": 192
+          },
+          {
+            "rate": 0.0625,
+            "count": 12,
+            "total": 192
+          }
+        ],
+        "now": {
+          "rate": 0.0625,
+          "count": 12,
+          "total": 192
+        }
+      },
+      {
+        "metric": "Gap precision",
+        "path": "pairs.exact.overall.gap_precision",
+        "before": [
+          {
+            "rate": 0.9048,
+            "count": 57,
+            "total": 63
+          },
+          {
+            "rate": 0.8621,
+            "count": 75,
+            "total": 87
+          }
+        ],
+        "now": {
+          "rate": 0.8621,
+          "count": 75,
+          "total": 87
+        }
+      },
+      {
+        "metric": "Gap recall",
+        "path": "pairs.exact.overall.gap_recall",
+        "before": [
+          {
+            "rate": 0.4524,
+            "count": 57,
+            "total": 126
+          },
+          {
+            "rate": 0.5952,
+            "count": 75,
+            "total": 126
+          }
+        ],
+        "now": {
+          "rate": 0.5952,
+          "count": 75,
+          "total": 126
+        }
+      },
+      {
+        "metric": "Evidence recall@1",
+        "path": "pairs.exact.overall.evidence_recall_at_1",
+        "before": [
+          {
+            "rate": 0.2833,
+            "count": 51,
+            "total": 180
+          },
+          {
+            "rate": 0.45,
+            "count": 81,
+            "total": 180
+          }
+        ],
+        "now": {
+          "rate": 0.45,
+          "count": 81,
+          "total": 180
+        }
+      },
+      {
+        "metric": "Evidence recall@3",
+        "path": "pairs.exact.overall.evidence_recall_at_3",
+        "before": [
+          {
+            "rate": 0.3667,
+            "count": 66,
+            "total": 180
+          },
+          {
+            "rate": 0.5333,
+            "count": 96,
+            "total": 180
+          }
+        ],
+        "now": {
+          "rate": 0.5333,
+          "count": 96,
+          "total": 180
+        }
+      }
+    ],
+    "current_label": "v1.0 (after fixes informed by one held-out example)",
+    "caveat": "This set is no longer fully unseen. The three v1.0 reading fixes (a company suffix marks an employer and a \"Client:\" line names a client; employment terms such as \"Only W2\" are not requirements; intro sentences such as \"We are looking for a hands-on X to join our team\" are context) were found by looking at one held-out example during a manual demo. They are general rules, tested with new examples, but the v1.0 column is not a blind result. The v0.4 and v0.5 columns are the blind results."
+  },
   "semantic": {
     "status": "not requested",
     "how_to_run": "Install the ml extra (pip install -e \".[dev,ml]\", with the CPU-only PyTorch first on Linux as the README shows), then run python -m evals.run --semantic. The first run downloads the two models from Hugging Face, about 180 MB."
   },
   "llm": {
     "status": "not requested",
-    "how_to_run": "Put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), then run python -m evals.run --llm. It makes one parse call per job and up to LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by default)."
+    "how_to_run": "To run it with your own key, put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), then run python -m evals.run --llm. It makes one parse call per job and up to LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by default), billed to that key, and writes every candidate to llm_candidates.json next to this report."
   },
   "error_analysis": [
     {
@@ -1296,32 +1963,6 @@
       ]
     },
     {
-      "id": "jd_intro_kept",
-      "area": "Requirement extraction",
-      "title": "Company and posting details are kept as requirements",
-      "observation": "Company descriptions and posting lines are kept as requirements, usually as context: they name a skill or address the candidate, so the parser can't tell them from a duty.",
-      "count": 6,
-      "unit": "job lines",
-      "formats": "",
-      "examples": [
-        {
-          "where": "h_j01_guidewire_claimcenter_developer",
-          "formats": "",
-          "what": "\"We are looking for a hands-on ClaimCenter developer to join the claims IT team.\" kept as required."
-        },
-        {
-          "where": "h_j04_platform_engineer",
-          "formats": "",
-          "what": "\"Mock Payments, Inc. | Remote, US (Eastern or Central time zones preferred)\" kept as preferred."
-        },
-        {
-          "where": "h_j05_bi_developer",
-          "formats": "",
-          "what": "\"The team supports 14 hospitals and more than 200 clinics with reporting on quality, finance and operations.\" kept as context."
-        }
-      ]
-    },
-    {
       "id": "structure_fields_differ",
       "area": "Resume structure",
       "title": "Roles are found but the title or employer is split wrongly",
@@ -1344,6 +1985,32 @@
           "where": "h_r05_bi_developer",
           "formats": "all formats",
           "what": "education 'Master of Science, Information Systems': The degree or school was read differently. Extracted line: \"Master of Science, Information Systems\"."
+        }
+      ]
+    },
+    {
+      "id": "jd_intro_kept",
+      "area": "Requirement extraction",
+      "title": "Company and posting details are kept as requirements",
+      "observation": "Company descriptions and posting lines are kept as requirements, usually as context: they name a skill or address the candidate, so the parser can't tell them from a duty.",
+      "count": 4,
+      "unit": "job lines",
+      "formats": "",
+      "examples": [
+        {
+          "where": "h_j01_guidewire_claimcenter_developer",
+          "formats": "",
+          "what": "\"We are looking for a hands-on ClaimCenter developer to join the claims IT team.\" kept as context."
+        },
+        {
+          "where": "h_j04_platform_engineer",
+          "formats": "",
+          "what": "\"Mock Payments, Inc. | Remote, US (Eastern or Central time zones preferred)\" kept as preferred."
+        },
+        {
+          "where": "h_j05_bi_developer",
+          "formats": "",
+          "what": "\"The team supports 14 hospitals and more than 200 clinics with reporting on quality, finance and operations.\" kept as context."
         }
       ]
     },
@@ -1489,22 +2156,6 @@
       ]
     },
     {
-      "id": "structure_not_in_text",
-      "area": "Resume structure",
-      "title": "Roles not found in the extracted text",
-      "observation": "No extracted line holds both the title and the employer.",
-      "count": 1,
-      "unit": "roles or entries",
-      "formats": "all formats",
-      "examples": [
-        {
-          "where": "h_r01_guidewire_claimcenter",
-          "formats": "all formats",
-          "what": "role 'Guidewire Developer, Demo Infotech Pvt. Ltd.': No extracted line holds both the title and the employer."
-        }
-      ]
-    },
-    {
       "id": "structure_dates_unreadable",
       "area": "Resume structure",
       "title": "Date ranges with a separator the parser doesn't accept are not read",
@@ -1560,8 +2211,8 @@
         "format": "pdf_inline",
         "roles_gold": 3,
         "roles_found": 3,
-        "roles_matched": 2,
-        "dates_correct": 2,
+        "roles_matched": 3,
+        "dates_correct": 3,
         "years_gold": 10.4,
         "years_app": 10.4,
         "education_gold": 1,
@@ -1632,8 +2283,8 @@
         "format": "pdf_separate",
         "roles_gold": 3,
         "roles_found": 3,
-        "roles_matched": 2,
-        "dates_correct": 2,
+        "roles_matched": 3,
+        "dates_correct": 3,
         "years_gold": 10.4,
         "years_app": 10.4,
         "education_gold": 1,
@@ -1704,8 +2355,8 @@
         "format": "docx",
         "roles_gold": 3,
         "roles_found": 3,
-        "roles_matched": 2,
-        "dates_correct": 2,
+        "roles_matched": 3,
+        "dates_correct": 3,
         "years_gold": 10.4,
         "years_app": 10.4,
         "education_gold": 1,
@@ -1774,19 +2425,6 @@
     ],
     "structure_failures": [
       {
-        "resume": "h_r01_guidewire_claimcenter",
-        "format": "pdf_inline",
-        "gold": {
-          "title": "Guidewire Developer",
-          "employer": "Demo Infotech Pvt. Ltd.",
-          "start": "2018-08",
-          "end": "2021-05"
-        },
-        "cause": "not_in_text",
-        "line": null,
-        "detail": "No extracted line holds both the title and the employer."
-      },
-      {
         "resume": "h_r02_data_scientist",
         "format": "pdf_inline",
         "gold": {
@@ -1850,19 +2488,6 @@
         "detail": "The degree or school was read differently."
       },
       {
-        "resume": "h_r01_guidewire_claimcenter",
-        "format": "pdf_separate",
-        "gold": {
-          "title": "Guidewire Developer",
-          "employer": "Demo Infotech Pvt. Ltd.",
-          "start": "2018-08",
-          "end": "2021-05"
-        },
-        "cause": "not_in_text",
-        "line": null,
-        "detail": "No extracted line holds both the title and the employer."
-      },
-      {
         "resume": "h_r02_data_scientist",
         "format": "pdf_separate",
         "gold": {
@@ -1924,19 +2549,6 @@
         "cause": "fields_differ",
         "line": "Bachelor of Technology, Computer Science",
         "detail": "The degree or school was read differently."
-      },
-      {
-        "resume": "h_r01_guidewire_claimcenter",
-        "format": "docx",
-        "gold": {
-          "title": "Guidewire Developer",
-          "employer": "Demo Infotech Pvt. Ltd.",
-          "start": "2018-08",
-          "end": "2021-05"
-        },
-        "cause": "not_in_text",
-        "line": null,
-        "detail": "No extracted line holds both the title and the employer."
       },
       {
         "resume": "h_r02_data_scientist",
@@ -2004,16 +2616,6 @@
     ],
     "extra_roles": [
       {
-        "resume": "h_r01_guidewire_claimcenter",
-        "format": "pdf_inline",
-        "predicted": {
-          "title": "Demo Infotech Pvt. Ltd.",
-          "employer": "Placeholder General Insurance",
-          "start": "2018-08",
-          "end": "2021-05"
-        }
-      },
-      {
         "resume": "h_r02_data_scientist",
         "format": "pdf_inline",
         "predicted": {
@@ -2044,16 +2646,6 @@
         }
       },
       {
-        "resume": "h_r01_guidewire_claimcenter",
-        "format": "pdf_separate",
-        "predicted": {
-          "title": "Demo Infotech Pvt. Ltd.",
-          "employer": "Placeholder General Insurance",
-          "start": "2018-08",
-          "end": "2021-05"
-        }
-      },
-      {
         "resume": "h_r02_data_scientist",
         "format": "pdf_separate",
         "predicted": {
@@ -2081,16 +2673,6 @@
           "employer": "Sample Community College",
           "start": "2021-01",
           "end": "2021-12"
-        }
-      },
-      {
-        "resume": "h_r01_guidewire_claimcenter",
-        "format": "docx",
-        "predicted": {
-          "title": "Demo Infotech Pvt. Ltd.",
-          "employer": "Placeholder General Insurance",
-          "start": "2018-08",
-          "end": "2021-05"
         }
       },
       {
@@ -2128,7 +2710,7 @@
       {
         "job": "h_j01_guidewire_claimcenter_developer",
         "gold": 18,
-        "predicted": 21,
+        "predicted": 19,
         "matched": 18,
         "priority_correct": 18,
         "min_years_gold": 7,
@@ -2181,17 +2763,7 @@
         {
           "job": "h_j01_guidewire_claimcenter_developer",
           "text": "We are looking for a hands-on ClaimCenter developer to join the claims IT team.",
-          "predicted": "required"
-        },
-        {
-          "job": "h_j01_guidewire_claimcenter_developer",
-          "text": "Only W2 candidates.",
-          "predicted": "preferred"
-        },
-        {
-          "job": "h_j01_guidewire_claimcenter_developer",
-          "text": "No C2C or third-party agencies please.",
-          "predicted": "preferred"
+          "predicted": "context"
         },
         {
           "job": "h_j04_platform_engineer",
@@ -2400,6 +2972,7 @@
         "correct": 8
       }
     ],
+    "document_quality_failures": [],
     "status_errors": [
       {
         "formats": [

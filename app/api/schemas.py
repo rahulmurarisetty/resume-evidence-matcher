@@ -32,11 +32,31 @@ class ErrorResponse(BaseModel):
     error: ErrorBody
 
 
+class ConsentOut(BaseModel):
+    given_at: datetime | None = Field(
+        description="When the person agreed. None for analyses made before consent was asked"
+    )
+    version: str | None = Field(description='The consent text they saw, such as "consent_v1"')
+    llm: bool = Field(description="Whether Claude may see this person's resume and job text")
+
+
 class AnalysisResponse(BaseModel):
     id: str
     created_at: datetime
     expires_at: datetime
+    consent: ConsentOut
     report: AnalysisReport
+
+
+class ConsentNoticeOut(BaseModel):
+    """What the screen shows before an upload. Built from this server's settings."""
+
+    version: str
+    points: list[str] = Field(description="What is stored, for how long, who sees it, scanning")
+    checkbox: str = Field(description="The label of the required box (consent=true)")
+    llm_available: bool = Field(description="Whether Claude is on, so the second box is shown")
+    llm_points: list[str] = Field(description="What goes to Anthropic. Empty when Claude is off")
+    llm_checkbox: str | None = Field(description="The label of the optional box (llm_consent)")
 
 
 class AnalysisSummary(BaseModel):
@@ -180,10 +200,24 @@ class SpanCorrectionRequest(BaseModel):
 
 
 class GapQuestionOut(BaseModel):
-    requirement_id: str
-    requirement_text: str
-    priority: Priority
-    status: MatchStatus
+    id: str = Field(
+        description=(
+            "Send answers to /gap-answers/{id}: the requirement id for a gap question, "
+            '"metric-<span id>" for a metric question'
+        )
+    )
+    kind: Literal["gap", "metric"] = Field(
+        description='"gap": a missing or related requirement. "metric": a bullet with no number'
+    )
+    requirement_id: str | None = Field(
+        description="The requirement asked about. For a metric question, the most important "
+        "requirement the bullet supports, or None"
+    )
+    requirement_text: str | None
+    priority: Priority | None
+    status: MatchStatus | None
+    span_id: str | None = Field(default=None, description="The bullet a metric question is about")
+    line: str | None = Field(default=None, description="That bullet's text")
     question: str
     answer: str | None
     answered_at: datetime | None

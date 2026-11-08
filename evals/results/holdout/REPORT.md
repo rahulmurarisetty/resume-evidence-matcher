@@ -9,8 +9,8 @@ Written by `python -m evals.run` from `latest.json` in this folder. Every number
 | Setting | Value |
 | --- | --- |
 | Dataset | holdout (`evals/data/holdout`) |
-| Pipeline version | 0.5.0-exact |
-| Git commit | 6b763ac with uncommitted changes |
+| Pipeline version | 1.0.0-exact |
+| Git commit | fb009ce with uncommitted changes |
 | Labels as of | 2026-11-01, passed to the app as today |
 | Job parser | rules (Claude only with --llm) |
 | Matching | exact |
@@ -31,16 +31,45 @@ Written by `python -m evals.run` from `latest.json` in this folder. Every number
 
 | Metric | Result |
 | --- | --- |
-| Role detection recall (all formats) | 77.8% (42/54) |
+| Role detection recall (all formats) | 83.3% (45/54) |
 | Total years within 0.5 of the label | 83.3% (15/18) |
 | Requirement extraction recall | 97.8% (88/90) |
-| Requirement extraction precision | 93.6% (88/94) |
+| Requirement extraction precision | 95.7% (88/92) |
 | Priority accuracy on extracted requirements | 98.9% (87/88) |
 | Pair status accuracy (all formats) | 64.5% (213/330) |
 | False proven: app says direct, label says gap or needs_check | 2.0% (3/150) |
 | Evidence recall@3 | 53.3% (96/180) |
+| Word export read back unchanged (sections, roles, years, statuses) | 100.0% (18/18) |
 | Fact checker accuracy, held-out set | n/a (0/0) |
 | Fact checker false passes, held-out set | n/a (0/0) |
+
+## Before and after, holdout set
+
+This set is no longer fully unseen. The three v1.0 reading fixes (a company suffix marks an employer and a "Client:" line names a client; employment terms such as "Only W2" are not requirements; intro sentences such as "We are looking for a hands-on X to join our team" are context) were found by looking at one held-out example during a manual demo. They are general rules, tested with new examples, but the v1.0 column is not a blind result. The v0.4 and v0.5 columns are the blind results.
+
+Each earlier run is kept in `evals/baselines/holdout.json`.
+
+- v0.4 (blind): The v0.4 app at 6b763ac, measured with the v0.5 evaluation code and PDF builder (02c3195). Run after v0.5 was finished, before anyone had read the set.
+- v0.5 (blind): The v0.5 app, run once on the set after v0.5 was finished. v1.0 before the reading fixes gives the same numbers.
+
+| Metric | v0.4 (blind) | v0.5 (blind) | v1.0 (after fixes informed by one held-out example) |
+| --- | --- | --- | --- |
+| Role precision (all formats) | 44.4% (24/54) | 77.8% (42/54) | 83.3% (45/54) |
+| Role recall (all formats) | 44.4% (24/54) | 77.8% (42/54) | 83.3% (45/54) |
+| Start month correct (matched roles) | 100.0% (24/24) | 100.0% (42/42) | 100.0% (45/45) |
+| End month correct (matched roles) | 100.0% (24/24) | 100.0% (42/42) | 100.0% (45/45) |
+| Total years within 0.5 of the label | 83.3% (15/18) | 83.3% (15/18) | 83.3% (15/18) |
+| Education recall | 77.8% (21/27) | 77.8% (21/27) | 77.8% (21/27) |
+| Requirement extraction precision | 83.0% (88/106) | 93.6% (88/94) | 95.7% (88/92) |
+| Requirement extraction recall | 97.8% (88/90) | 97.8% (88/90) | 97.8% (88/90) |
+| Priority accuracy on extracted requirements | 92.0% (81/88) | 98.9% (87/88) | 98.9% (87/88) |
+| Pair status accuracy (all formats) | 50.9% (168/330) | 64.5% (213/330) | 64.5% (213/330) |
+| False proven | 4.0% (6/150) | 2.0% (3/150) | 2.0% (3/150) |
+| Direct where the label isn't direct | 9.4% (18/192) | 6.2% (12/192) | 6.2% (12/192) |
+| Gap precision | 90.5% (57/63) | 86.2% (75/87) | 86.2% (75/87) |
+| Gap recall | 45.2% (57/126) | 59.5% (75/126) | 59.5% (75/126) |
+| Evidence recall@1 | 28.3% (51/180) | 45.0% (81/180) | 45.0% (81/180) |
+| Evidence recall@3 | 36.7% (66/180) | 53.3% (96/180) | 53.3% (96/180) |
 
 ## Resume structure
 
@@ -48,10 +77,10 @@ A predicted role matches a labeled role when both its title and its employer mat
 
 | Metric | pdf_inline | pdf_separate | docx | overall |
 | --- | --- | --- | --- | --- |
-| Role precision | 77.8% (14/18) | 77.8% (14/18) | 77.8% (14/18) | 77.8% (42/54) |
-| Role recall | 77.8% (14/18) | 77.8% (14/18) | 77.8% (14/18) | 77.8% (42/54) |
-| Start month correct (matched roles) | 100.0% (14/14) | 100.0% (14/14) | 100.0% (14/14) | 100.0% (42/42) |
-| End month correct (matched roles) | 100.0% (14/14) | 100.0% (14/14) | 100.0% (14/14) | 100.0% (42/42) |
+| Role precision | 83.3% (15/18) | 83.3% (15/18) | 83.3% (15/18) | 83.3% (45/54) |
+| Role recall | 83.3% (15/18) | 83.3% (15/18) | 83.3% (15/18) | 83.3% (45/54) |
+| Start month correct (matched roles) | 100.0% (15/15) | 100.0% (15/15) | 100.0% (15/15) | 100.0% (45/45) |
+| End month correct (matched roles) | 100.0% (15/15) | 100.0% (15/15) | 100.0% (15/15) | 100.0% (45/45) |
 | Resumes with total years read | 100.0% (6/6) | 100.0% (6/6) | 100.0% (6/6) | 100.0% (18/18) |
 | Total years within 0.5 | 83.3% (5/6) | 83.3% (5/6) | 83.3% (5/6) | 83.3% (15/18) |
 | Total years mean absolute error (resumes with a value) | 0.43 | 0.43 | 0.43 | 0.43 |
@@ -63,7 +92,7 @@ Per resume, with one value per format (pdf_inline / pdf_separate / docx):
 
 | Resume | Labeled roles | Roles matched | Labeled years | Years read |
 | --- | --- | --- | --- | --- |
-| h_r01_guidewire_claimcenter | 3 | 2 / 2 / 2 | 10.4 | 10.4 / 10.4 / 10.4 |
+| h_r01_guidewire_claimcenter | 3 | 3 / 3 / 3 | 10.4 | 10.4 / 10.4 / 10.4 |
 | h_r02_data_scientist | 3 | 2 / 2 / 2 | 10.3 | 10.3 / 10.3 / 10.3 |
 | h_r03_salesforce_developer | 2 | 1 / 1 / 1 | 7.5 | 4.9 / 4.9 / 4.9 |
 | h_r04_platform_cloud_engineer | 4 | 3 / 3 / 3 | 9.9 | 9.9 / 9.9 / 9.9 |
@@ -76,7 +105,7 @@ Extracted requirement texts are matched one to one with the labeled lines after 
 
 | Metric | rules |
 | --- | --- |
-| Extraction precision (extracted items that are labeled lines) | 93.6% (88/94) |
+| Extraction precision (extracted items that are labeled lines) | 95.7% (88/92) |
 | Extraction recall (labeled lines found) | 97.8% (88/90) |
 | Priority accuracy on matched items | 98.9% (87/88) |
 | Job minimum years correct | 100.0% (5/5) |
@@ -88,9 +117,9 @@ Per class, counting lines that weren't extracted against recall and extracted li
 
 | Class | Precision | Recall |
 | --- | --- | --- |
-| required | 95.1% (39/41) | 95.1% (39/41) |
-| preferred | 87.5% (28/32) | 100.0% (28/28) |
-| context | 95.2% (20/21) | 95.2% (20/21) |
+| required | 97.5% (39/40) | 95.1% (39/41) |
+| preferred | 93.3% (28/30) | 100.0% (28/28) |
+| context | 90.9% (20/22) | 95.2% (20/21) |
 
 Confusion matrix for the rule parser (rows are labels, columns the parser's priority; not_a_requirement rows are extracted lines with no label):
 
@@ -99,13 +128,13 @@ Confusion matrix for the rule parser (rows are labels, columns the parser's prio
 | required | 39 | 0 | 0 | 2 |
 | preferred | 0 | 28 | 0 | 0 |
 | context | 1 | 0 | 20 | 0 |
-| not_a_requirement | 1 | 4 | 1 | 0 |
+| not_a_requirement | 0 | 2 | 2 | 0 |
 
 Per job:
 
 | Job | Labeled lines | Extracted | Matched | Priority correct | Min years (label / app) | Title correct |
 | --- | --- | --- | --- | --- | --- | --- |
-| h_j01_guidewire_claimcenter_developer | 18 | 21 | 18 | 18 | 7 / 7 | yes |
+| h_j01_guidewire_claimcenter_developer | 18 | 19 | 18 | 18 | 7 / 7 | yes |
 | h_j02_data_scientist | 16 | 16 | 16 | 16 | 4 / 4 | yes |
 | h_j03_salesforce_developer | 19 | 17 | 17 | 16 | 5 / 5 | no |
 | h_j04_platform_engineer | 20 | 22 | 20 | 20 | 6 / 6 | yes |
@@ -170,6 +199,34 @@ Correct statuses per pair, one value per format (pdf_inline / pdf_separate / doc
 | h_r03_salesforce_developer x h_j04_platform_engineer | wrong | 15 | 9 / 9 / 9 |
 | h_r05_bi_developer x h_j05_bi_developer | mixed | 14 | 8 / 8 / 8 |
 
+## Document quality
+
+Each resume in each format is exported with the app's own Word export (no corrections or rewrites) and read back with the app's own extractor and pipeline. A round trip counts as unchanged when every line keeps its section, the roles (title, employer, start and end) and the total years are the same, and every pair that uses the resume gets the same status for each requirement. The structural check opens the exported file itself. This measures the app's export against the app's own reader, so it shows that the file keeps what the app read; it doesn't show how any employer's system reads it.
+
+| Metric | pdf_inline | pdf_separate | docx | overall |
+| --- | --- | --- | --- | --- |
+| Sections of every line unchanged | 100.0% (6/6) | 100.0% (6/6) | 100.0% (6/6) | 100.0% (18/18) |
+| Roles unchanged (title, employer, start, end) | 100.0% (6/6) | 100.0% (6/6) | 100.0% (6/6) | 100.0% (18/18) |
+| Total years unchanged | 100.0% (6/6) | 100.0% (6/6) | 100.0% (6/6) | 100.0% (18/18) |
+| Requirement statuses unchanged (per pair) | 100.0% (8/8) | 100.0% (8/8) | 100.0% (8/8) | 100.0% (24/24) |
+| All of the above unchanged (per file) | 100.0% (6/6) | 100.0% (6/6) | 100.0% (6/6) | 100.0% (18/18) |
+| Structural check passed (per file) | 100.0% (6/6) | 100.0% (6/6) | 100.0% (6/6) | 100.0% (18/18) |
+
+Structural checks, all formats:
+
+| Check | Files that pass |
+| --- | --- |
+| No tables | 100.0% (18/18) |
+| No text boxes | 100.0% (18/18) |
+| No images | 100.0% (18/18) |
+| No headers or footers | 100.0% (18/18) |
+| One column | 100.0% (18/18) |
+| Section headings in the Heading 1 style | 100.0% (18/18) |
+| Bullets in the List Bullet style | 100.0% (18/18) |
+| Language set to en-US | 100.0% (18/18) |
+
+Every round trip was unchanged and every file passed the checks.
+
 ## Fact checker
 
 This set has no fact-check labels (labels/factcheck.json and labels/factcheck_holdout.json), so the fact checker wasn't measured on it.
@@ -180,7 +237,9 @@ Not run in this evaluation, because --semantic wasn't given. In exact mode the a
 
 ## Claude parser and rewrites
 
-Not run in this evaluation, because --llm wasn't given. No call was made to a model provider. Put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), then run python -m evals.run --llm. It makes one parse call per job and up to LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by default).
+Not run in this evaluation, because --llm wasn't given. No call was made to a model provider. To run it with your own key, put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), then run python -m evals.run --llm. It makes one parse call per job and up to LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by default), billed to that key, and writes every candidate to llm_candidates.json next to this report.
+
+When --llm runs, this section measures the hallucination rate of generated suggestions: the share of Claude's rewrite candidates that the fact checker rejects because they add a number, date, name, tool, certification or claim the bullet doesn't make. Every candidate, kept or rejected, is saved to llm_candidates.json with the checker's reasons and an empty manual_review field. The checker can miss an added fact, so the rate is only complete once a person has read each kept candidate and filled in manual_review (faithful or adds_fact).
 
 ## Error analysis
 
@@ -202,14 +261,6 @@ Pair status: 8 labeled requirements, all formats. In exact mode the app never re
 - h_r04_platform_cloud_engineer x h_j04_platform_engineer (all formats): "Deep, hands-on experience running Amazon EKS in production": labeled adjacent, app gap (Amazon EKS missing).
 - h_r03_salesforce_developer x h_j04_platform_engineer (all formats): "Experience building CI/CD pipelines in GitHub Actions or CircleCI": labeled adjacent, app gap (CI/CD missing, GitHub Actions missing).
 
-### Company and posting details are kept as requirements
-
-Requirement extraction: 6 job lines. Company descriptions and posting lines are kept as requirements, usually as context: they name a skill or address the candidate, so the parser can't tell them from a duty.
-
-- h_j01_guidewire_claimcenter_developer: "We are looking for a hands-on ClaimCenter developer to join the claims IT team." kept as required.
-- h_j04_platform_engineer: "Mock Payments, Inc. | Remote, US (Eastern or Central time zones preferred)" kept as preferred.
-- h_j05_bi_developer: "The team supports 14 hospitals and more than 200 clinics with reporting on quality, finance and operations." kept as context.
-
 ### Roles are found but the title or employer is split wrongly
 
 Resume structure: 4 roles or entries, all formats. The role and its dates are read, but the title and employer are split in another place than the labels (extra text in one of them, or both in the title), so the role doesn't match its label.
@@ -217,6 +268,14 @@ Resume structure: 4 roles or entries, all formats. The role and its dates are re
 - h_r02_data_scientist (all formats): role 'Graduate Research Assistant, Example State University': Read as a role with title 'Graduate Research Assistant' and employer 'Example State University, Department of Statistics'. Extracted line: "Graduate Research Assistant – Example State University, Department of Statistics | Aug 2016 – Jun 2020".
 - h_r04_platform_cloud_engineer (all formats): role 'Adjunct Instructor, Sample Community College': Read as a role with title 'Adjunct Instructor, part-time' and employer 'Sample Community College'. Extracted line: "Sample Community College – Adjunct Instructor, part-time (01/2021 – 12/2021)".
 - h_r05_bi_developer (all formats): education 'Master of Science, Information Systems': The degree or school was read differently. Extracted line: "Master of Science, Information Systems".
+
+### Company and posting details are kept as requirements
+
+Requirement extraction: 4 job lines. Company descriptions and posting lines are kept as requirements, usually as context: they name a skill or address the candidate, so the parser can't tell them from a duty.
+
+- h_j01_guidewire_claimcenter_developer: "We are looking for a hands-on ClaimCenter developer to join the claims IT team." kept as context.
+- h_j04_platform_engineer: "Mock Payments, Inc. | Remote, US (Eastern or Central time zones preferred)" kept as preferred.
+- h_j05_bi_developer: "The team supports 14 hospitals and more than 200 clinics with reporting on quality, finance and operations." kept as context.
 
 ### A related skill or a missing detail is counted as direct proof
 
@@ -265,7 +324,6 @@ Pair status: 2 labeled requirements, all formats. The job parser didn't extract 
 
 Seen once:
 
-- Roles not found in the extracted text. h_r01_guidewire_claimcenter (all formats): role 'Guidewire Developer, Demo Infotech Pvt. Ltd.': No extracted line holds both the title and the employer.
 - Date ranges with a separator the parser doesn't accept are not read. h_r03_salesforce_developer (all formats): role 'Associate Salesforce Developer, Demo Technologies': No date range the app can read is on the line. Extracted line: "Associate Salesforce Developer | Demo Technologies, Chennai".
 - Required lines get the wrong priority. h_j03_salesforce_developer: "Take part in requirement discussions with onsite teams and client stakeholders." labeled context, parsed as required.
 - Years requirements fail when roles weren't read. h_r03_salesforce_developer x h_j03_salesforce_developer (all formats): "5+ years of hands-on Salesforce development experience": labeled direct, app partial with 4.9 years read in roles that mention Salesforce.
@@ -274,6 +332,8 @@ Seen once:
 
 - The sample is small: 6 resumes, 5 job descriptions, 8 pairs with 110 requirement labels, and 0 fact-check cases. One item moves a per-format pair rate by about half a point and a per-job rate by several points, and the three formats read the same resumes, so pooling them doesn't add independent evidence.
 - The labels of the holdout set follow the conventions in evals/data/README.md. How far it differs from the development set in wording and layout decides how much this run says about real resumes.
+- This set is no longer fully unseen. The three v1.0 reading fixes (a company suffix marks an employer and a "Client:" line names a client; employment terms such as "Only W2" are not requirements; intro sentences such as "We are looking for a hands-on X to join our team" are context) were found by looking at one held-out example during a manual demo. They are general rules, tested with new examples, but the v1.0 column is not a blind result. The v0.4 and v0.5 columns are the blind results.
+- Evidence mapping quality has no human rating yet. python -m evals.rating_sheet writes a sheet with one row per cited evidence line for a person to rate, and python -m evals.rating_summary computes the share rated as supporting the requirement once it is filled in. Until then, evidence recall against the labels is the only measure of it.
 - Matching by meaning and the Claude parser and rewrites are not run in CI, and were not run for this report unless the run table says so. Exact mode can't produce adjacent, and the Claude path is only exercised against a fake client in the tests.
 - Every PDF comes from one builder (tests/builders.py). Since v0.5 it embeds the font file, so characters such as the en dash reach the app as written. Real exports from Word, Google Docs or LaTeX, two-column layouts, tables and text boxes are not covered.
 - The evaluation's own matching rules (a fuzzy ratio of 0.85, containment for requirement texts, strict title and employer matching for roles) are choices. Other rules would move some role and requirement matches.

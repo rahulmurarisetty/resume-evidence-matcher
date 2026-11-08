@@ -26,7 +26,7 @@ def test_report_includes_profile(
     response = client.post(
         "/api/v1/analyses",
         files={"resume": ("r.pdf", build_pdf(data_engineer_markup), PDF)},
-        data={"job_description": data_engineer_jd},
+        data={"job_description": data_engineer_jd, "consent": "true"},
     )
     report = response.json()["report"]
     profile = report["profile"]
@@ -51,7 +51,7 @@ def test_injected_fakes_are_used(
         response = client.post(
             "/api/v1/analyses",
             files={"resume": ("r.pdf", build_pdf(data_engineer_markup), PDF)},
-            data={"job_description": data_engineer_jd},
+            data={"job_description": data_engineer_jd, "consent": "true"},
         )
         assert response.status_code == 201, response.text
         stored = client.get(f"/api/v1/analyses/{response.json()['id']}").json()
@@ -108,7 +108,7 @@ def test_startup_loads_models_once(
             report = client.post(
                 "/api/v1/analyses",
                 files={"resume": ("r.pdf", build_pdf(data_engineer_markup), PDF)},
-                data={"job_description": data_engineer_jd},
+                data={"job_description": data_engineer_jd, "consent": "true"},
             ).json()["report"]
             assert report["matching_mode"] == "semantic"
     assert loaded == [(settings.embedding_model, settings.rerank_model)]
@@ -140,7 +140,7 @@ def test_reports_stored_by_v0_1_still_load(
     report = client.post(
         "/api/v1/analyses",
         files={"resume": ("r.pdf", build_pdf(data_engineer_markup), PDF)},
-        data={"job_description": data_engineer_jd},
+        data={"job_description": data_engineer_jd, "consent": "true"},
     ).json()["report"]
     for key in ("profile", "matching_mode"):
         del report[key]

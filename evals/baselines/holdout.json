@@ -1,0 +1,208 @@
+{
+  "_comment": [
+    "Earlier default runs of python -m evals.run on the held-out set (evals/data/holdout), kept so REPORT.md can show them next to the latest run.",
+    "Each run's metrics are copied from its latest.json, by the same dotted paths as thresholds.json. A new row needs a new run, never an edited number.",
+    "Both runs are blind: nobody had read the held-out set while building v0.4 or v0.5. The v1.0 reading fixes were found by looking at one held-out example, so later runs are not blind."
+  ],
+  "dataset": "holdout",
+  "current_label": "v1.0 (after fixes informed by one held-out example)",
+  "caveat": "This set is no longer fully unseen. The three v1.0 reading fixes (a company suffix marks an employer and a \"Client:\" line names a client; employment terms such as \"Only W2\" are not requirements; intro sentences such as \"We are looking for a hands-on X to join our team\" are context) were found by looking at one held-out example during a manual demo. They are general rules, tested with new examples, but the v1.0 column is not a blind result. The v0.4 and v0.5 columns are the blind results.",
+  "runs": [
+    {
+      "label": "v0.4 (blind)",
+      "pipeline_version": "0.4.0-exact",
+      "git_commit": "6b763ac",
+      "note": "The v0.4 app at 6b763ac, measured with the v0.5 evaluation code and PDF builder (02c3195). Run after v0.5 was finished, before anyone had read the set.",
+      "metrics": {
+        "structure.overall.role_precision": {
+          "rate": 0.4444,
+          "count": 24,
+          "total": 54
+        },
+        "structure.overall.role_recall": {
+          "rate": 0.4444,
+          "count": 24,
+          "total": 54
+        },
+        "structure.overall.start_month_accuracy": {
+          "rate": 1.0,
+          "count": 24,
+          "total": 24
+        },
+        "structure.overall.end_month_accuracy": {
+          "rate": 1.0,
+          "count": 24,
+          "total": 24
+        },
+        "structure.overall.total_years_within_half": {
+          "rate": 0.8333,
+          "count": 15,
+          "total": 18
+        },
+        "structure.overall.education_recall": {
+          "rate": 0.7778,
+          "count": 21,
+          "total": 27
+        },
+        "requirements.rules.extraction_precision": {
+          "rate": 0.8302,
+          "count": 88,
+          "total": 106
+        },
+        "requirements.rules.extraction_recall": {
+          "rate": 0.9778,
+          "count": 88,
+          "total": 90
+        },
+        "requirements.rules.priority_accuracy": {
+          "rate": 0.9205,
+          "count": 81,
+          "total": 88
+        },
+        "pairs.exact.overall.status_accuracy": {
+          "rate": 0.5091,
+          "count": 168,
+          "total": 330
+        },
+        "pairs.exact.overall.false_proven_rate": {
+          "rate": 0.04,
+          "count": 6,
+          "total": 150
+        },
+        "pairs.exact.overall.overclaim_rate": {
+          "rate": 0.0938,
+          "count": 18,
+          "total": 192
+        },
+        "pairs.exact.overall.gap_precision": {
+          "rate": 0.9048,
+          "count": 57,
+          "total": 63
+        },
+        "pairs.exact.overall.gap_recall": {
+          "rate": 0.4524,
+          "count": 57,
+          "total": 126
+        },
+        "pairs.exact.overall.evidence_recall_at_1": {
+          "rate": 0.2833,
+          "count": 51,
+          "total": 180
+        },
+        "pairs.exact.overall.evidence_recall_at_3": {
+          "rate": 0.3667,
+          "count": 66,
+          "total": 180
+        },
+        "factcheck.holdout.accuracy": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "factcheck.holdout.false_pass_rate": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        }
+      }
+    },
+    {
+      "label": "v0.5 (blind)",
+      "pipeline_version": "0.5.0-exact",
+      "git_commit": "02c3195",
+      "note": "The v0.5 app, run once on the set after v0.5 was finished. v1.0 before the reading fixes gives the same numbers.",
+      "metrics": {
+        "structure.overall.role_precision": {
+          "rate": 0.7778,
+          "count": 42,
+          "total": 54
+        },
+        "structure.overall.role_recall": {
+          "rate": 0.7778,
+          "count": 42,
+          "total": 54
+        },
+        "structure.overall.start_month_accuracy": {
+          "rate": 1.0,
+          "count": 42,
+          "total": 42
+        },
+        "structure.overall.end_month_accuracy": {
+          "rate": 1.0,
+          "count": 42,
+          "total": 42
+        },
+        "structure.overall.total_years_within_half": {
+          "rate": 0.8333,
+          "count": 15,
+          "total": 18
+        },
+        "structure.overall.education_recall": {
+          "rate": 0.7778,
+          "count": 21,
+          "total": 27
+        },
+        "requirements.rules.extraction_precision": {
+          "rate": 0.9362,
+          "count": 88,
+          "total": 94
+        },
+        "requirements.rules.extraction_recall": {
+          "rate": 0.9778,
+          "count": 88,
+          "total": 90
+        },
+        "requirements.rules.priority_accuracy": {
+          "rate": 0.9886,
+          "count": 87,
+          "total": 88
+        },
+        "pairs.exact.overall.status_accuracy": {
+          "rate": 0.6455,
+          "count": 213,
+          "total": 330
+        },
+        "pairs.exact.overall.false_proven_rate": {
+          "rate": 0.02,
+          "count": 3,
+          "total": 150
+        },
+        "pairs.exact.overall.overclaim_rate": {
+          "rate": 0.0625,
+          "count": 12,
+          "total": 192
+        },
+        "pairs.exact.overall.gap_precision": {
+          "rate": 0.8621,
+          "count": 75,
+          "total": 87
+        },
+        "pairs.exact.overall.gap_recall": {
+          "rate": 0.5952,
+          "count": 75,
+          "total": 126
+        },
+        "pairs.exact.overall.evidence_recall_at_1": {
+          "rate": 0.45,
+          "count": 81,
+          "total": 180
+        },
+        "pairs.exact.overall.evidence_recall_at_3": {
+          "rate": 0.5333,
+          "count": 96,
+          "total": 180
+        },
+        "factcheck.holdout.accuracy": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        },
+        "factcheck.holdout.false_pass_rate": {
+          "rate": null,
+          "count": 0,
+          "total": 0
+        }
+      }
+    }
+  ]
+}

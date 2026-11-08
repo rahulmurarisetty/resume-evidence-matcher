@@ -220,6 +220,9 @@ PROTECTED: list[Callable[[TestClient], Any]] = [
     lambda c: c.put(ANALYSIS + "/gap-answers/r1", json={"answer": "x"}),
     lambda c: c.get(ANALYSIS + "/export.docx"),
     lambda c: c.get(ANALYSIS + "/export/changes"),
+    lambda c: c.get(ANALYSIS + "/report.html"),
+    lambda c: c.get(ANALYSIS + "/report.md"),
+    lambda c: c.get("/api/v1/consent"),
     lambda c: c.post(AUTH + "/logout"),
     lambda c: c.get(AUTH + "/me"),
     lambda c: c.delete(AUTH + "/me"),
@@ -275,7 +278,7 @@ def test_disabled_mode_uses_one_local_account(
         created = client.post(
             "/api/v1/analyses",
             files={"resume": ("r.pdf", build_pdf(data_engineer_markup), PDF)},
-            data={"job_description": data_engineer_jd},
+            data={"job_description": data_engineer_jd, "consent": "true"},
         )
         assert created.status_code == 201
         assert client.get(f"/api/v1/analyses/{created.json()['id']}").status_code == 200

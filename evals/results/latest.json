@@ -7,7 +7,7 @@
       "factcheck_labels": true
     },
     "date": "2026-11-08",
-    "git_commit": "02c3195",
+    "git_commit": "fb009ce",
     "uncommitted_changes": true,
     "app_version": "1.0.0",
     "pipeline_version": "1.0.0-exact",
@@ -1156,6 +1156,318 @@
       "semantic": null,
       "claude": null
     },
+    "document_quality": {
+      "overall": {
+        "files": 36,
+        "pairs": 48,
+        "sections_unchanged": {
+          "rate": 1.0,
+          "count": 36,
+          "total": 36
+        },
+        "roles_unchanged": {
+          "rate": 1.0,
+          "count": 36,
+          "total": 36
+        },
+        "total_years_unchanged": {
+          "rate": 1.0,
+          "count": 36,
+          "total": 36
+        },
+        "statuses_unchanged": {
+          "rate": 1.0,
+          "count": 48,
+          "total": 48
+        },
+        "round_trip_unchanged": {
+          "rate": 1.0,
+          "count": 36,
+          "total": 36
+        },
+        "structure_ok": {
+          "rate": 1.0,
+          "count": 36,
+          "total": 36
+        },
+        "without_section_headings": 3,
+        "structure_checks": {
+          "no_tables": {
+            "rate": 1.0,
+            "count": 36,
+            "total": 36
+          },
+          "no_text_boxes": {
+            "rate": 1.0,
+            "count": 36,
+            "total": 36
+          },
+          "no_images": {
+            "rate": 1.0,
+            "count": 36,
+            "total": 36
+          },
+          "no_headers_or_footers": {
+            "rate": 1.0,
+            "count": 36,
+            "total": 36
+          },
+          "one_column": {
+            "rate": 1.0,
+            "count": 36,
+            "total": 36
+          },
+          "heading_styles": {
+            "rate": 1.0,
+            "count": 36,
+            "total": 36
+          },
+          "list_styles": {
+            "rate": 1.0,
+            "count": 36,
+            "total": 36
+          },
+          "language": {
+            "rate": 1.0,
+            "count": 36,
+            "total": 36
+          }
+        }
+      },
+      "by_format": {
+        "pdf_inline": {
+          "files": 12,
+          "pairs": 16,
+          "sections_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "roles_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "total_years_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "statuses_unchanged": {
+            "rate": 1.0,
+            "count": 16,
+            "total": 16
+          },
+          "round_trip_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "structure_ok": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "without_section_headings": 1,
+          "structure_checks": {
+            "no_tables": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "no_text_boxes": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "no_images": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "no_headers_or_footers": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "one_column": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "heading_styles": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "list_styles": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "language": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            }
+          }
+        },
+        "pdf_separate": {
+          "files": 12,
+          "pairs": 16,
+          "sections_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "roles_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "total_years_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "statuses_unchanged": {
+            "rate": 1.0,
+            "count": 16,
+            "total": 16
+          },
+          "round_trip_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "structure_ok": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "without_section_headings": 1,
+          "structure_checks": {
+            "no_tables": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "no_text_boxes": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "no_images": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "no_headers_or_footers": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "one_column": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "heading_styles": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "list_styles": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "language": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            }
+          }
+        },
+        "docx": {
+          "files": 12,
+          "pairs": 16,
+          "sections_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "roles_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "total_years_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "statuses_unchanged": {
+            "rate": 1.0,
+            "count": 16,
+            "total": 16
+          },
+          "round_trip_unchanged": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "structure_ok": {
+            "rate": 1.0,
+            "count": 12,
+            "total": 12
+          },
+          "without_section_headings": 1,
+          "structure_checks": {
+            "no_tables": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "no_text_boxes": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "no_images": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "no_headers_or_footers": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "one_column": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "heading_styles": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "list_styles": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            },
+            "language": {
+              "rate": 1.0,
+              "count": 12,
+              "total": 12
+            }
+          }
+        }
+      }
+    },
     "factcheck": {
       "holdout": {
         "cases": 40,
@@ -1836,7 +2148,9 @@
           "total": 20
         }
       }
-    ]
+    ],
+    "current_label": null,
+    "caveat": null
   },
   "semantic": {
     "status": "not requested",
@@ -1844,7 +2158,7 @@
   },
   "llm": {
     "status": "not requested",
-    "how_to_run": "Put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), then run python -m evals.run --llm. It makes one parse call per job and up to LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by default)."
+    "how_to_run": "To run it with your own key, put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), then run python -m evals.run --llm. It makes one parse call per job and up to LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by default), billed to that key, and writes every candidate to llm_candidates.json next to this report."
   },
   "error_analysis": [
     {
@@ -2877,6 +3191,7 @@
         "correct": 12
       }
     ],
+    "document_quality_failures": [],
     "status_errors": [
       {
         "formats": [

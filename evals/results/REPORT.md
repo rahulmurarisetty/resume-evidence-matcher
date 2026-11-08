@@ -10,7 +10,7 @@ Written by `python -m evals.run` from `latest.json` in this folder. Every number
 | --- | --- |
 | Dataset | development (`evals/data`) |
 | Pipeline version | 1.0.0-exact |
-| Git commit | 02c3195 with uncommitted changes |
+| Git commit | fb009ce with uncommitted changes |
 | Labels as of | 2026-11-01, passed to the app as today |
 | Job parser | rules (Claude only with --llm) |
 | Matching | exact |
@@ -39,6 +39,7 @@ Written by `python -m evals.run` from `latest.json` in this folder. Every number
 | Pair status accuracy (all formats) | 90.3% (477/528) |
 | False proven: app says direct, label says gap or needs_check | 0.0% (0/174) |
 | Evidence recall@3 | 74.6% (264/354) |
+| Word export read back unchanged (sections, roles, years, statuses) | 100.0% (36/36) |
 | Fact checker accuracy, held-out set | 97.5% (39/40) |
 | Fact checker false passes, held-out set | 0.0% (0/20) |
 
@@ -214,6 +215,36 @@ Correct statuses per pair, one value per format (pdf_inline / pdf_separate / doc
 | r08_guidewire_developer x j08_guidewire_policycenter_developer | strong | 12 | 12 / 12 / 12 |
 | r07_data_analyst x j08_guidewire_policycenter_developer | wrong | 12 | 12 / 12 / 12 |
 
+## Document quality
+
+Each resume in each format is exported with the app's own Word export (no corrections or rewrites) and read back with the app's own extractor and pipeline. A round trip counts as unchanged when every line keeps its section, the roles (title, employer, start and end) and the total years are the same, and every pair that uses the resume gets the same status for each requirement. The structural check opens the exported file itself. This measures the app's export against the app's own reader, so it shows that the file keeps what the app read; it doesn't show how any employer's system reads it.
+
+| Metric | pdf_inline | pdf_separate | docx | overall |
+| --- | --- | --- | --- | --- |
+| Sections of every line unchanged | 100.0% (12/12) | 100.0% (12/12) | 100.0% (12/12) | 100.0% (36/36) |
+| Roles unchanged (title, employer, start, end) | 100.0% (12/12) | 100.0% (12/12) | 100.0% (12/12) | 100.0% (36/36) |
+| Total years unchanged | 100.0% (12/12) | 100.0% (12/12) | 100.0% (12/12) | 100.0% (36/36) |
+| Requirement statuses unchanged (per pair) | 100.0% (16/16) | 100.0% (16/16) | 100.0% (16/16) | 100.0% (48/48) |
+| All of the above unchanged (per file) | 100.0% (12/12) | 100.0% (12/12) | 100.0% (12/12) | 100.0% (36/36) |
+| Structural check passed (per file) | 100.0% (12/12) | 100.0% (12/12) | 100.0% (12/12) | 100.0% (36/36) |
+
+Structural checks, all formats:
+
+| Check | Files that pass |
+| --- | --- |
+| No tables | 100.0% (36/36) |
+| No text boxes | 100.0% (36/36) |
+| No images | 100.0% (36/36) |
+| No headers or footers | 100.0% (36/36) |
+| One column | 100.0% (36/36) |
+| Section headings in the Heading 1 style | 100.0% (36/36) |
+| Bullets in the List Bullet style | 100.0% (36/36) |
+| Language set to en-US | 100.0% (36/36) |
+
+3 of the 36 files come from a resume with no section headings. The export adds no lines, so those files have no headings either; the heading check passes for them because there is nothing to style, and the analysis already warns that the resume has no headings.
+
+Every round trip was unchanged and every file passed the checks.
+
 ## Fact checker
 
 The positive class is "adds a fact": a rejected rewrite is a positive prediction. A false pass is the dangerous error, because that rewrite would be shown to the person. The held-out set is the primary result. The development set was used while building the checker, so its numbers are optimistic.
@@ -281,7 +312,9 @@ Not run in this evaluation, because --semantic wasn't given. In exact mode the a
 
 ## Claude parser and rewrites
 
-Not run in this evaluation, because --llm wasn't given. No call was made to a model provider. Put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), then run python -m evals.run --llm. It makes one parse call per job and up to LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by default).
+Not run in this evaluation, because --llm wasn't given. No call was made to a model provider. To run it with your own key, put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), then run python -m evals.run --llm. It makes one parse call per job and up to LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by default), billed to that key, and writes every candidate to llm_candidates.json next to this report.
+
+When --llm runs, this section measures the hallucination rate of generated suggestions: the share of Claude's rewrite candidates that the fact checker rejects because they add a number, date, name, tool, certification or claim the bullet doesn't make. Every candidate, kept or rejected, is saved to llm_candidates.json with the checker's reasons and an empty manual_review field. The checker can miss an added fact, so the rate is only complete once a person has read each kept candidate and filled in manual_review (faithful or adds_fact).
 
 ## Error analysis
 
@@ -346,6 +379,7 @@ Fact checker: 2 cases. The checker errs toward rejecting. A leadership word ("le
 - The labels were written by the project team, alongside the fictional resumes and job descriptions, by people who know how the app works. The resumes are cleaner and more regular than real ones, and the labeling conventions in evals/data/README.md decide many borderline items (for example that every soft-skill line is needs_check and that an Environment line counts as work experience).
 - v0.5 fixed the failure patterns this set showed: role layouts, job-description headings and boilerplate, catalog skills, and degree and certification requirements. The fixes were written as general rules, but they were checked against this set, so its numbers are optimistic. A held-out set is the fair test.
 - The fact checker's development set was used while the checker was built, so its numbers are optimistic. The held-out set is the primary result, but it has 40 cases and was written by the same team.
+- Evidence mapping quality has no human rating yet. python -m evals.rating_sheet writes a sheet with one row per cited evidence line for a person to rate, and python -m evals.rating_summary computes the share rated as supporting the requirement once it is filled in. Until then, evidence recall against the labels is the only measure of it.
 - Matching by meaning and the Claude parser and rewrites are not run in CI, and were not run for this report unless the run table says so. Exact mode can't produce adjacent, and the Claude path is only exercised against a fake client in the tests.
 - Every PDF comes from one builder (tests/builders.py). Since v0.5 it embeds the font file, so characters such as the en dash reach the app as written. Real exports from Word, Google Docs or LaTeX, two-column layouts, tables and text boxes are not covered.
 - The evaluation's own matching rules (a fuzzy ratio of 0.85, containment for requirement texts, strict title and employer matching for roles) are choices. Other rules would move some role and requirement matches.

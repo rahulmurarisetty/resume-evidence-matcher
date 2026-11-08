@@ -46,7 +46,7 @@ def _create(client: TestClient, token: str, markup: str, jd: str) -> str:
     response = client.post(
         BASE,
         files={"resume": ("r.pdf", build_pdf(markup), PDF)},
-        data={"job_description": jd},
+        data={"job_description": jd, "consent": "true", "llm_consent": "true"},
         headers=bearer(token),
     )
     assert response.status_code == 201, response.text
@@ -100,6 +100,8 @@ CALLS: list[Callable[[TestClient, str, dict[str, str]], Any]] = [
     lambda c, a, h: c.put(f"{BASE}/{a}/gap-answers/r11", json={"answer": "x"}, headers=h),
     lambda c, a, h: c.get(f"{BASE}/{a}/export.docx", headers=h),
     lambda c, a, h: c.get(f"{BASE}/{a}/export/changes", headers=h),
+    lambda c, a, h: c.get(f"{BASE}/{a}/report.html", headers=h),
+    lambda c, a, h: c.get(f"{BASE}/{a}/report.md", headers=h),
 ]
 
 

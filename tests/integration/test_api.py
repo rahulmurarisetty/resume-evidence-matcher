@@ -20,7 +20,7 @@ def _post(client: TestClient, data: bytes, jd: str, name: str = "resume.pdf", mi
     return client.post(
         "/api/v1/analyses",
         files={"resume": (name, data, mime)},
-        data={"job_description": jd},
+        data={"job_description": jd, "consent": "true"},
     )
 
 

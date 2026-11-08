@@ -50,6 +50,7 @@ from app.models import (
     Span,
     SpanKind,
 )
+from app.services.advice import section_advice
 from app.services.credentials import CredentialContext, CredentialResult, combine
 from app.services.semantic import SemanticMatcher
 from app.services.skills import SkillCatalog, phrase_pattern
@@ -542,4 +543,5 @@ def build_report(
         listed_but_not_demonstrated=listed_only,
         profile=profile,
         matches=matches,
+        section_advice=section_advice(resume, profile, matches, catalog, role_spans),
     )

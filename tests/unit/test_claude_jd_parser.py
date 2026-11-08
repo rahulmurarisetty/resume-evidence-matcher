@@ -266,3 +266,40 @@ casey@example.com
     _, rules = analyze(build_pdf(resume), JD)
     assert rules.job_parser.name is JobParserName.RULES
     assert rules.job_parser.fallback_reason is None
+
+
+TERMS_JD = """Mobile Developer
+
+We are looking for a seasoned mobile developer to join our member app team.
+
+Requirements
+- Strong Kotlin and Swift
+- Only W2 candidates, no C2C.
+"""
+
+
+def test_claude_output_follows_the_terms_and_intro_rules(catalog: SkillCatalog) -> None:
+    """Claude labels the intro required and the W2 line a requirement; the checks
+    make the intro context, drop the W2 line, and list the rule parser's terms."""
+    output = {
+        "title": "Mobile Developer",
+        "requirements": [
+            _req(
+                "We are looking for a seasoned mobile developer to join our member app team.",
+                "required",
+                [],
+            ),
+            _req("Strong Kotlin and Swift", "required", ["Kotlin", "Swift"]),
+            _req("Only W2 candidates, no C2C.", "required", []),
+        ],
+    }
+    client = FakeLLMClient(output, model="claude-haiku-5-5")
+    job = ClaudeJobParser(client, "claude-haiku-5-5").parse(TERMS_JD, catalog).job
+    assert [(r.text, r.priority) for r in job.requirements] == [
+        (
+            "We are looking for a seasoned mobile developer to join our member app team.",
+            Priority.CONTEXT,
+        ),
+        ("Strong Kotlin and Swift", Priority.REQUIRED),
+    ]
+    assert job.employment_terms == ["Only W2 candidates, no C2C."]

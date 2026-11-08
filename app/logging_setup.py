@@ -53,6 +53,7 @@ _EXTRA_FIELDS = (
     "generated",
     "rejected",
     "suggestions",
+    "llm_consent",
 )
 # These libraries log request bodies (prompts and resume text) at DEBUG and every
 # request line at INFO. Keep them at WARNING whatever LOG_LEVEL says.

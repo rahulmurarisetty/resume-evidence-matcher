@@ -114,6 +114,13 @@ class JobDescription(BaseModel):
     seniority: Seniority
     min_years: int | None
     requirements: list[Requirement]
+    employment_terms: list[str] = Field(
+        default_factory=list,
+        description=(
+            'Employment-terms lines from the posting ("Only W2 candidates", "No visa '
+            'sponsorship"), as written. They are not requirements and never score anyone.'
+        ),
+    )
 
 
 class EvidenceStrength(StrEnum):
@@ -187,6 +194,10 @@ class Role(BaseModel):
 
     title: str | None
     employer: str | None
+    client: str | None = Field(
+        default=None,
+        description='The client from a "Client:" line, for consultants. Never the employer.',
+    )
     section: Section
     start: str | None = Field(description="YYYY-MM, or None when no start date could be read")
     end: str | None = Field(description="YYYY-MM; None for a current role or an unread date")
@@ -226,6 +237,22 @@ class Profile(BaseModel):
         default_factory=dict, description="The metric strings found, keyed by span id"
     )
     warnings: list[str] = Field(default_factory=list)
+
+
+class AdviceKind(StrEnum):
+    MOVE_BULLET_UP = "move_bullet_up"  # a bullet that proves requirements sits low in its role
+    MOVE_PROJECT_UP = "move_project_up"  # a project proves required items no role shows
+    SKILLS_FIRST = "skills_first"  # the skills section sits below experience
+
+
+class SectionAdvice(BaseModel):
+    """Advice about the order of lines and sections. It never changes the resume:
+    the person decides whether to move anything."""
+
+    kind: AdviceKind
+    message: str
+    span_ids: list[str] = Field(description="The resume lines the advice is about")
+    requirement_ids: list[str] = Field(description="The requirements those lines prove")
 
 
 class MatchingMode(StrEnum):
@@ -271,3 +298,7 @@ class AnalysisReport(BaseModel):
     listed_but_not_demonstrated: list[str]
     profile: Profile = Field(default_factory=Profile)
     matches: list[RequirementMatch]
+    section_advice: list[SectionAdvice] = Field(
+        default_factory=list,
+        description="Where to move lines or sections so the strongest evidence is read first",
+    )

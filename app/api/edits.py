@@ -1,4 +1,5 @@
-"""Suggestions, corrections, gap answers and export for a stored analysis.
+"""Suggestions, corrections, questions and answers, export and the match report
+for a stored analysis.
 
 Everything here is stored with the analysis, expires with it after
 RETENTION_HOURS and is deleted with it. Every endpoint needs a session and finds
@@ -15,6 +16,7 @@ from fastapi import APIRouter, Body, Request, Response
 
 from app.api.deps import SessionDep, SettingsDep, UserDep, enforce_limit
 from app.api.errors import ApiError
+from app.api.headers import inline_style_csp
 from app.api.schemas import (
     ChangeOut,
     ChangesResponse,
@@ -35,11 +37,13 @@ from app.api.schemas import (
 from app.config import Settings
 from app.llm.client import LLMClient
 from app.models import AnalysisReport, ChangeKind, ResumeDocument, Span, SuggestionStatus
+from app.services.consent import LLM_CONSENT_REQUIRED
 from app.services.export import DOCX_MIME, AcceptedRewrite, build_docx, list_changes
-from app.services.questions import GapQuestion, gap_questions
+from app.services.match_report import build_document, render_html, render_markdown
+from app.services.questions import GapQuestion, all_questions
 from app.services.rewrite import choose_targets, generate_rewrites
 from app.services.text import normalize
-from app.storage.db import SuggestionRecord, SuggestionRunRecord, utcnow
+from app.storage.db import AnalysisRecord, SuggestionRecord, SuggestionRunRecord, utcnow
 from app.storage.repository import AnalysisRepository, aware
 
 logger = logging.getLogger("app.api")
@@ -57,10 +61,15 @@ _CHANGE_LABELS = {ChangeKind.CORRECTION: "User correction", ChangeKind.REWRITE: 
 # ---------------------------------------------------------------------------
 
 
-def _report(repo: AnalysisRepository, analysis_id: str, owner_id: str) -> AnalysisReport:
+def _record(repo: AnalysisRepository, analysis_id: str, owner_id: str) -> AnalysisRecord:
     record = repo.get(analysis_id, owner_id)
     if record is None:
         raise ApiError(404, "not_found", "No analysis with that id, or it has expired.")
+    return record
+
+
+def _report(repo: AnalysisRepository, analysis_id: str, owner_id: str) -> AnalysisReport:
+    record = _record(repo, analysis_id, owner_id)
     return AnalysisReport.model_validate_json(record.report_json)
 
 
@@ -159,7 +168,8 @@ def create_suggestions(
     body: Annotated[SuggestionsRequest | None, Body()] = None,
 ) -> SuggestionBatchResponse:
     repo = AnalysisRepository(session)
-    report = _report(repo, analysis_id, user.id)
+    record = _record(repo, analysis_id, user.id)
+    report = AnalysisReport.model_validate_json(record.report_json)
     # Each request can call Claude several times, so it has its own limit.
     enforce_limit(request, "suggestions", user_id=user.id)
     llm: LLMClient | None = request.app.state.llm
@@ -171,6 +181,9 @@ def create_suggestions(
             "ANTHROPIC_API_KEY (with LLM_ENABLED=auto or on) and restart the API to turn "
             "them on.",
         )
+    if not record.llm_consent:
+        # The person didn't agree to Claude seeing their resume and job text.
+        raise ApiError(409, "llm_consent_required", LLM_CONSENT_REQUIRED)
     resume = _resume(repo, analysis_id)
 
     requirement_ids = body.requirement_ids if body is not None else None
@@ -383,7 +396,7 @@ def correct_span(
 
 
 # ---------------------------------------------------------------------------
-# Gap questions
+# Gap and metric questions
 # ---------------------------------------------------------------------------
 
 
@@ -391,14 +404,26 @@ def _question_out(
     question: GapQuestion, answer: str | None, answered_at: datetime | None
 ) -> GapQuestionOut:
     return GapQuestionOut(
+        id=question.id,
+        kind=question.kind,
         requirement_id=question.requirement_id,
         requirement_text=question.requirement_text,
         priority=question.priority,
         status=question.status,
+        span_id=question.span_id,
+        line=question.line,
         question=question.question,
         answer=answer,
         answered_at=answered_at,
     )
+
+
+def _questions(
+    repo: AnalysisRepository, analysis_id: str, report: AnalysisReport
+) -> list[GapQuestion]:
+    """Gap questions, then metric questions. Analyses from before v0.3 stored no
+    lines, so they get gap questions only."""
+    return all_questions(report, repo.get_resume(analysis_id))
 
 
 @router.get("/gap-questions", response_model=GapQuestionsResponse, responses=_ERRORS)
@@ -409,8 +434,8 @@ def list_gap_questions(
     report = _report(repo, analysis_id, user.id)
     answers = repo.gap_answers(analysis_id)
     out: list[GapQuestionOut] = []
-    for question in gap_questions(report):
-        answer = answers.get(question.requirement_id)
+    for question in _questions(repo, analysis_id, report):
+        answer = answers.get(question.id)
         out.append(
             _question_out(
                 question,
@@ -422,26 +447,30 @@ def list_gap_questions(
 
 
 @router.put(
-    "/gap-answers/{requirement_id}",
+    "/gap-answers/{question_id}",
     response_model=GapQuestionOut,
     responses=_ERRORS,
-    summary="Answer a gap question. Answers are stored, never added to the resume.",
+    summary=(
+        "Answer a gap or metric question (its id from GET /gap-questions). Answers are "
+        "stored, never added to the resume."
+    ),
 )
 def put_gap_answer(
     analysis_id: str,
-    requirement_id: str,
+    question_id: str,
     body: GapAnswerRequest,
     user: UserDep,
     session: SessionDep,
 ) -> GapQuestionOut:
     repo = AnalysisRepository(session)
     report = _report(repo, analysis_id, user.id)
-    question = next((q for q in gap_questions(report) if q.requirement_id == requirement_id), None)
+    questions = _questions(repo, analysis_id, report)
+    question = next((q for q in questions if q.id == question_id), None)
     if question is None:
-        raise ApiError(404, "no_gap_question", "That requirement has no gap question.")
+        raise ApiError(404, "no_gap_question", "No question with that id in this analysis.")
     answer = body.answer.strip() or None
-    repo.set_gap_answer(analysis_id, requirement_id, answer)
-    stored = repo.gap_answers(analysis_id).get(requirement_id)
+    repo.set_gap_answer(analysis_id, question_id, answer)
+    stored = repo.gap_answers(analysis_id).get(question_id)
     return _question_out(question, answer, aware(stored.updated_at) if stored else None)
 
 
@@ -510,3 +539,65 @@ def export_changes(analysis_id: str, user: UserDep, session: SessionDep) -> Chan
             for c in list_changes(resume, corrections, rewrites)
         ]
     )
+
+
+# ---------------------------------------------------------------------------
+# The match report
+# ---------------------------------------------------------------------------
+
+HTML_MIME = "text/html; charset=utf-8"
+MARKDOWN_MIME = "text/markdown; charset=utf-8"
+
+
+def _match_report(
+    request: Request, analysis_id: str, owner_id: str, session: SessionDep
+) -> tuple[str, str]:
+    """The report as HTML and Markdown. Counted against the export limit."""
+    repo = AnalysisRepository(session)
+    record = _record(repo, analysis_id, owner_id)
+    report = AnalysisReport.model_validate_json(record.report_json)
+    enforce_limit(request, "exports", user_id=owner_id)
+    answers = {key: row.answer for key, row in repo.gap_answers(analysis_id).items()}
+    document = build_document(
+        report,
+        _questions(repo, analysis_id, report),
+        answers,
+        created_at=record.created_at,
+        expires_at=record.expires_at,
+    )
+    logger.info("match report built", extra={"analysis_id": analysis_id})
+    return render_html(document), render_markdown(document)
+
+
+def _download(content: str, media_type: str, filename: str, csp: str | None = None) -> Response:
+    headers = {
+        "Content-Disposition": f'attachment; filename="{filename}"',
+        "Cache-Control": "no-store",
+    }
+    if csp is not None:
+        headers["Content-Security-Policy"] = csp
+    return Response(content=content, media_type=media_type, headers=headers)
+
+
+@router.get(
+    "/report.html",
+    responses={200: {"content": {"text/html": {}}}, **_ERRORS},
+    response_class=Response,
+    summary="The match report as an accessible HTML page with no scripts or outside files.",
+)
+def report_html(analysis_id: str, request: Request, user: UserDep, session: SessionDep) -> Response:
+    page, _ = _match_report(request, analysis_id, user.id, session)
+    return _download(page, HTML_MIME, "match-report.html", inline_style_csp(page))
+
+
+@router.get(
+    "/report.md",
+    responses={200: {"content": {"text/markdown": {}}}, **_ERRORS},
+    response_class=Response,
+    summary="The match report as Markdown.",
+)
+def report_markdown(
+    analysis_id: str, request: Request, user: UserDep, session: SessionDep
+) -> Response:
+    _, text = _match_report(request, analysis_id, user.id, session)
+    return _download(text, MARKDOWN_MIME, "match-report.md")

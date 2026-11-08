@@ -37,7 +37,7 @@ def _upload(client: TestClient, data: bytes, jd: str) -> Any:
     return client.post(
         "/api/v1/analyses",
         files={"resume": ("r.pdf", data, PDF)},
-        data={"job_description": jd},
+        data={"job_description": jd, "consent": "true"},
     )
 
 

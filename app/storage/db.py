@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from sqlalchemy import (
+    Boolean,
     DateTime,
     Engine,
     ForeignKey,
@@ -19,6 +20,7 @@ from sqlalchemy import (
     Text,
     create_engine,
     event,
+    false,
 )
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
@@ -84,6 +86,12 @@ class AnalysisRecord(Base):
     file_type: Mapped[str] = mapped_column(String(8))
     file_sha256: Mapped[str] = mapped_column(String(64))
     report_json: Mapped[str] = mapped_column(Text)
+    # Consent (added in revision 0002). Analyses made before it have no consent time
+    # or version, and no consent for Claude.
+    consent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    consent_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    # Whether Claude may see this person's resume and job text for this analysis.
+    llm_consent: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
 
 
 class ResumeRecord(Base):

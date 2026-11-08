@@ -29,7 +29,7 @@ from app.services.claude_jd_parser import ClaudeJobParser
 from app.services.jd_parser import RuleJobParser
 from app.services.semantic import Encoder, Reranker
 from app.services.skills import get_catalog
-from evals import errors, factcheck, pairs, requirements, resume_structure
+from evals import document_quality, errors, factcheck, pairs, requirements, resume_structure
 from evals.dataset import DATA_DIR, Dataset, dataset_name, load_dataset
 from evals.formats import FAMILIES, Format, select_formats
 from evals.llm_mode import claude_from_env, run_rewrites
@@ -76,9 +76,11 @@ COMPARED_METRICS: tuple[tuple[str, str], ...] = (
 )
 
 LLM_HOW_TO_RUN = (
-    "Put ANTHROPIC_API_KEY in the environment or in a local .env file (see the README), "
-    "then run python -m evals.run --llm. It makes one parse call per job and up to "
-    "LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by default)."
+    "To run it with your own key, put ANTHROPIC_API_KEY in the environment or in a local "
+    ".env file (see the README), then run python -m evals.run --llm. It makes one parse "
+    "call per job and up to LLM_MAX_SUGGESTIONS rewrite candidates per pair (20 by "
+    "default), billed to that key, and writes every candidate to llm_candidates.json next "
+    "to this report."
 )
 
 
@@ -162,7 +164,10 @@ def comparison(
     for label, metric in COMPARED_METRICS:
         before: list[dict[str, Any] | None] = [run["metrics"].get(metric) for run in runs]
         now = _metric(metrics, metric)
-        if now is not None or any(before):
+        measured = [v for v in [*before, now] if v is not None and v.get("total")]
+        # A metric the set can't measure (fact checking on a set with no fact-check
+        # labels) is 0/0 in every run, and left out.
+        if measured:
             rows.append({"metric": label, "path": metric, "before": before, "now": now})
     return {
         "runs": [
@@ -170,6 +175,9 @@ def comparison(
             for run in runs
         ],
         "rows": rows,
+        # The baseline file may name this run's column and say why it isn't blind.
+        "current_label": data.get("current_label"),
+        "caveat": data.get("caveat"),
     }
 
 
@@ -213,6 +221,9 @@ def evaluate(
     rule_jobs, _ = run_requirements(dataset, RuleJobParser(), catalog)
     exact_runs = run_pairs(dataset, formats, renderer, catalog)
     exact_items = score_pairs(dataset, exact_runs, "exact")
+    exporter = document_quality.Exporter(dataset, renderer)
+    quality_files = document_quality.check_files(dataset, formats, exporter)
+    quality_pairs = document_quality.check_pairs(dataset, formats, exporter, exact_runs, catalog)
     factcheck_sets = {
         "holdout": factcheck.evaluate_cases(dataset.factcheck_holdout, catalog),
         "development": factcheck.evaluate_cases(dataset.factcheck_dev, catalog),
@@ -222,6 +233,7 @@ def evaluate(
         "structure": _by_format(formats, structure_results, resume_structure.summarize),
         "requirements": {"rules": requirements.summarize(rule_jobs)},
         "pairs": {"exact": _by_format(formats, exact_items, pairs.summarize)},
+        "document_quality": document_quality.summarize(formats, quality_files, quality_pairs),
         "factcheck": {
             name: {k: v for k, v in result.items() if k != "disagreements"}
             for name, result in factcheck_sets.items()
@@ -247,6 +259,7 @@ def evaluate(
             "priority_errors": [e for job in rule_jobs for e in job.priority_errors],
         },
         "pairs_per_pair": pairs.per_pair_rows(exact_items),
+        "document_quality_failures": document_quality.failures(quality_files, quality_pairs),
         "status_errors": _status_errors(exact_items),
         "factcheck_disagreements": {
             name: result["disagreements"] for name, result in factcheck_sets.items()

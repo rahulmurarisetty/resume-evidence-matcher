@@ -11,6 +11,8 @@ from app.api.schemas import (
     AnalysisListResponse,
     AnalysisResponse,
     AnalysisSummary,
+    ConsentNoticeOut,
+    ConsentOut,
     ErrorResponse,
     ExtractResponse,
     HealthResponse,
@@ -19,6 +21,7 @@ from app.config import Settings
 from app.models import AnalysisReport, CategoryCoverage
 from app.services.analysis import analyze
 from app.services.claude_jd_parser import ClaudeJobParser
+from app.services.consent import CONSENT_REQUIRED, CONSENT_VERSION, consent_notice
 from app.services.extraction import ExtractionLimits, extract_resume
 from app.services.jd_parser import JobParser, RuleJobParser
 from app.services.scanning import Scanner, ScannerUnavailable
@@ -89,6 +92,11 @@ def _to_response(record: AnalysisRecord) -> AnalysisResponse:
         id=record.id,
         created_at=record.created_at,
         expires_at=record.expires_at,
+        consent=ConsentOut(
+            given_at=record.consent_at,
+            version=record.consent_version,
+            llm=bool(record.llm_consent),
+        ),
         report=AnalysisReport.model_validate_json(record.report_json),
     )
 
@@ -114,6 +122,29 @@ def readyz(request: Request, session: SessionDep) -> HealthResponse:
             logger.warning("scanner not ready", extra={"error": str(exc)})
             raise ApiError(503, "not_ready", "The virus scanner is not reachable.") from None
     return HealthResponse(status="ready")
+
+
+@router.get(
+    "/api/v1/consent",
+    response_model=ConsentNoticeOut,
+    responses=_ERRORS,
+    tags=["analyses"],
+    summary="The consent notice to show before an upload, built from this server's settings.",
+)
+def get_consent_notice(request: Request, user: UserDep, settings: SettingsDep) -> ConsentNoticeOut:
+    notice = consent_notice(
+        settings,
+        llm_available=request.app.state.llm is not None,
+        scanning=request.app.state.scanner is not None,
+    )
+    return ConsentNoticeOut(
+        version=notice.version,
+        points=notice.points,
+        checkbox=notice.checkbox,
+        llm_available=notice.llm_available,
+        llm_points=notice.llm_points,
+        llm_checkbox=notice.llm_checkbox,
+    )
 
 
 @router.post(
@@ -173,7 +204,17 @@ def create_analysis(
     session: SessionDep,
     resume: UploadFile = File(...),
     job_description: str = Form(...),
+    consent: bool = Form(
+        False, description="Must be true: the person agrees to the notice from GET /api/v1/consent"
+    ),
+    llm_consent: bool = Form(
+        False,
+        description="Whether Claude may see this person's resume and job text. Default false.",
+    ),
 ) -> AnalysisResponse:
+    if not consent:
+        # Checked before anything is read, scanned or counted.
+        raise ApiError(422, "consent_required", CONSENT_REQUIRED)
     enforce_limit(request, "analyses", user_id=user.id)
     job_text = job_description.strip()
     if len(job_text) < 50:
@@ -186,10 +227,13 @@ def create_analysis(
         )
 
     data = _read_upload(request, resume, settings, user.id)
-    # Built at startup; None when Claude is off.
+    # Built at startup; None when Claude is off. Without the person's consent for
+    # Claude, the rules read the job description even when Claude is on. Consent given
+    # while Claude is off is stored as false: no notice about Anthropic was shown.
     llm = request.app.state.llm
+    use_claude = llm is not None and llm_consent
     job_parser: JobParser = (
-        ClaudeJobParser(llm, settings.llm_parse_model) if llm is not None else RuleJobParser()
+        ClaudeJobParser(llm, settings.llm_parse_model) if use_claude else RuleJobParser()
     )
     resume_doc, report = analyze(
         data,
@@ -213,6 +257,8 @@ def create_analysis(
         retention=timedelta(hours=settings.retention_hours),
         # The lines are kept for corrections and export, never the file itself.
         resume=resume_doc,
+        consent_version=CONSENT_VERSION,
+        llm_consent=use_claude,
     )
     logger.info(
         "analysis created",
@@ -224,6 +270,7 @@ def create_analysis(
             "requirements": len(report.matches),
             "matching_mode": report.matching_mode.value,
             "parser": report.job_parser.name.value,
+            "llm_consent": use_claude,
         },
     )
     response.headers["Location"] = f"/api/v1/analyses/{record.id}"

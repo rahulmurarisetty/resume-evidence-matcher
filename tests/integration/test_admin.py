@@ -106,7 +106,7 @@ def test_delete_user_asks_first(
     app_client.post(
         "/api/v1/analyses",
         files={"resume": ("r.pdf", build_pdf(data_engineer_markup), PDF)},
-        data={"job_description": data_engineer_jd},
+        data={"job_description": data_engineer_jd, "consent": "true"},
     )
     code, out = _run(settings, "delete-user", EMAIL, prompt=lambda _: "someone@example.com")
     assert code == 2 and "Nothing was deleted" in out

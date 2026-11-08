@@ -149,6 +149,9 @@ def run_rewrites(
                     "model": result.model,
                     "prompt_version": result.prompt_version,
                     "reasons": [],
+                    # For a person to fill in after reading the candidate: "faithful" or
+                    # "adds_fact". The checker can miss an added fact.
+                    "manual_review": None,
                 }
                 if not text or text.lower() == target.source_text.lower() or text.lower() in seen:
                     record["verdict"] = "unchanged"

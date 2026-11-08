@@ -122,6 +122,10 @@ def _headline_section(results: dict[str, Any]) -> list[str]:
             rate(p["false_proven_rate"]),
         ),
         ("Evidence recall@3", rate(p["evidence_recall_at_3"])),
+        (
+            "Word export read back unchanged (sections, roles, years, statuses)",
+            rate(m.get("document_quality", {}).get("overall", {}).get("round_trip_unchanged")),
+        ),
         ("Fact checker accuracy, held-out set", rate(holdout["accuracy"])),
         ("Fact checker false passes, held-out set", rate(holdout["false_pass_rate"])),
     ]
@@ -449,7 +453,7 @@ def _comparison_section(results: dict[str, Any]) -> list[str]:
         return []
     dataset = results["meta"]["dataset"]
     runs = compared["runs"]
-    current = f"This run ({results['meta']['pipeline_version']})"
+    current = compared.get("current_label") or f"This run ({results['meta']['pipeline_version']})"
     if dataset["development"]:
         heading = (
             "## Before and after, development set (used to find and fix these failures, so "
@@ -462,9 +466,10 @@ def _comparison_section(results: dict[str, Any]) -> list[str]:
     else:
         heading = f"## Before and after, {dataset['name']} set"
         lead = ""
-    lines = [
-        heading,
-        "",
+    lines = [heading, ""]
+    if compared.get("caveat"):
+        lines += [compared["caveat"], ""]
+    lines += [
         f"{lead}Each earlier run is kept in `evals/baselines/{dataset['name']}.json`.",
         "",
     ]
@@ -477,6 +482,79 @@ def _comparison_section(results: dict[str, Any]) -> list[str]:
             for row in compared["rows"]
         ],
     )
+    return lines
+
+
+_QUALITY_ROWS = (
+    ("Sections of every line unchanged", "sections_unchanged"),
+    ("Roles unchanged (title, employer, start, end)", "roles_unchanged"),
+    ("Total years unchanged", "total_years_unchanged"),
+    ("Requirement statuses unchanged (per pair)", "statuses_unchanged"),
+    ("All of the above unchanged (per file)", "round_trip_unchanged"),
+    ("Structural check passed (per file)", "structure_ok"),
+)
+_STRUCTURE_LABELS = {
+    "no_tables": "No tables",
+    "no_text_boxes": "No text boxes",
+    "no_images": "No images",
+    "no_headers_or_footers": "No headers or footers",
+    "one_column": "One column",
+    "heading_styles": "Section headings in the Heading 1 style",
+    "list_styles": "Bullets in the List Bullet style",
+    "language": "Language set to en-US",
+}
+
+
+def _document_quality_section(results: dict[str, Any]) -> list[str]:
+    quality = results["metrics"].get("document_quality")
+    if not quality:
+        return []
+    columns, values = _format_columns(quality)
+    overall = quality["overall"]
+    lines = [
+        "## Document quality",
+        "",
+        "Each resume in each format is exported with the app's own Word export (no "
+        "corrections or rewrites) and read back with the app's own extractor and pipeline. "
+        "A round trip counts as unchanged when every line keeps its section, the roles "
+        "(title, employer, start and end) and the total years are the same, and every pair "
+        "that uses the resume gets the same status for each requirement. The structural "
+        "check opens the exported file itself. This measures the app's export against the "
+        "app's own reader, so it shows that the file keeps what the app read; it doesn't "
+        "show how any employer's system reads it.",
+        "",
+        *table(
+            ["Metric", *columns],
+            [[label, *(rate(v[key]) for v in values)] for label, key in _QUALITY_ROWS],
+        ),
+        "Structural checks, all formats:",
+        "",
+        *table(
+            ["Check", "Files that pass"],
+            [
+                [_STRUCTURE_LABELS.get(check, check), rate(value)]
+                for check, value in overall["structure_checks"].items()
+            ],
+        ),
+    ]
+    bare = overall.get("without_section_headings", 0)
+    if bare:
+        lines += [
+            f"{bare} of the {overall['files']} files come from a resume with no section "
+            "headings. The export adds no lines, so those files have no headings either; "
+            "the heading check passes for them because there is nothing to style, and the "
+            "analysis already warns that the resume has no headings.",
+            "",
+        ]
+    failures = results["details"].get("document_quality_failures", [])
+    if failures:
+        lines += ["What changed:", ""]
+        for failure in failures:
+            where = failure.get("pair") or failure.get("resume")
+            lines.append(f"- {where} ({failure['format']}): {'; '.join(failure['differences'])}")
+        lines.append("")
+    else:
+        lines += ["Every round trip was unchanged and every file passed the checks.", ""]
     return lines
 
 
@@ -529,6 +607,18 @@ def _semantic_section(results: dict[str, Any]) -> list[str]:
     return lines
 
 
+HALLUCINATION_NOTE = (
+    "When --llm runs, this section measures the hallucination rate of generated "
+    "suggestions: the share of Claude's rewrite candidates that the fact checker rejects "
+    "because they add a number, "
+    "date, name, tool, certification or claim the bullet doesn't make. Every candidate, "
+    "kept or rejected, is saved to llm_candidates.json with the checker's reasons and an "
+    "empty manual_review field. The checker can miss an added fact, so the rate is only "
+    "complete once a person has read each kept candidate and filled in manual_review "
+    "(faithful or adds_fact)."
+)
+
+
 def _llm_section(results: dict[str, Any]) -> list[str]:
     section = results["llm"]
     lines = ["## Claude parser and rewrites", ""]
@@ -536,6 +626,8 @@ def _llm_section(results: dict[str, Any]) -> list[str]:
         lines += [
             f"{_not_run(section, '--llm')} No call was made to a model provider. "
             f"{section['how_to_run']}",
+            "",
+            HALLUCINATION_NOTE,
             "",
         ]
         return lines
@@ -545,6 +637,8 @@ def _llm_section(results: dict[str, Any]) -> list[str]:
         "The parser's numbers are in the requirement extraction and pair tables above. "
         f"Rewrites were generated for the {section['rewrite_format']} reports and saved to "
         "llm_candidates.json for review.",
+        "",
+        HALLUCINATION_NOTE,
         "",
         *table(
             ["Job", "Parser used", "Requirements dropped by the checks"],
@@ -562,7 +656,14 @@ def _llm_section(results: dict[str, Any]) -> list[str]:
                 ("Kept by the fact checker", rewrites["kept"]),
                 ("Rejected by the fact checker", rewrites["rejected"]),
                 ("Empty, unchanged or repeated", rewrites["unchanged"]),
-                ("Rejection rate (of checked candidates)", rate(rewrites["rejection_rate"])),
+                (
+                    "Hallucination rate caught by the fact checker (rejected of checked)",
+                    rate(rewrites["rejection_rate"]),
+                ),
+                (
+                    "Kept candidates waiting for a person to review in llm_candidates.json",
+                    rewrites["kept"],
+                ),
                 (
                     "Rejections by kind of added fact",
                     ", ".join(f"{k} {v}" for k, v in rewrites["rejections_by_kind"].items())
@@ -672,6 +773,9 @@ def _weaknesses(results: dict[str, Any]) -> list[str]:
             "evals/data/README.md. How far it differs from the development set in wording and "
             "layout decides how much this run says about real resumes."
         )
+        caveat = (results.get("comparison") or {}).get("caveat")
+        if caveat:
+            items.append(caveat)
     if dataset["factcheck_labels"]:
         items.append(
             "The fact checker's development set was used while the checker was built, so its "
@@ -679,6 +783,11 @@ def _weaknesses(results: dict[str, Any]) -> list[str]:
             f"{labels['factcheck_holdout']} cases and was written by the same team."
         )
     items += [
+        "Evidence mapping quality has no human rating yet. python -m evals.rating_sheet "
+        "writes a sheet with one row per cited evidence line for a person to rate, and "
+        "python -m evals.rating_summary computes the share rated as supporting the "
+        "requirement once it is filled in. Until then, evidence recall against the labels is "
+        "the only measure of it.",
         "Matching by meaning and the Claude parser and rewrites are not run in CI, and were "
         "not run for this report unless the run table says so. Exact mode can't produce "
         "adjacent, and the Claude path is only exercised against a fake client in the tests.",
@@ -726,6 +835,7 @@ def render_report(results: dict[str, Any]) -> str:
         *_structure_section(results),
         *_requirements_section(results),
         *_pairs_section(results),
+        *_document_quality_section(results),
         *_factcheck_section(results),
         *_semantic_section(results),
         *_llm_section(results),

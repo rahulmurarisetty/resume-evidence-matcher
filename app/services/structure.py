@@ -174,11 +174,11 @@ _BODY_LABELS = re.compile(
     r"|results?|awards?|methodology|os|operating systems?)$",
     re.IGNORECASE,
 )
-# Labels that name the employer or the title ("Client: Example Bank", "Role: Developer").
-_EMPLOYER_LABELS = re.compile(
-    r"^(?:client|company|employer|organi[sz]ation|firm|customer|account|end client)$",
-    re.IGNORECASE,
-)
+# Labels that name the employer or the title ("Company: Example Corp", "Role: Developer").
+_EMPLOYER_LABELS = re.compile(r"^(?:company|employer|organi[sz]ation|firm)$", re.IGNORECASE)
+# Labels that name a consultant's client ("Client: Example Bank"). A client is never
+# the title or the employer: the employer is the firm that employs the person.
+_CLIENT_LABELS = re.compile(r"^(?:client|end client|customer|account)$", re.IGNORECASE)
 _TITLE_LABELS = re.compile(
     r"^(?:role|title|job title|position|designation|job role)$", re.IGNORECASE
 )
@@ -247,6 +247,27 @@ _ORGANIZATION_WORDS = re.compile(
 )
 _PLACE_SEPARATOR = re.compile(r"(\s*,\s*|\s+-\s+|\s*[\u2013\u2014/]\s*|\s+(?:at|@)\s+)")
 
+# Company suffixes. A name that ends with one is an employer, never a title. The
+# legal forms (and Infotech, Softech) never end a job title. The descriptive ones
+# ("Solutions", "Systems") can ("Director of IT Systems"), so they count only in a
+# name with no job-title word.
+_LEGAL_SUFFIX = re.compile(
+    r"(?:\b(?:pvt|private)\.?\s*(?:ltd|limited)|\b(?:ltd|limited|inc|llc|llp|corp|corporation"
+    r"|gmbh|infotech|softech))\.?$",
+    re.IGNORECASE,
+)
+_DESCRIPTIVE_SUFFIX = re.compile(
+    r"\b(?:technologies|solutions|consulting|services|systems)\.?$", re.IGNORECASE
+)
+
+
+def is_company(text: str) -> bool:
+    """Ends with a company suffix: "Demo Infotech Pvt. Ltd.", "Example Systems"."""
+    name = text.strip(" ,;:()|")
+    if _LEGAL_SUFFIX.search(name):
+        return True
+    return bool(_DESCRIPTIVE_SUFFIX.search(name)) and not _TITLE_WORDS.search(name)
+
 
 def _is_region(part: str) -> bool:
     """A state, province, country or work mode on its own ("FL", "Texas", "Remote")."""
@@ -266,6 +287,12 @@ def _is_city(part: str) -> bool:
         and not _ORGANIZATION_WORDS.search(part)
         and not _TITLE_WORDS.search(part)
     )
+
+
+def _city_after_company(before: str, part: str) -> bool:
+    """A lone city right after a name with a company suffix: "Hyderabad" in "Demo
+    Infotech Pvt. Ltd, Hyderabad"."""
+    return is_company(before) and _is_city(part)
 
 
 def _place_parts(text: str) -> list[str]:
@@ -325,6 +352,8 @@ def strip_location(text: str) -> str:
         drop_last()
     elif len(parts) > keep and _is_location(parts[-1]):
         drop_last()  # "Example Corp - Tampa FL"
+    elif len(parts) > keep and len(parts) >= 2 and _city_after_company(parts[-2], parts[-1]):
+        drop_last()  # "Demo Infotech Pvt. Ltd, Hyderabad"
     rebuilt = parts[0]
     for separator, part in zip(separators, parts[1:], strict=True):
         rebuilt += separator + part
@@ -353,13 +382,15 @@ def _label(text: str) -> tuple[str, str] | None:
 
 
 def _label_kind(text: str) -> str | None:
-    """How a labeled line reads: "employer", "title", "dates", "header" ("Demo
-    Logistics: Senior Engineer") or "body" ("Environment: Java, Spring"). None when
-    the line has no label."""
+    """How a labeled line reads: "employer", "client" ("Client: Example Bank"),
+    "title", "dates", "header" ("Demo Logistics: Senior Engineer") or "body"
+    ("Environment: Java, Spring"). None when the line has no label."""
     labeled = _label(text)
     if labeled is None:
         return None
     label, value = labeled
+    if _CLIENT_LABELS.match(label):
+        return "client"
     if _EMPLOYER_LABELS.match(label):
         return "employer"
     if _TITLE_LABELS.match(label):
@@ -378,7 +409,7 @@ def _header_like(text: str) -> bool:
     words = text.split()
     if not (0 < len(words) <= _MAX_HEADER_WORDS) or _is_sentence(text):
         return False
-    return _label_kind(text) in (None, "employer", "title", "header", "dates")
+    return _label_kind(text) in (None, "employer", "client", "title", "header", "dates")
 
 
 _SMALL_WORDS = {"of", "and", "the", "for", "&", "at", "in", "de", "la", "on", "to", "a", "an"}
@@ -399,19 +430,35 @@ def _name_like(text: str) -> bool:
 
 
 def _order(first: str, second: str) -> tuple[str, str]:
-    """Return (title, employer). The part with a job-title word is the title; when
-    that doesn't decide it, the title comes first ("Title, Employer")."""
+    """Return (title, employer). A part with a company suffix is the employer, then
+    the part with a job-title word is the title; when neither decides it, the title
+    comes first ("Title, Employer")."""
     first, second = _clean(first), _clean(second)
+    if is_company(first) != is_company(second):
+        return (second, first) if is_company(first) else (first, second)
     if _TITLE_WORDS.search(second) and not _TITLE_WORDS.search(first):
         return second, first
     return first, second
 
 
 def _without_locations(text: str) -> str:
-    """Drop place segments ("Tampa, FL") between pipes and a place at the end of each."""
+    """Drop place segments ("Tampa, FL") between pipes and a place at the end of each.
+    A lone city right after a company name ("Demo Infotech Ltd | Pune") is a place too."""
     segments = [s for s in _PIPE_SPLIT.split(text) if s.strip()]
-    kept = [strip_location(s) for s in segments if not _is_location(s)]
+    kept: list[str] = []
+    for segment in segments:
+        if _is_location(segment) or (kept and _city_after_company(kept[-1], segment)):
+            continue
+        kept.append(strip_location(segment))
     return " | ".join(s for s in kept if s)
+
+
+def client_of(text: str) -> str | None:
+    """The client named on a "Client: Example Bank (USA)" line, without the place."""
+    labeled = _label(text)
+    if labeled is None or not _CLIENT_LABELS.match(labeled[0]):
+        return None
+    return _without_locations(labeled[1]) or None
 
 
 _DASH_SPLIT = re.compile(r"\s+-\s+|\s*[\u2013\u2014]\s*")
@@ -425,6 +472,8 @@ def split_title_employer(text: str) -> tuple[str | None, str | None]:
         kind = _label_kind(text)
         label, value = labeled
         value = _without_locations(value)
+        if kind == "client":
+            return None, None  # see client_of()
         if kind == "employer":
             return None, value or None
         if kind == "title":
@@ -444,7 +493,8 @@ def split_title_employer(text: str) -> tuple[str | None, str | None]:
         # "Title | Employer | Location"
         return _order(head, segments[1])
     if inner is None:
-        return head, None
+        # One name alone: an employer when it has a company suffix, else a title.
+        return (None, head) if is_company(head) else (head, None)
     first, second = head[: inner.start()], head[inner.end() :]
     if inner.re is _AT_SPLIT:
         title, employer = _clean(first), strip_location(second)
@@ -461,6 +511,7 @@ class _Draft:
     title: str | None
     employer: str | None
     section: Section
+    client: str | None = None
     start: _Date | None = None
     end: _Date | None = None
     is_current: bool = False
@@ -486,14 +537,20 @@ def _set_dates(draft: _Draft, found: re.Match[str] | None) -> None:
         draft.end = _parse_date(end)
 
 
-def _combine(lines: list[str]) -> tuple[str | None, str | None]:
-    """Title and employer from the parts of a header spread over several lines
-    ("Example Mutual" then "Senior Data Engineer | Mar 2022 - Present")."""
+def _combine(lines: list[str]) -> tuple[str | None, str | None, str | None]:
+    """Title, employer and client from the parts of a header spread over several
+    lines ("Example Mutual" then "Senior Data Engineer | Mar 2022 - Present"). A
+    "Client:" line gives the client and nothing else."""
     titles: list[str] = []
     employers: list[str] = []
+    clients: list[str] = []
     loose: list[str] = []
     for line in lines:
         kind = _label_kind(line)
+        if kind == "client":
+            client = client_of(line)
+            clients += [client] if client else []
+            continue
         title, employer = split_title_employer(line)
         if kind == "employer":
             employers += [employer] if employer else []
@@ -504,6 +561,8 @@ def _combine(lines: list[str]) -> tuple[str | None, str | None]:
             employers.append(employer)
         elif title:
             loose.append(title)
+        elif employer:
+            employers.append(employer)  # a company name on its own line
     for part in loose:
         if _TITLE_WORDS.search(part) and not titles:
             titles.append(part)
@@ -512,9 +571,16 @@ def _combine(lines: list[str]) -> tuple[str | None, str | None]:
         elif not titles:
             titles.append(part)
     if not titles and len(employers) > 1:
-        # Neither line names a job-title word: the first one is the title.
-        titles.append(employers.pop(0))
-    return (titles[0] if titles else None), (employers[0] if employers else None)
+        # Neither line names a job-title word: the first one without a company
+        # suffix is the title.
+        plain = next((i for i, name in enumerate(employers) if not is_company(name)), None)
+        if plain is not None:
+            titles.append(employers.pop(plain))
+    return (
+        titles[0] if titles else None,
+        employers[0] if employers else None,
+        clients[0] if clients else None,
+    )
 
 
 def _rest_of(text: str, found: re.Match[str]) -> str:
@@ -583,6 +649,7 @@ def _read_role_drafts(spans: list[Span], section: Section, inferred: bool = Fals
         if found is not None:
             rest = _rest_of(text, found)
             title, employer = split_title_employer(rest) if rest else (None, None)
+            client = client_of(rest) if rest else None
             dates_only = not rest or _is_location(rest)
             if rest and not dates_only and not _header_like(rest):
                 release()
@@ -592,19 +659,27 @@ def _read_role_drafts(spans: list[Span], section: Section, inferred: bool = Fals
                 # The header's parts are on the lines before the dates.
                 parts = [p.text for p in pending] + ([rest] if not dates_only else [])
                 own_title = title if not dates_only and employer is None else None
-                title, employer = _combine(parts)
+                title, employer, client = _combine(parts)
                 draft = start(pending[0], title, employer, " ".join([*parts, text]))
+                draft.client = client
                 draft.body.extend(p.id for p in pending[1:])
                 draft.body.append(span.id)
                 draft.group_employer = own_title is not None and title == own_title
                 pending.clear()
                 _set_dates(draft, found)
                 continue
+            # "Client: Example Bank" just above a full header belongs to that role.
+            client_lines = [p for p in pending if _label_kind(p.text) == "client"]
+            held = list(pending) if pending and len(client_lines) == len(pending) else []
+            if held:
+                pending.clear()
             release()
             if dates_only:
                 title, employer = None, None
             previous = current
             draft = start(span, title, employer, text)
+            draft.client = client or (client_of(held[0].text) if held else None)
+            draft.body.extend(p.id for p in held)
             draft.single_line = True
             if (
                 title is not None
@@ -632,6 +707,11 @@ def _read_role_drafts(spans: list[Span], section: Section, inferred: bool = Fals
                 current.employer = employer
                 attach(span)
                 continue
+            if kind == "client" and current.client is None:
+                # "Guidewire Developer, Demo Infotech | 2019 - 2021", then "Client: ...".
+                current.client = client_of(text)
+                attach(span)
+                continue
             if _fills_header(current, text, kind):
                 # "Senior Engineer  Jan 2020 - Present" then "ACME Corp, Dallas, TX".
                 if current.employer is None:
@@ -642,7 +722,9 @@ def _read_role_drafts(spans: list[Span], section: Section, inferred: bool = Fals
                 current.group_employer = False
                 attach(span)
                 continue
-        if not _header_like(text) or not (_name_like(text) or kind in ("title", "employer")):
+        if not _header_like(text) or not (
+            _name_like(text) or kind in ("title", "employer", "client")
+        ):
             release()
             if inferred and current is not None and current.has_bullets:
                 current = None  # a plain line after the bullets ends an inferred role
@@ -686,6 +768,7 @@ def _resolve(draft: _Draft, today: date, warnings: list[str]) -> Role:
         return Role(
             title=draft.title,
             employer=draft.employer,
+            client=draft.client,
             section=draft.section,
             start=start,
             end=end,

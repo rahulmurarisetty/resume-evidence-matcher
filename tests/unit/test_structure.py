@@ -5,7 +5,9 @@ import pytest
 from app.models import FileType, ResumeDocument, Role, Section, Span, SpanKind
 from app.services.extraction import extract_resume
 from app.services.structure import (
+    client_of,
     find_metrics,
+    is_company,
     merged_months,
     parse_profile,
     split_title_employer,
@@ -457,13 +459,13 @@ def test_more_header_variants(header: str, title: str, employer: str) -> None:
         [("Northwind Freight, Reno, NV", L), ("Platform Engineer", L), ("Feb 2020 - Present", L)],
         # Title and employer, then a place and the dates
         [("Platform Engineer, Northwind Freight", L), ("Reno, NV | Feb 2020 - Present", L)],
-        # Consulting layout: the client with the dates, then the role
+        # Consulting layout with the employer named: "Company:" then the role
         [
-            ("Client: Northwind Freight, Reno, NV | Feb 2020 - Present", L),
+            ("Company: Northwind Freight, Reno, NV | Feb 2020 - Present", L),
             ("Role: Platform Engineer", L),
         ],
         [
-            ("Client: Northwind Freight", L),
+            ("Company: Northwind Freight", L),
             ("Role: Platform Engineer", L),
             ("Duration: Feb 2020 - Present", L),
         ],
@@ -499,9 +501,192 @@ def test_body_text_before_a_header_is_not_part_of_it() -> None:
     assert (second.title, second.employer) == ("Analyst", None)
 
 
+@pytest.mark.parametrize(
+    "lines",
+    [
+        # v1.0: a "Client:" line names the client, never the employer (it used to be
+        # read as the employer). Here no line names the employer.
+        [
+            ("Client: Northwind Freight, Reno, NV | Feb 2020 - Present", L),
+            ("Role: Platform Engineer", L),
+        ],
+        [
+            ("Client: Northwind Freight", L),
+            ("Role: Platform Engineer", L),
+            ("Duration: Feb 2020 - Present", L),
+        ],
+    ],
+)
+def test_client_lines_name_the_client_and_not_the_employer(
+    lines: list[tuple[str, SpanKind]],
+) -> None:
+    profile = parse_profile(_experience(*lines, ("Built things", B)), today=TODAY)
+    [role] = profile.roles
+    assert (role.title, role.employer, role.client) == (
+        "Platform Engineer",
+        None,
+        "Northwind Freight",
+    )
+    assert (role.start, role.end) == ("2020-02", None)
+    assert role.bullet_span_ids == [f"s{i}" for i in range(2, len(lines) + 2)]
+
+
+# ---------------------------------------------------------------------------
+# v1.0: company suffixes mark an employer, "Client:" lines name a client
+# ---------------------------------------------------------------------------
+
+
+def test_vendor_line_then_client_then_title_with_dates() -> None:
+    """A consultant's role: the firm that employs them (with a company suffix and a
+    place), the client, then the title with the dates."""
+    profile = parse_profile(
+        _experience(
+            ("Sample Softech Pvt Ltd, Pune, Maharashtra, India", L),
+            ("Client: Placeholder Mutual Holdings (US)", L),
+            ("PolicyCenter Configuration Developer | Jan 2019 - Mar 2022", L),
+            ("Configured rating worksheets.", B),
+        ),
+        today=TODAY,
+    )
+    [role] = profile.roles
+    assert role.title == "PolicyCenter Configuration Developer"
+    assert role.employer == "Sample Softech Pvt Ltd"
+    assert role.client == "Placeholder Mutual Holdings"
+    assert (role.start, role.end) == ("2019-01", "2022-03")
+    assert role.header_span_id == "s1"
+    assert role.bullet_span_ids == ["s2", "s3", "s4"]
+
+
+@pytest.mark.parametrize(
+    "lines",
+    [
+        # The client right after a full header line.
+        [
+            ("Integration Developer, Demo Consulting LLC | Feb 2020 - Present", L),
+            ("Client: Sample Health Plan", L),
+        ],
+        # The client just above a full header line.
+        [
+            ("Client: Sample Health Plan", L),
+            ("Integration Developer, Demo Consulting LLC | Feb 2020 - Present", L),
+        ],
+        # The firm and a city with no state, then the title with the dates.
+        [
+            ("Demo Consulting LLC, Bengaluru", L),
+            ("Client: Sample Health Plan", L),
+            ("Integration Developer | Feb 2020 - Present", L),
+        ],
+        # The firm comes after the title: the company suffix decides, not the order.
+        [
+            ("Demo Consulting LLC | Integration Developer | Feb 2020 - Present", L),
+            ("Client: Sample Health Plan", L),
+        ],
+    ],
+)
+def test_client_is_kept_apart_from_title_and_employer(
+    lines: list[tuple[str, SpanKind]],
+) -> None:
+    profile = parse_profile(_experience(*lines, ("Built claim intake services", B)), today=TODAY)
+    [role] = profile.roles
+    assert (role.title, role.employer, role.client) == (
+        "Integration Developer",
+        "Demo Consulting LLC",
+        "Sample Health Plan",
+    )
+    assert role.start == "2020-02" and role.is_current
+
+
+def test_each_role_keeps_its_own_client() -> None:
+    profile = parse_profile(
+        _experience(
+            ("Senior Developer, Example Vendor Inc | Jan 2023 - Present", L),
+            ("Client: First Sample Bank", L),
+            ("Built payment APIs.", B),
+            ("Client: Second Sample Bank", L),
+            ("Developer, Example Vendor Inc | Jan 2020 - Dec 2022", L),
+            ("Wrote batch jobs.", B),
+        ),
+        today=TODAY,
+    )
+    assert [(r.title, r.employer, r.client) for r in profile.roles] == [
+        ("Senior Developer", "Example Vendor Inc", "First Sample Bank"),
+        ("Developer", "Example Vendor Inc", "Second Sample Bank"),
+    ]
+    assert profile.roles[1].bullet_span_ids == ["s4", "s6"]
+
+
+@pytest.mark.parametrize(
+    ("header", "title", "employer"),
+    [
+        (
+            "Northwind Technologies | Data Analyst | Mar 2021 - Present",
+            "Data Analyst",
+            "Northwind Technologies",
+        ),
+        (
+            "Sample Analytics GmbH, Data Analyst | Mar 2021 - Present",
+            "Data Analyst",
+            "Sample Analytics GmbH",
+        ),
+        (
+            "Data Analyst, Sample Analytics Private Limited | Mar 2021 - Present",
+            "Data Analyst",
+            "Sample Analytics Private Limited",
+        ),
+        # A job title may end in a descriptive word; with a job-title word it stays
+        # the title.
+        (
+            "Director of IT Systems, Example Health | Mar 2021 - Present",
+            "Director of IT Systems",
+            "Example Health",
+        ),
+        (
+            "Solutions Architect, Example Health | Mar 2021 - Present",
+            "Solutions Architect",
+            "Example Health",
+        ),
+    ],
+)
+def test_company_suffix_marks_the_employer(header: str, title: str, employer: str) -> None:
+    role = _one_role(header)
+    assert (role.title, role.employer, role.client) == (title, employer, None)
+
+
+def test_is_company() -> None:
+    for name in (
+        "Demo Infotech Pvt. Ltd.",
+        "Demo Infotech Pvt Ltd",
+        "Sample Data Private Limited",
+        "Example Holdings Ltd",
+        "Example Corp.",
+        "Example Corporation",
+        "Example Labs LLC",
+        "Example Partners LLP",
+        "Example Software GmbH",
+        "Northwind Technologies",
+        "Northwind Solutions",
+        "Northwind Consulting",
+        "Northwind Services",
+        "Northwind Systems",
+        "Northwind Infotech",
+        "Northwind Softech",
+        "Example Group, Inc.",
+    ):
+        assert is_company(name), name
+    titles = ("Solutions Architect", "Director of IT Systems", "Example Mutual", "Data Engineer")
+    for name in titles:
+        assert not is_company(name), name
+
+
 def test_split_title_employer_and_location_helpers() -> None:
-    assert split_title_employer("Example Corp, Tampa, FL") == ("Example Corp", None)
-    assert split_title_employer("Client: Example Bank") == (None, "Example Bank")
+    # v1.0: "Corp" is a company suffix, so a lone "Example Corp" is an employer (it
+    # used to come back as a title).
+    assert split_title_employer("Example Corp, Tampa, FL") == (None, "Example Corp")
+    assert split_title_employer("Example Mutual, Tampa, FL") == ("Example Mutual", None)
+    # v1.0: a client is never the title or the employer; client_of() reads it.
+    assert split_title_employer("Client: Example Bank") == (None, None)
+    assert client_of("Client: Example Bank (USA)") == "Example Bank"
+    assert client_of("Role: Developer") is None
     assert split_title_employer("Role: Developer") == ("Developer", None)
     assert strip_location("Accenture, Chicago, IL") == "Accenture"
     assert strip_location("Example Corp (Tampa, FL)") == "Example Corp"

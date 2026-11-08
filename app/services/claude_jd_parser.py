@@ -12,6 +12,10 @@ output. Nothing it returns is trusted as is:
 - Catalog skills in the requirement text that Claude left out are added, so the
   result never knows fewer catalog skills than the rule parser would.
 - Years are kept only when the requirement's text states that number of years.
+- Employment terms ("Only W2 candidates") are never requirements, whatever Claude
+  says, and intro sentences ("We are looking for a hands-on X to join our team")
+  are context. Both use the same rules as the rule parser, and the terms listed in
+  the job are the rule parser's.
 
 On a missing client, a timeout, an API error or output that fails these checks,
 the rule parser runs instead and the report says why.
@@ -38,6 +42,8 @@ from app.services.jd_parser import (
     JobParser,
     ParsedJob,
     RuleJobParser,
+    is_employment_term,
+    is_intro_sentence,
     job_min_years,
     min_years_in,
     seniority_for,
@@ -167,11 +173,14 @@ def build_job(
         years = item.min_years
         if years is None or not _states_years(text, years):
             years = min_years_in(text)
+        if is_employment_term(text) and not (catalog.requirement_skills(text) or years):
+            continue  # listed in employment_terms by the rule parser, never scored
+        priority = Priority.CONTEXT if is_intro_sentence(text) else Priority(item.priority)
         requirements.append(
             Requirement(
                 id=f"r{len(requirements)}",
                 text=text,
-                priority=Priority(item.priority),
+                priority=priority,
                 skills=skills,
                 match_mode=MatchMode(item.match_mode),
                 min_years=years,
@@ -192,7 +201,11 @@ def build_job(
     if seniority is Seniority.UNKNOWN:
         seniority = seniority_for(title, job_years)
     job = JobDescription(
-        title=title, seniority=seniority, min_years=job_years, requirements=requirements
+        title=title,
+        seniority=seniority,
+        min_years=job_years,
+        requirements=requirements,
+        employment_terms=list(rules.employment_terms),
     )
     return job, dropped
 

@@ -54,7 +54,7 @@ def test_analyses_per_account(
         other = login_other(client)
         post = {
             "files": {"resume": ("r.pdf", pdf, PDF)},
-            "data": {"job_description": data_engineer_jd},
+            "data": {"job_description": data_engineer_jd, "consent": "true"},
         }
         assert client.post("/api/v1/analyses", **post).status_code == 201
         assert client.post("/api/v1/extract", files=post["files"]).status_code == 200
@@ -84,7 +84,7 @@ def test_suggestions_and_exports_per_account(
         analysis_id = client.post(
             "/api/v1/analyses",
             files={"resume": ("r.pdf", build_pdf(data_engineer_markup), PDF)},
-            data={"job_description": data_engineer_jd},
+            data={"job_description": data_engineer_jd, "consent": "true", "llm_consent": "true"},
         ).json()["id"]
         url = f"/api/v1/analyses/{analysis_id}"
         assert (
@@ -96,8 +96,11 @@ def test_suggestions_and_exports_per_account(
         assert client.get(url + "/suggestions").status_code == 200  # reading isn't limited
 
         assert client.get(url + "/export.docx").status_code == 200
-        assert client.get(url + "/export.docx").status_code == 200
+        # v1.0: the match report shares the export allowance.
+        assert client.get(url + "/report.html").status_code == 200
         _limited(client.get(url + "/export.docx"))
+        _limited(client.get(url + "/report.html"))
+        _limited(client.get(url + "/report.md"))
         assert client.get(url + "/export/changes").status_code == 200
 
 

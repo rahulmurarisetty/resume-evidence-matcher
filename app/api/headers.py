@@ -37,11 +37,30 @@ def apply_security_headers(headers: MutableHeaders, path: str, *, production: bo
         headers["Strict-Transport-Security"] = HSTS
 
 
-def docs_csp(html: str) -> str:
-    hashes = " ".join(
-        "'sha256-" + base64.b64encode(hashlib.sha256(script.encode()).digest()).decode() + "'"
-        for script in _INLINE_SCRIPT_RE.findall(html)
+_INLINE_STYLE_RE = re.compile(r"<style>(.*?)</style>", re.DOTALL)
+
+
+def _sha256(text: str) -> str:
+    return "'sha256-" + base64.b64encode(hashlib.sha256(text.encode()).digest()).decode() + "'"
+
+
+def inline_style_csp(html: str) -> str:
+    """The policy for a page that loads nothing and has only its own inline <style>
+    blocks (the match report): those blocks by hash, and nothing else."""
+    styles = " ".join(_sha256(style) for style in _INLINE_STYLE_RE.findall(html))
+    return "; ".join(
+        [
+            "default-src 'none'",
+            f"style-src {styles}" if styles else "style-src 'none'",
+            "frame-ancestors 'none'",
+            "base-uri 'none'",
+            "form-action 'none'",
+        ]
     )
+
+
+def docs_csp(html: str) -> str:
+    hashes = " ".join(_sha256(script) for script in _INLINE_SCRIPT_RE.findall(html))
     return "; ".join(
         [
             "default-src 'none'",

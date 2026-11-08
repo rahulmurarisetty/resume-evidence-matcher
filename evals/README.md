@@ -4,6 +4,8 @@ This folder measures the app against a hand-labeled set of fictional resumes and
 
 The set in `data/` is the development set. v0.4 measured it and recorded its failure patterns, and v0.5 fixed those patterns with general rules (never with a string, name or company from the set). Its numbers are therefore optimistic, and the report says so. A fair measure needs a held-out set that nobody read while changing the app, run with `--data-dir` (see below). The labels' own entries are never edited to raise a number.
 
+The held-out set in `data/holdout/` was blind for v0.4 and v0.5. The three v1.0 reading fixes (company suffixes and "Client:" lines, employment terms, intro sentences) were found by looking at one of its examples during a demo, so it is no longer fully unseen. Its report keeps the blind v0.4 and v0.5 runs (from `baselines/holdout.json`) next to a column labeled "v1.0 (after fixes informed by one held-out example)", and says so at the top of that table. By the set's own rule, a new held-out set should be written for the next blind measure.
+
 The labeled data and its conventions are described in [data/README.md](data/README.md). The latest results are in [results/REPORT.md](results/REPORT.md) and, with every number and failure, in `results/latest.json`.
 
 ## Running it
@@ -54,7 +56,9 @@ Put the key in your environment or in the local `.env` file (see "Turning on Cla
 python -m evals.run --llm
 ```
 
-This makes one parse call per job description and, for each pair, asks for rewrites until the pair has used `LLM_MAX_SUGGESTIONS` candidates (20 by default), so a full run is about 8 parse calls and up to 160 rewrite calls. `LLM_PARSE_MODEL`, `LLM_REWRITE_MODEL` and `LLM_TIMEOUT_SECONDS` are read from the same settings as the app. `LLM_ENABLED` is ignored here, because `--llm` is already the opt-in. Every candidate, with the fact checker's verdict and reasons, goes to `results/llm_candidates.json` for a person to read. Model output changes from run to run, so commit that file only when you mean to keep a reviewed sample.
+This makes one parse call per job description and, for each pair, asks for rewrites until the pair has used `LLM_MAX_SUGGESTIONS` candidates (20 by default), so a full run is about 8 parse calls and up to 160 rewrite calls, billed to your key. `LLM_PARSE_MODEL`, `LLM_REWRITE_MODEL` and `LLM_TIMEOUT_SECONDS` are read from the same settings as the app. `LLM_ENABLED` is ignored here, because `--llm` is already the opt-in. Every candidate, with the fact checker's verdict and reasons, goes to `results/llm_candidates.json` for a person to read. Model output changes from run to run, so commit that file only when you mean to keep a reviewed sample.
+
+This is where the hallucination rate of generated suggestions is measured. The report counts the candidates the fact checker rejected (each one added a number, date, name, tool, certification or claim the bullet doesn't make) out of the candidates it checked. The checker can miss an added fact, so each candidate in `llm_candidates.json` has an empty `manual_review` field: a person reads every kept candidate and writes `faithful` or `adds_fact`. The rate is complete only after that review. None of this has been run yet: no API key was available while building the app.
 
 Without a key the mode is skipped with a message and nothing is sent anywhere.
 
@@ -65,14 +69,26 @@ Every rate in the report is shown with its counts. "Overall" pools the three ren
 1. Resume structure: role precision and recall (title and employer both match, after normalizing case and punctuation or with a fuzzy ratio of at least 0.85), start and end months on matched roles, total years (mean absolute error and the share within 0.5 years), and education recall. The labels' `as_of` date, 2026-11-01, is passed to the app as today.
 2. Requirement extraction: extracted requirement texts are matched one to one with the labeled lines (equal, one containing the other, or a fuzzy ratio of at least 0.85). Precision, recall, priority accuracy, per-class precision and recall with a confusion matrix, and the job's minimum years.
 3. Evidence and status per pair: status accuracy, a confusion matrix, gap precision and recall, the false proven rate (the app says direct where the label says gap or needs_check, the most harmful error) and evidence recall at 1 and 3.
-4. The fact checker on both labeled sets, with "adds a fact" as the positive class: accuracy, precision, recall, false passes, false rejects, a table per category and every disagreement. The held-out set is the primary result. The development set was used while building the checker and is labeled as optimistic.
-5. With `--semantic` or `--llm`, the extra modes described above.
+4. Document quality: every resume in every format is exported with the app's own Word export (no corrections or rewrites) and read back with the app's own extractor and pipeline. The report gives the share of files whose line sections, roles (title, employer, start and end) and total years are unchanged, the share of pairs whose requirement statuses are unchanged, and a structural check of each exported file: no tables, text boxes, images, headers or footers, one column, section headings in Word's Heading 1 style, bullets in its List Bullet style, and the language set to en-US. A resume with no section headings gets none in the export either, and is counted apart.
+5. The fact checker on both labeled sets, with "adds a fact" as the positive class: accuracy, precision, recall, false passes, false rejects, a table per category and every disagreement. The held-out set is the primary result. The development set was used while building the checker and is labeled as optimistic.
+6. With `--semantic` or `--llm`, the extra modes described above.
+
+## Evidence rated by a person
+
+The specification asks for a human rating of whether each matched line supports its requirement. That rating has not been done yet.
+
+```bash
+python -m evals.rating_sheet                 # writes results/evidence_rating_sheet.csv
+python -m evals.rating_summary results/evidence_rating_sheet.csv
+```
+
+`rating_sheet` writes one row per pair, requirement and evidence line the report cites for it (exact evidence skill by skill, then related evidence), from one reading of each resume (`--format`, `pdf_inline` by default), with empty `rating` and `rater_note` columns. A person fills in `rating` with supports, partly or does not. `rating_summary` then prints how many rows were rated and the share of each rating, overall, by the app's status and by kind of evidence (`--json` for JSON), and stops with the row number when a rating is misspelled. `--data-dir` writes a sheet for another set, to `results/<set name>/`. A sheet that already has ratings is never overwritten unless `--force` is given. The development sheet in `results/` has 340 rows and none is rated.
 
 The report ends with an error analysis that groups the failures into recurring patterns, each with examples, and a list of known weaknesses of the evaluation itself.
 
 ## Thresholds
 
-`thresholds.json` holds floors and ceilings for `--check`, keyed by dotted paths into the `metrics` part of `latest.json`. Floors sit 0.02 below the measured default-run values on the development set, rounded down. Since v0.5 most of them are near 1.0, because the fixes were written against this set, so they catch regressions rather than describe the app. Ceilings sit at the measured value of zero: the false-pass rate of the fact checker may not rise above it, and neither may the false proven rate.
+`thresholds.json` holds floors and ceilings for `--check`, keyed by dotted paths into the `metrics` part of `latest.json`. Floors sit 0.02 below the measured default-run values on the development set, rounded down. Since v0.5 most of them are near 1.0, because the fixes were written against this set, so they catch regressions rather than describe the app. Ceilings sit at the measured value of zero: the false-pass rate of the fact checker may not rise above it, and neither may the false proven rate. The document quality floors, new in v1.0, sit at the measured 1.0 minus 0.02. The v1.0 reading fixes moved no development-set number, so the other floors are as v0.5 set them.
 
 When a change moves a number on purpose, run the evaluation, read the new report, and update `thresholds.json` and the results in the same commit.
 
@@ -85,18 +101,20 @@ formats.py          the PDF and DOCX renderings (tests/builders.py)
 pipeline.py         runs the app's own extraction, structure, parser and analysis
 matching.py         text normalization, fuzzy matching and one-to-one alignment
 metrics.py          rates with counts, confusion matrices
-resume_structure.py, requirements.py, pairs.py, factcheck.py
-                    the four evaluations
+resume_structure.py, requirements.py, pairs.py, factcheck.py, document_quality.py
+                    the five evaluations
+rating_sheet.py     python -m evals.rating_sheet: the sheet for a person to rate evidence
+rating_summary.py   python -m evals.rating_summary: the human-rated share from that sheet
 semantic_mode.py    --semantic
 llm_mode.py         --llm
 errors.py           failure patterns for the error analysis
 report.py           REPORT.md
 thresholds.py       --check
 thresholds.json     the floors and ceilings
-results/            latest.json and REPORT.md from the last default run, and a folder per
-                    other --data-dir
+results/            latest.json and REPORT.md from the last default run, the evidence
+                    rating sheet, and a folder per other --data-dir
 baselines/          earlier runs per set, for the report's before and after table
 data/               the labeled development set
 ```
 
-The evaluation's own tests are in `tests/evals/`. They check the matching and metric functions on small hand-made inputs, run a smoke evaluation on two pairs, and run `--data-dir` on a one-pair set written to a temporary folder. They use the fake models and the fake Claude client from `tests/fakes.py`, never the real ones.
+The evaluation's own tests are in `tests/evals/`. They check the matching and metric functions on small hand-made inputs, run a smoke evaluation on two pairs, run `--data-dir`, the rating sheet and its summary on a one-pair set written to a temporary folder, and check the structural checks on Word files built to fail them. They use the fake models and the fake Claude client from `tests/fakes.py`, never the real ones.

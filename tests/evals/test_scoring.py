@@ -253,7 +253,10 @@ def test_structure_scoring_and_diagnoses() -> None:
     assert result.start_correct == result.end_correct == 1
     causes = {item.gold["employer"]: item.cause for item in result.missed_roles}
     assert causes == {"Example Corp": "fields_differ", "Demo Labs": "not_a_header"}
-    assert result.extra_roles[0]["predicted"]["title"] == "Data Engineer Example Corp"
+    # v1.0: a name ending in a company suffix ("Corp") is an employer, never a title,
+    # so the unsplit line is now read as the employer (it used to be the title).
+    predicted = result.extra_roles[0]["predicted"]
+    assert (predicted["title"], predicted["employer"]) == (None, "Data Engineer Example Corp")
     assert result.years_error is not None
     # Education isn't labeled for this resume, so the parsed degree is an extra entry.
     summary = resume_structure.summarize([result])

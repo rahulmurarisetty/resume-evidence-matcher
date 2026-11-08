@@ -7,6 +7,12 @@ its fallback and as the baseline it is measured against.
 
 Benefits, pay, legal and logistics lines are dropped, under their own heading or
 anywhere else, and so are sentences that only describe the company.
+
+Employment terms ("Only W2 candidates", "No C2C", "No visa sponsorship") are not
+requirements either. They are listed in JobDescription.employment_terms, so the
+person can see them, and they never score anyone. Intro sentences ("We are looking
+for a hands-on Data Engineer to join our team", "In this role you will ...") are
+context, never required.
 """
 
 import re
@@ -43,7 +49,8 @@ _SKIP_HEADING = re.compile(
     r"|authori[sz]ation|\bvisa\b|sponsorship|\blegal\b|disclaimer|privacy|work environment"
     r"|physical (?:demands|requirements)|working conditions|\btravel\b|\bschedule\b"
     r"|working hours|\bhours\b|job type|employment type|\bstart date\b|\bour team\b"
-    r"|about the team|meet the team|our story|our mission|background check"
+    r"|about the team|meet the team|our story|our mission|background check|\bterms\b"
+    r"|tax term|contract type|engagement type"
 )
 _STACK_HEADING = re.compile(
     r"\b(?:our|the|tech|technology|technical)\s+stack\b|tools we use|technologies we use"
@@ -151,6 +158,67 @@ _ABOUT_THE_JOB = re.compile(
 )
 
 
+# Employment terms: how the job is contracted, and who may apply because of
+# citizenship or visa status. Never a requirement and never scored.
+_EMPLOYMENT_TERMS = re.compile(
+    r"\bC2C\b|\bC2H\b|\bcorp(?:oration)?[\s-]*(?:to|2)[\s-]*corp(?:oration)?\b"
+    r"|\bthird[\s-]party\s+(?:agenc(?:y|ies)|recruit\w*|candidates|applicants|submissions?)\b"
+    r"|\b(?:no|not accepting|without)\s+(?:staffing\s+)?(?:agenc(?:y|ies)|recruiters)\b"
+    r"|\bauthori[sz]ed\s+to\s+work\b|\bwork\s+authori[sz]ation\b|\bwork\s+permit\b"
+    r"|\bsponsorship\b|\b(?:visa|h-?1b|immigration)\s+sponsor\w*"
+    r"|\bsponsor (?:a |an )?(?:visa|visas|work|employment|h-?1b)"
+    r"|\b(?:unable to|not able to|cannot|can't|will not|won't|do not|does not|not) sponsor\b"
+    r"|\bH-?1-?B\b|\bgreen\s+card\b|\bGC\s+(?:holders?|EAD)\b|\bEAD\b|\bUSC\b"
+    r"|\b(?:U\.?S\.?|United\s+States)\s+citizens?(?:hip)?\b|\bcitizenship\b"
+    r"|\bpermanent\s+residen(?:t|ts|cy)\b",
+    re.IGNORECASE,
+)
+# "W2" and "1099" are also tax forms a payroll or accounting job asks about.
+_PAY_FORMS = re.compile(r"\bW-?2\b|\b1099\b", re.IGNORECASE)
+_TAX_WORK = re.compile(
+    r"\b(?:forms?|tax|taxes|payroll|filings?|reporting|reconcil\w*|prepar\w*|process\w*"
+    r"|experience|knowledge)\b",
+    re.IGNORECASE,
+)
+# Intro sentences describe the hire, not what the hire needs.
+_INTRO = re.compile(
+    r"^(?:we\s+are|we're|we\s+re)\s+(?:currently\s+|now\s+)?(?:looking\s+for|seeking"
+    r"|searching\s+for|hiring)\s+(?:an?|our|one|two|several|multiple)\b"
+    r"|^(?:we\s+are|we're)\s+(?:currently\s+|now\s+)?hiring\b"
+    r"|^join\s+(?:our|the|a|an)\b"
+    r"|^in\s+this\s+(?:role|position|job),?\s+you(?:'ll|\s+will)\b"
+    r"|^as\s+(?:an?|our)\s+[^,.]{1,60},\s+you(?:'ll|\s+will)\b",
+    re.IGNORECASE,
+)
+_STRICT_ASK = re.compile(
+    r"\b(?:must|required|requires|mandatory|minimum|at least)\b", re.IGNORECASE
+)
+
+
+def is_employment_term(sentence: str) -> bool:
+    """A contract or work-authorization term: "Only W2 candidates", "No C2C or
+    third-party agencies please", "US citizens or green card holders only"."""
+    if _EMPLOYMENT_TERMS.search(sentence):
+        return True
+    return bool(_PAY_FORMS.search(sentence)) and not _TAX_WORK.search(sentence)
+
+
+def is_intro_sentence(sentence: str) -> bool:
+    """ "We are looking for a hands-on X to join our team", "We're hiring a ...",
+    "Join our team as ...", "In this role you will ...". A sentence that states years
+    or says "must" or "required" asks for something, so it isn't an intro."""
+    text = strip_bullet(sentence)[0]
+    return bool(_INTRO.search(text)) and min_years_in(text) is None and not _STRICT_ASK.search(text)
+
+
+def _asks_for_skill_or_years(sentence: str, catalog: SkillCatalog) -> bool:
+    return bool(catalog.requirement_skills(sentence)) or min_years_in(sentence) is not None
+
+
+def _term_with_an_ask(sentence: str, catalog: SkillCatalog) -> bool:
+    return is_employment_term(sentence) and _asks_for_skill_or_years(sentence, catalog)
+
+
 def _boilerplate(sentence: str) -> bool:
     if _ALWAYS_BOILERPLATE.search(sentence):
         return True
@@ -181,7 +249,7 @@ def _about_the_company(sentence: str, catalog: SkillCatalog) -> bool:
     nothing, and names no skill other than a domain (which a company name such as
     "Example Insurance" can supply)."""
     first = re.match(r"[A-Za-z']+", sentence)
-    if first is None or not first.group()[0].isupper():
+    if first is None or not first.group()[0].isupper() or is_intro_sentence(sentence):
         return False
     if first.group().lower() in _DUTY_VERBS | _NOT_A_NAME:
         return False
@@ -200,7 +268,9 @@ def _clean_items(item: str, is_bullet: bool, section: Priority, catalog: SkillCa
     kept = [
         s
         for s in sentences
-        if not _boilerplate(s)
+        # A term that also asks for a skill or years keeps its requirement (see
+        # _take_terms), though its wording is boilerplate.
+        if (not _boilerplate(s) or _term_with_an_ask(s, catalog))
         and not (not is_bullet and section is Priority.CONTEXT and _about_the_company(s, catalog))
     ]
     if len(kept) == len(sentences):
@@ -345,6 +415,26 @@ def match_mode_for(text: str) -> MatchMode:
     return MatchMode.ANY if _ANY_OF.search(text) else MatchMode.ALL
 
 
+def _take_terms(line: str, catalog: SkillCatalog, terms: list[str]) -> str:
+    """Move the employment-terms sentences of a line into `terms` and return what is
+    left of the line ("" when nothing is). A sentence that also asks for a skill or
+    years ("5+ years of Java; must be authorized to work in the US") stays in the
+    line, so that requirement isn't lost, and is listed as a term too."""
+    text, is_bullet = strip_bullet(line)
+    sentences = [s.strip() for s in _SENTENCE_SPLIT.split(text) if s.strip()]
+    found = [s for s in sentences if is_employment_term(s)]
+    if not found:
+        return line
+    for sentence in found:
+        if sentence.lower() not in {t.lower() for t in terms}:
+            terms.append(sentence)
+    kept = [s for s in sentences if s not in found or _asks_for_skill_or_years(s, catalog)]
+    if not kept:
+        return ""
+    rest = " ".join(kept)
+    return f"- {rest}" if is_bullet else rest
+
+
 def parse_job_description(raw: str, catalog: SkillCatalog) -> JobDescription:
     lines = [normalize(line) for line in raw.splitlines()]
     lines = [line for line in lines if line and not BULLET_ONLY_RE.match(line)]
@@ -353,6 +443,7 @@ def parse_job_description(raw: str, catalog: SkillCatalog) -> JobDescription:
     # Before the first heading we only keep lines that read like requirements.
     section: Priority | str = "preamble"
     grouped: list[tuple[Priority, str]] = []
+    terms: list[str] = []
 
     for line in lines:
         prefixed = _TITLE_PREFIX.match(line)
@@ -367,7 +458,10 @@ def parse_job_description(raw: str, catalog: SkillCatalog) -> JobDescription:
             section = heading
             continue
 
-        if section == "skip":
+        # Employment terms are noticed wherever they are, also under a skipped heading
+        # such as "Work authorization", and never become requirements.
+        line = _take_terms(line, catalog, terms)
+        if not line or section == "skip":
             continue
         text, is_bullet = strip_bullet(line)
         if _META_LINE.match(text):
@@ -390,7 +484,8 @@ def parse_job_description(raw: str, catalog: SkillCatalog) -> JobDescription:
 
         for item in _items([line]):
             for kept in _clean_items(item, is_bullet, base, catalog):
-                grouped.append((_line_priority(kept, base), kept))
+                priority = Priority.CONTEXT if is_intro_sentence(kept) else None
+                grouped.append((priority or _line_priority(kept, base), kept))
 
     requirements: list[Requirement] = []
     seen: set[str] = set()
@@ -417,6 +512,7 @@ def parse_job_description(raw: str, catalog: SkillCatalog) -> JobDescription:
         seniority=seniority_for(title, job_years),
         min_years=job_years,
         requirements=requirements,
+        employment_terms=terms,
     )
 
 

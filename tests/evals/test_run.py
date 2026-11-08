@@ -70,6 +70,12 @@ def test_default_run_on_a_subset(subset: Dataset, default_results: dict[str, obj
     assert metrics["factcheck"]["holdout"]["cases"] == 40
     assert metrics["pairs"]["semantic"] is None
     assert metrics["pairs"]["claude"] is None
+    # v1.0: the Word export is read back the same, and is a plain file.
+    quality = metrics["document_quality"]["overall"]
+    assert (quality["files"], quality["pairs"]) == (6, 6)
+    assert quality["round_trip_unchanged"] == {"rate": 1.0, "count": 6, "total": 6}
+    assert quality["structure_ok"]["rate"] == 1.0
+    assert set(quality["structure_checks"]) >= {"no_tables", "one_column", "language"}
     # Everything is JSON-ready.
     json.dumps(results)
 
@@ -92,6 +98,7 @@ def test_report_has_every_section_and_follows_the_prose_rules(
         "## Resume structure",
         "## Requirement extraction",
         "## Evidence and status per pair",
+        "## Document quality",
         "## Fact checker",
         "## Matching by meaning",
         "## Claude parser and rewrites",
@@ -207,7 +214,11 @@ def test_llm_mode_skips_without_a_key(
     assert candidates is None
     assert results["llm"]["status"] == "skipped"
     assert results["llm"]["reason"] == "ANTHROPIC_API_KEY isn't set."
-    assert "No call was made to a model provider." in render_report(results)
+    report = render_report(results)
+    assert "No call was made to a model provider." in report
+    # v1.0: the report says how the owner runs it with his own key, and what it measures.
+    assert "To run it with your own key, put ANTHROPIC_API_KEY" in report
+    assert "this section measures the hallucination rate of generated suggestions" in report
 
 
 def _fake_claude(dataset: Dataset) -> FakeLLMClient:
@@ -262,12 +273,16 @@ def test_llm_mode_with_a_fake_client(subset: Dataset, tmp_path: Path) -> None:
     assert len(parse_calls) == 1
 
     assert candidates is not None and len(candidates) == 8
+    # v1.0: every candidate waits for a person's review.
+    assert all(c["manual_review"] is None for c in candidates)
     amazon = [c for c in candidates if c["candidate"].endswith("at Amazon.")]
     assert all(c["verdict"] == "rejected" and c["reasons"] for c in amazon)
     written = run.write_outputs(results, candidates, tmp_path)
     assert tmp_path / "llm_candidates.json" in written
     report = (tmp_path / "REPORT.md").read_text(encoding="utf-8")
     assert "Rejected by the fact checker" in report
+    assert "| Hallucination rate caught by the fact checker (rejected of checked) |" in report
+    assert "empty manual_review field" in report
     assert (
         "| Pair | Bullets chosen | Candidates | Kept | Rejected | Rejected for | Unchanged |"
         in report
@@ -277,95 +292,6 @@ def test_llm_mode_with_a_fake_client(subset: Dataset, tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 # --data-dir: another labeled set with the same layout
 # ---------------------------------------------------------------------------
-
-TINY_RESUME = """# Sam Placeholder
-## Experience
-### Data Engineer, Example Corp | Mar 2022 - Present
-- Built Python pipelines on Databricks.
-## Education
-### B.S. Computer Science, Example University, 2021
-"""
-TINY_JOB = """Data Engineer
-
-Requirements
-- Strong Python skills
-- Experience with Kafka
-- Bachelor's degree in Computer Science or a related field
-
-Benefits
-- 401(k) with a match
-"""
-
-
-@pytest.fixture
-def tiny_dataset(tmp_path: Path) -> Path:
-    """A one-resume, one-job set with no fact-check labels, written to a temporary
-    folder in the same layout as evals/data."""
-    root = tmp_path / "tiny_set"
-    for folder in ("resumes", "jobs", "labels"):
-        (root / folder).mkdir(parents=True)
-    (root / "resumes" / "t01.md").write_text(TINY_RESUME, encoding="utf-8")
-    (root / "jobs" / "j01.txt").write_text(TINY_JOB, encoding="utf-8")
-    labels = {
-        "resumes.json": {
-            "t01": {
-                "as_of": "2026-11-01",
-                "roles": [
-                    {
-                        "title": "Data Engineer",
-                        "employer": "Example Corp",
-                        "start": "2022-03",
-                        "end": None,
-                    }
-                ],
-                "total_years": 4.7,
-                "education": [
-                    {
-                        "degree": "B.S. Computer Science",
-                        "school": "Example University",
-                        "year": 2021,
-                    }
-                ],
-            }
-        },
-        "jobs.json": {
-            "j01": {
-                "title": "Data Engineer",
-                "min_years": None,
-                "requirements": [
-                    {"text": "Strong Python skills", "priority": "required"},
-                    {"text": "Experience with Kafka", "priority": "required"},
-                    {
-                        "text": "Bachelor's degree in Computer Science or a related field",
-                        "priority": "required",
-                    },
-                ],
-            }
-        },
-        "pairs.json": [
-            {
-                "resume": "t01",
-                "job": "j01",
-                "fit": "strong",
-                "requirements": [
-                    {
-                        "text": "Strong Python skills",
-                        "status": "direct",
-                        "evidence": ["Built Python pipelines on Databricks."],
-                    },
-                    {"text": "Experience with Kafka", "status": "gap"},
-                    {
-                        "text": "Bachelor's degree in Computer Science or a related field",
-                        "status": "direct",
-                        "evidence": ["B.S. Computer Science, Example University, 2021"],
-                    },
-                ],
-            }
-        ],
-    }
-    for name, value in labels.items():
-        (root / "labels" / name).write_text(json.dumps(value), encoding="utf-8")
-    return root
 
 
 def test_another_data_dir_loads_without_fact_check_labels(tiny_dataset: Path) -> None:
@@ -437,3 +363,27 @@ def test_comparison_lists_earlier_runs_on_the_development_set(
     metrics = default_results["metrics"]
     assert isinstance(metrics, dict)
     assert run.comparison(load_dataset().limited(1), metrics, tmp_path) is None
+
+
+def test_a_baseline_can_name_this_run_and_say_why_it_isnt_blind(
+    tiny_dataset: Path, tmp_path: Path
+) -> None:
+    dataset = load_dataset(tiny_dataset)
+    results, _ = run.evaluate(dataset, run.Options(families=("docx",)), run_date=RUN_DATE)
+    old_metrics = {"pairs.exact.overall.status_accuracy": {"rate": 0.5, "count": 1, "total": 2}}
+    baseline = {
+        "dataset": "tiny_set",
+        "current_label": "v1.0 (after fixes informed by one example)",
+        "caveat": "This set is no longer fully unseen.",
+        "runs": [{"label": "v0.5 (blind)", "note": "Blind.", "metrics": old_metrics}],
+    }
+    (tmp_path / "tiny_set.json").write_text(json.dumps(baseline), encoding="utf-8")
+    compared = run.comparison(dataset, results["metrics"], tmp_path)
+    assert compared is not None
+    # The fact checker isn't measured on this set (0/0 everywhere), so it has no row.
+    assert all(not row["path"].startswith("factcheck.") for row in compared["rows"])
+    report = render_report({**results, "comparison": compared})
+    assert "| Metric | v0.5 (blind) | v1.0 (after fixes informed by one example) |" in report
+    assert "## Before and after, tiny_set set\n\nThis set is no longer fully unseen." in report
+    weaknesses = report.split("## Known weaknesses of this evaluation")[1]
+    assert "- This set is no longer fully unseen." in weaknesses

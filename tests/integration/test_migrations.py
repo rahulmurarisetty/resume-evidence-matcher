@@ -12,6 +12,7 @@ import sqlite3
 from contextlib import closing
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 import pytest
 from alembic import command
@@ -382,7 +383,7 @@ def test_a_v0_5_database_still_starts_with_everything_kept(
         new = client.post(
             "/api/v1/analyses",
             files={"resume": ("r.pdf", build_pdf(data_engineer_markup), PDF)},
-            data={"job_description": data_engineer_jd},
+            data={"job_description": data_engineer_jd, "consent": "true"},
         )
         assert new.status_code == 201
         assert client.delete(f"/api/v1/analyses/{OLD_ID}").status_code == 204
@@ -442,7 +443,7 @@ def test_a_v0_2_database_still_starts(
         new = client.post(
             "/api/v1/analyses",
             files={"resume": ("r.pdf", build_pdf(data_engineer_markup), PDF)},
-            data={"job_description": data_engineer_jd},
+            data={"job_description": data_engineer_jd, "consent": "true"},
         )
         assert new.status_code == 201
         assert client.get(f"/api/v1/analyses/{new.json()['id']}/spans").status_code == 200
@@ -483,5 +484,61 @@ def test_v0_5_tables_on_postgres_are_refused(empty_database_url: str) -> None:
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
         assert "users" not in inspect(engine).get_table_names()
+    finally:
+        engine.dispose()
+
+
+def test_the_consent_revision_keeps_every_row(empty_database_url: str) -> None:
+    """0002 adds the consent columns to an analysis made at 0001, and taking it back
+    off keeps the analysis and the rows stored with it."""
+    engine = make_engine(empty_database_url)
+    config = alembic_config()
+    # Strings, as the stored timestamps are written by hand here.
+    now, later = _when(timedelta(0)), _when(timedelta(hours=24))
+
+    def migrate(action: Any, target: str) -> None:
+        with engine.begin() as connection:
+            config.attributes["connection"] = connection
+            action(config, target)
+
+    def count(table: str) -> int:
+        with engine.connect() as connection:
+            return int(connection.execute(text(f"SELECT COUNT(*) FROM {table}")).scalar_one())
+
+    try:
+        migrate(command.upgrade, "0001")
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "INSERT INTO users (id, email, password_hash, created_at) "
+                    "VALUES ('u1', 'person@example.com', '!', :now)"
+                ),
+                {"now": now},
+            )
+            connection.execute(
+                text(
+                    "INSERT INTO analyses (id, owner_id, created_at, expires_at, "
+                    "pipeline_version, file_type, file_sha256, report_json) VALUES "
+                    "(:id, 'u1', :now, :later, '1.0.0-exact', 'pdf', :sha, '{}')"
+                ),
+                {"id": OLD_ID, "now": now, "later": later, "sha": "0" * 64},
+            )
+            connection.execute(
+                text(
+                    "INSERT INTO gap_answers (analysis_id, requirement_id, answer, updated_at) "
+                    "VALUES (:id, 'r1', 'No.', :now)"
+                ),
+                {"id": OLD_ID, "now": now},
+            )
+        upgrade(engine)
+        with engine.connect() as connection:
+            row = connection.execute(
+                text("SELECT consent_at, consent_version, llm_consent FROM analyses")
+            ).one()
+        assert (row[0], row[1], bool(row[2])) == (None, None, False)
+        migrate(command.downgrade, "0001")
+        columns = {c["name"] for c in inspect(engine).get_columns("analyses")}
+        assert not columns & {"consent_at", "consent_version", "llm_consent"}
+        assert (count("analyses"), count("gap_answers")) == (1, 1)
     finally:
         engine.dispose()

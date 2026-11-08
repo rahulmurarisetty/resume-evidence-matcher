@@ -4,7 +4,7 @@
     "Each key is a dotted path into the metrics part of evals/results/latest.json; a rate uses its rate value.",
     "Floors are the measured default-run value on the development set minus 0.02, rounded down to two decimals. v0.5 was built by reading that set's failures, so these floors guard against regressions; they don't say how the app does on new data. On the small sets (8 jobs, 40 held-out cases) one or two more errors cross a floor; on the 528 pooled pair labels it takes about ten.",
     "Ceilings are set to the measured value with no margin: the held-out fact checker false-pass rate (the hard rule), the development false-pass rate and the false proven rate of pair statuses may not rise at all.",
-    "Measured on pipeline 0.5.0-exact. After a change that moves a number on purpose, rerun the evaluation and update the value here in the same commit."
+    "Measured on pipeline 1.0.0-exact. The v1.0 reading fixes (company suffixes, \"Client:\" lines, employment terms, intro sentences) left every development-set number where it was, so those floors are unchanged. The document quality floors are new in v1.0, at the measured 1.0 minus 0.02. After a change that moves a number on purpose, rerun the evaluation and update the value here in the same commit."
   ],
   "floors": {
     "structure.overall.role_precision": 0.98,
@@ -31,7 +31,13 @@
     "factcheck.holdout.accuracy": 0.95,
     "factcheck.holdout.precision": 0.93,
     "factcheck.holdout.recall": 0.98,
-    "factcheck.development.accuracy": 0.96
+    "factcheck.development.accuracy": 0.96,
+    "document_quality.overall.sections_unchanged": 0.98,
+    "document_quality.overall.roles_unchanged": 0.98,
+    "document_quality.overall.total_years_unchanged": 0.98,
+    "document_quality.overall.statuses_unchanged": 0.98,
+    "document_quality.overall.round_trip_unchanged": 0.98,
+    "document_quality.overall.structure_ok": 0.98
   },
   "ceilings": {
     "factcheck.holdout.false_pass_rate": 0.0,

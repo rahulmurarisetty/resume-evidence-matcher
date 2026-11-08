@@ -1,7 +1,7 @@
 import pytest
 
 from app.models import MatchMode, Priority, Seniority
-from app.services.jd_parser import parse_job_description
+from app.services.jd_parser import is_employment_term, is_intro_sentence, parse_job_description
 from app.services.skills import SkillCatalog
 
 
@@ -292,3 +292,142 @@ def test_company_and_logistics_sentences_in_the_preamble(catalog: SkillCatalog) 
     )
     job = parse_job_description(text, catalog)
     assert [r.text for r in job.requirements] == ["Experience in financial services is required."]
+
+
+# ---------------------------------------------------------------------------
+# v1.0: employment terms and intro sentences
+# ---------------------------------------------------------------------------
+
+TERMS_JD = """Claims Integration Engineer
+
+Overview
+We are looking for a hands-on Guidewire integration engineer to join our claims team.
+Join our team as the second integration engineer on the claims platform.
+In this role you will build REST services between ClaimCenter and the payments ledger.
+
+Qualifications
+- 5+ years of Java development
+- Experience with Guidewire ClaimCenter integrations
+- W2 only, no corp to corp.
+- Must be authorized to work in the US without sponsorship.
+- We're hiring someone who writes clear design notes.
+
+Employment terms
+- Green card holders and US citizens only
+- 1099 contractors are welcome to apply
+"""
+
+
+def test_employment_terms_are_listed_and_never_requirements(catalog: SkillCatalog) -> None:
+    job = parse_job_description(TERMS_JD, catalog)
+    assert job.employment_terms == [
+        "W2 only, no corp to corp.",
+        "Must be authorized to work in the US without sponsorship.",
+        "Green card holders and US citizens only",
+        "1099 contractors are welcome to apply",
+    ]
+    texts = [r.text for r in job.requirements]
+    for term in job.employment_terms:
+        assert term not in texts
+    assert "5+ years of Java development" in texts
+
+
+def test_intro_sentences_are_context(catalog: SkillCatalog) -> None:
+    priorities = _priorities(TERMS_JD, catalog)
+    assert (
+        priorities[
+            "We are looking for a hands-on Guidewire integration engineer to join our claims team."
+        ]
+        is Priority.CONTEXT
+    )
+    assert (
+        priorities["Join our team as the second integration engineer on the claims platform."]
+        is Priority.CONTEXT
+    )
+    assert (
+        priorities[
+            "In this role you will build REST services between ClaimCenter and the payments ledger."
+        ]
+        is Priority.CONTEXT
+    )
+    # Under a requirements heading an intro sentence is still context.
+    assert priorities["We're hiring someone who writes clear design notes."] is Priority.CONTEXT
+    assert priorities["5+ years of Java development"] is Priority.REQUIRED
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "We are looking for an experienced mobile developer to join our payments squad.",
+        "We're seeking a Senior QA Engineer for our Austin office.",
+        "We are hiring a data analyst to support the finance team.",
+        "As a Platform Engineer, you will run our Kubernetes clusters.",
+        "In this position, you'll own the release train.",
+    ],
+)
+def test_more_intro_sentences(catalog: SkillCatalog, sentence: str) -> None:
+    assert is_intro_sentence(sentence)
+    text = f"Requirements\n{sentence}\n- Strong SQL skills\n"
+    assert _priorities(text, catalog)[sentence] is Priority.CONTEXT
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        # Asks for something: years, "must", or a person with a skill.
+        "We are looking for someone with 4+ years of React experience.",
+        "We are looking for a developer with 6+ years of Kotlin.",
+        "We're hiring an engineer who must have shipped Swift apps.",
+        "Build REST services in Java.",
+    ],
+)
+def test_sentences_that_ask_for_something_are_not_intros(sentence: str) -> None:
+    assert not is_intro_sentence(sentence)
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "Only W2 candidates.",
+        "No C2C or third-party agencies please.",
+        "1099",
+        "Corp to corp is fine for this contract.",
+        "Candidates must be authorized to work in Canada.",
+        "There is no visa sponsorship for this role.",
+        "US citizens or green card holders only.",
+        "Open to GC holders, EAD and USC.",
+        "No third-party recruiters.",
+    ],
+)
+def test_employment_term_sentences(sentence: str) -> None:
+    assert is_employment_term(sentence)
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "Experience preparing W-2 and 1099 forms for contractors",
+        "Integrate third-party payment APIs",
+        "Work with executive sponsors on the roadmap",
+        "Strong Python skills",
+    ],
+)
+def test_lines_that_are_not_employment_terms(sentence: str) -> None:
+    assert not is_employment_term(sentence)
+
+
+def test_a_term_that_also_asks_for_a_skill_stays_a_requirement(catalog: SkillCatalog) -> None:
+    text = (
+        "Requirements\n"
+        "- 3+ years of Go; must be authorized to work in the US\n"
+        "- Only W2 candidates. Strong Terraform skills.\n"
+    )
+    job = parse_job_description(text, catalog)
+    assert [r.text for r in job.requirements] == [
+        "3+ years of Go; must be authorized to work in the US",
+        "Strong Terraform skills.",
+    ]
+    assert job.employment_terms == [
+        "3+ years of Go; must be authorized to work in the US",
+        "Only W2 candidates.",
+    ]

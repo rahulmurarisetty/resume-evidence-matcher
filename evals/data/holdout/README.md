@@ -8,6 +8,10 @@ The set was written without access to the app or its results. While writing it, 
 
 Use this set only to measure the app. Do not tune prompts, rules or thresholds against it. Once a change has been made because of a result on this set, it is no longer held out and a new one should be written.
 
+## Status: no longer fully unseen
+
+The v0.4 and v0.5 results on this set are blind: both versions were run on it once, after v0.5 was finished, and the label files were only reformatted to the standard field names (no label changed). After that, one resume and job pair from this set (h_r01 with h_j01) was used in a manual demo, which showed three reading mistakes: a "Pvt. Ltd." employer read as a job title, "W2" and "C2C" lines counted as requirements, and an intro sentence counted as a requirement. v1.0 fixed those three with general rules. Its numbers on this set are reported separately and are not blind. A new held-out set should be written before claiming further unseen-data results.
+
 ## Everything is fictional
 
 Every person, employer, school, email address and phone number here is made up. Emails use example.com and phone numbers use (555) 010-0141 to (555) 010-0146. Company names follow the same patterns as the main set, such as "Sample Mutual Insurance Company", "Demo Savings Bank" and "Placeholder Lending Co.". Real technology names such as Guidewire, Salesforce, Power BI, Kubernetes and Databricks appear only as skills, products and certifications.

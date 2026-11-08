@@ -35,7 +35,7 @@ def test_helpers_against_the_api(
     ui: ModuleType, client: TestClient, data_engineer_markup: str, data_engineer_jd: str
 ) -> None:
     pdf = build_pdf(data_engineer_markup)
-    analysis = ui.create_analysis(client, "resume.pdf", pdf, data_engineer_jd)
+    analysis = ui.create_analysis(client, "resume.pdf", pdf, data_engineer_jd, consent=True)
     report = analysis["report"]
 
     rows = ui.coverage_rows(report)
@@ -61,7 +61,9 @@ def test_helpers_against_the_api(
 def test_docx_upload_uses_the_word_mime_type(
     ui: ModuleType, client: TestClient, dotnet_markup: str, dotnet_jd: str
 ) -> None:
-    analysis = ui.create_analysis(client, "Resume.DOCX", build_docx(dotnet_markup), dotnet_jd)
+    analysis = ui.create_analysis(
+        client, "Resume.DOCX", build_docx(dotnet_markup), dotnet_jd, consent=True
+    )
     assert analysis["report"]["coverage"]["required"]["total"] == 6
     assert ui.mime_type("cv.pdf") == "application/pdf"
     assert ui.mime_type("cv") == "application/octet-stream"
@@ -69,7 +71,12 @@ def test_docx_upload_uses_the_word_mime_type(
 
 def test_api_errors_carry_the_message(ui: ModuleType, client: TestClient) -> None:
     with pytest.raises(ui.ApiError, match="Paste the full job description"):
-        ui.create_analysis(client, "r.pdf", b"%PDF-1.7 tiny", "too short")
+        ui.create_analysis(client, "r.pdf", b"%PDF-1.7 tiny", "too short", consent=True)
+    # v1.0: without the consent box nothing is read.
+    with pytest.raises(ui.ApiError, match="Tick the box") as error:
+        ui.create_analysis(client, "r.pdf", b"%PDF-1.7 tiny", "x" * 80, consent=False)
+    assert error.value.code == "consent_required"
+    assert ui.error_place(error.value.code) == "consent"
     with pytest.raises(ui.ApiError, match="status 404"):
         ui._check(client.get("/no-such-page"))
 
@@ -101,7 +108,12 @@ def test_edit_helpers_against_the_api(
     with TestClient(create_app(settings, llm_client=fake)) as client:
         authenticate(client)
         analysis = ui.create_analysis(
-            client, "resume.pdf", build_pdf(data_engineer_markup), data_engineer_jd
+            client,
+            "resume.pdf",
+            build_pdf(data_engineer_markup),
+            data_engineer_jd,
+            consent=True,
+            llm_consent=True,
         )
         analysis_id = analysis["id"]
         matches = {m["requirement"]["id"]: m for m in analysis["report"]["matches"]}
@@ -150,7 +162,9 @@ def test_edit_helpers_against_the_api(
 def test_suggestions_off_message(
     ui: ModuleType, client: TestClient, dotnet_markup: str, dotnet_jd: str
 ) -> None:
-    analysis = ui.create_analysis(client, "r.docx", build_docx(dotnet_markup), dotnet_jd)
+    analysis = ui.create_analysis(
+        client, "r.docx", build_docx(dotnet_markup), dotnet_jd, consent=True
+    )
     with pytest.raises(ui.ApiError, match="need Claude") as error:
         ui.request_suggestions(client, analysis["id"])
     assert error.value.code == "llm_disabled"
@@ -345,3 +359,64 @@ def test_screen_without_accounts(live_api: Any) -> None:
     assert not screen.tabs
     assert any(b.label == "Check my resume" for b in screen.button)
     assert "Accounts are off on this server" in " ".join(c.value for c in screen.caption)
+
+
+# ---------------------------------------------------------------------------
+# v1.0: consent, the match report and errors next to their inputs
+# ---------------------------------------------------------------------------
+
+
+def test_status_and_error_place_helpers(ui: ModuleType) -> None:
+    assert ui.status_text("direct") == "Status: Proven"
+    assert ui.status_text("not_assessed") == "Status: Check it yourself"
+    assert ui.status_text("new_kind") == "Status: new kind"
+    assert ui.error_place("job_description_too_short") == "job"
+    assert ui.error_place("consent_required") == "consent"
+    assert ui.error_place("unsupported_type") == "file"
+    assert ui.error_place("malware_detected") == "file"
+    assert ui.error_place("rate_limited") == "form"
+    assert ui.error_place("") == "form"
+
+
+def test_consent_and_report_helpers_against_the_api(
+    ui: ModuleType, client: TestClient, data_engineer_markup: str, data_engineer_jd: str
+) -> None:
+    notice = ui.consent_notice(client)
+    assert notice["version"] == "consent_v1" and notice["llm_available"] is False
+    analysis = ui.create_analysis(
+        client, "resume.pdf", build_pdf(data_engineer_markup), data_engineer_jd, consent=True
+    )
+    assert analysis["consent"]["version"] == "consent_v1"
+    edits = ui.load_edits(client, analysis["id"])
+    assert edits["metric_questions"] and all(
+        q["kind"] == "metric" for q in edits["metric_questions"]
+    )
+    assert all(q["kind"] == "gap" for q in edits["questions"].values())
+    assert ui.download_report(client, analysis["id"], "html").startswith(b"<!DOCTYPE html>")
+    assert ui.download_report(client, analysis["id"], "md").startswith(b"# Match report")
+
+
+def test_screen_asks_for_consent_and_writes_errors_next_to_inputs(live_api: Any) -> None:
+    url = live_api()
+    with httpx.Client(base_url=url) as client:
+        register(client)
+    screen = _screen()
+    screen.text_input(key="login-email").input(EMAIL)
+    screen.text_input(key="login-password").input(PASSWORD)
+    _button(screen, "Log in").click().run()
+    assert not screen.exception
+    assert [h.value for h in screen.header] == ["Check your resume against a job"]
+    notice = screen.session_state["consent_notice"]
+    # One box: Claude is off on this server, so there is no second one.
+    assert [c.label for c in screen.checkbox] == [notice["checkbox"]]
+    shown = _texts(screen)
+    assert "Before you upload:" in shown and "Only your account can see your analyses" in shown
+
+    _button(screen, "Check my resume").click().run()
+    errors = [e.value for e in screen.error]
+    assert errors == [
+        "Tick the box above to agree before the resume is read.",
+        "Choose a PDF or Word file.",
+        "Paste the job description.",
+    ]
+    assert "analysis" not in screen.session_state

@@ -74,7 +74,7 @@ def _create(client: TestClient, markup: str, jd: str) -> dict[str, Any]:
     response = client.post(
         BASE,
         files={"resume": ("resume.pdf", build_pdf(markup), PDF)},
-        data={"job_description": jd},
+        data={"job_description": jd, "consent": "true", "llm_consent": "true"},
     )
     assert response.status_code == 201, response.text
     body: dict[str, Any] = response.json()
@@ -297,8 +297,11 @@ def test_correction_rules(llm_client: TestClient, analysis: str) -> None:
 def test_gap_questions_and_answers(llm_client: TestClient, analysis: str) -> None:
     url = f"{BASE}/{analysis}"
     questions = llm_client.get(f"{url}/gap-questions").json()["questions"]
-    by_id = {q["requirement_id"]: q for q in questions}
+    # v1.0: metric questions come after the gap questions, in the same list.
+    assert [q["kind"] for q in questions][:2] == ["gap", "gap"]
+    by_id = {q["requirement_id"]: q for q in questions if q["kind"] == "gap"}
     assert set(by_id) == {"r11", "r12"}
+    assert all(q["id"] == q["requirement_id"] for q in by_id.values())
     assert by_id["r11"]["question"] == (
         "Have you used dbt? If yes, where, and what did you build with it?"
     )
@@ -308,9 +311,7 @@ def test_gap_questions_and_answers(llm_client: TestClient, analysis: str) -> Non
     saved = llm_client.put(f"{url}/gap-answers/r11", json={"answer": answer})
     assert saved.status_code == 200
     assert saved.json()["answer"] == answer and saved.json()["answered_at"] is not None
-    stored = {
-        q["requirement_id"]: q for q in llm_client.get(f"{url}/gap-questions").json()["questions"]
-    }
+    stored = {q["id"]: q for q in llm_client.get(f"{url}/gap-questions").json()["questions"]}
     assert stored["r11"]["answer"] == answer
 
     # Answers are never put into the resume.
@@ -341,6 +342,8 @@ def test_gap_questions_and_answers(llm_client: TestClient, analysis: str) -> Non
         lambda c, a: c.put(f"{BASE}/{a}/gap-answers/r1", json={"answer": "x"}),
         lambda c, a: c.get(f"{BASE}/{a}/export.docx"),
         lambda c, a: c.get(f"{BASE}/{a}/export/changes"),
+        lambda c, a: c.get(f"{BASE}/{a}/report.html"),
+        lambda c, a: c.get(f"{BASE}/{a}/report.md"),
     ],
 )
 def test_unknown_analysis_is_404(
