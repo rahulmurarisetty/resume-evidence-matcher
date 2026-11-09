@@ -39,6 +39,9 @@ from typing import Any
 import httpx
 
 API_URL = os.environ.get("API_URL", "http://localhost:8000").rstrip("/")
+# Shown on the upload box. Keep it the same as the API's MAX_UPLOAD_MB, which is
+# the limit that is enforced; Streamlit's own default would say 200MB.
+MAX_UPLOAD_MB = max(1, round(float(os.environ.get("MAX_UPLOAD_MB", "5"))))
 TIMEOUT = httpx.Timeout(120.0, connect=5.0)
 
 MIME_TYPES = {
@@ -917,7 +920,9 @@ def _render_upload(st: Any) -> None:
             for point in notice["llm_points"]:
                 st.markdown(f"- {escape_markdown(point)}")
             llm_consent = st.checkbox(notice["llm_checkbox"], key="llm-consent")
-        upload = st.file_uploader("Resume (PDF or Word)", type=["pdf", "docx"])
+        upload = st.file_uploader(
+            "Resume (PDF or Word)", type=["pdf", "docx"], max_upload_size=MAX_UPLOAD_MB
+        )
         file_error = st.empty()
         job_text = st.text_area("Job description", height=260)
         job_error = st.empty()

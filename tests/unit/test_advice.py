@@ -214,3 +214,24 @@ def test_at_most_five_metric_questions_required_first(catalog: SkillCatalog) -> 
     kinds = [q.kind for q in combined]
     assert kinds == sorted(kinds)  # "gap" before "metric"
     assert all(q.kind == "gap" for q in all_questions(report, None, catalog))
+
+
+def test_advice_names_the_client_when_two_roles_share_a_title(catalog: SkillCatalog) -> None:
+    # Consultant resumes repeat a title and name a client instead of an employer.
+    resume = _resume(
+        ("EXPERIENCE", E, H),
+        ("Platform Engineer Jan 2023 - Present", E, L),
+        ("Client: Northwind Freight | Remote, USA", E, L),
+        ("Ran the weekly on-call rotation for the platform team.", E, B),
+        ("Wrote runbooks for 12 incident types.", E, B),
+        ("Moved 40 services onto Kubernetes clusters built with Terraform.", E, B),
+        ("Platform Engineer Jan 2020 - Dec 2022", E, L),
+        ("Client: Contoso Shipping | Remote, USA", E, L),
+        ("Kept the build farm patched.", E, B),
+        ("Answered support tickets for the build farm.", E, B),
+        ("Wrote Rust tools for log shipping.", E, B),
+    )
+    report = _report(resume, JD, catalog)
+    moves = [a.message for a in report.section_advice if a.kind is AdviceKind.MOVE_BULLET_UP]
+    assert any("Platform Engineer (client: Northwind Freight)" in m for m in moves)
+    assert any("Platform Engineer (client: Contoso Shipping)" in m for m in moves)

@@ -420,3 +420,8 @@ def test_screen_asks_for_consent_and_writes_errors_next_to_inputs(live_api: Any)
         "Paste the job description.",
     ]
     assert "analysis" not in screen.session_state
+
+
+def test_upload_box_shows_the_api_limit(ui: ModuleType) -> None:
+    # Streamlit's own default label says 200MB; the API enforces MAX_UPLOAD_MB.
+    assert ui.MAX_UPLOAD_MB == 5

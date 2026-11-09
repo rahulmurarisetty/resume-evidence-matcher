@@ -87,6 +87,10 @@ def _proves(matches: Sequence[RequirementMatch]) -> str:
 def _role_name(role: Role, header: str) -> str:
     if role.title and role.employer:
         return f"{role.title} at {role.employer}"
+    if role.title and role.client:
+        # Consultant resumes often repeat a title and name only the client, so
+        # the client tells two "Guidewire Developer" roles apart.
+        return f"{role.title} (client: {role.client})"
     return role.title or role.employer or _quote(header)
 
 

@@ -13,7 +13,7 @@ LABEL org.opencontainers.image.description="Resume evidence matcher screen (Stre
 
 WORKDIR /ui
 RUN useradd --create-home --uid 10001 appuser \
-    && pip install "streamlit>=1.40" "httpx>=0.27"
+    && pip install "streamlit>=1.67" "httpx>=0.27"
 
 COPY app.py .
 

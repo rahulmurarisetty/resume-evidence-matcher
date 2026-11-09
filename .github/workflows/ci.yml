@@ -108,7 +108,7 @@ jobs:
         run: |
           pip install --require-hashes -r requirements-dev.lock
           pip install --no-deps -e .
-          pip install "streamlit>=1.40"
+          pip install "streamlit>=1.67"
 
       - name: Screen tests (login, register, logout, deleting the account)
         run: pytest tests/unit/test_ui.py

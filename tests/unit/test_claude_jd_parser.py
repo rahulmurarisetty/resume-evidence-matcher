@@ -303,3 +303,39 @@ def test_claude_output_follows_the_terms_and_intro_rules(catalog: SkillCatalog) 
         ("Strong Kotlin and Swift", Priority.REQUIRED),
     ]
     assert job.employment_terms == ["Only W2 candidates, no C2C."]
+
+
+def test_a_years_requirement_drops_free_text_field_names(catalog: SkillCatalog) -> None:
+    # Claude Haiku 5.5 named "data engineering" as a skill here. It is a field, so
+    # the requirement is judged on years, as the rule parser judges it.
+    output = {
+        "requirements": [
+            _req(
+                "5+ years of experience in data engineering",
+                "required",
+                ["data engineering"],
+                min_years=5,
+            ),
+            _req("Strong Python and SQL", "required", ["Python", "SQL"]),
+        ]
+    }
+    years, python = _parse(catalog, output)[0].job.requirements
+    assert (years.skills, years.free_text_skills, years.min_years) == ([], [], 5)
+    assert python.skills == ["Python", "SQL"]
+
+
+def test_a_years_requirement_keeps_catalog_skills(catalog: SkillCatalog) -> None:
+    jd = "Data Engineer\n\nRequirements\n- 3+ years of Python in data engineering\n"
+    output = {
+        "requirements": [
+            _req(
+                "3+ years of Python in data engineering",
+                "required",
+                ["Python", "data engineering"],
+                min_years=3,
+            ),
+        ]
+    }
+    client = FakeLLMClient(output, model="claude-haiku-5-5")
+    [req] = ClaudeJobParser(client, "claude-haiku-5-5").parse(jd, catalog).job.requirements
+    assert (req.skills, req.free_text_skills, req.min_years) == (["Python"], [], 3)

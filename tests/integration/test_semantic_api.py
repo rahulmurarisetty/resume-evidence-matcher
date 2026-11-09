@@ -57,7 +57,7 @@ def test_injected_fakes_are_used(
         stored = client.get(f"/api/v1/analyses/{response.json()['id']}").json()
     report = response.json()["report"]
     assert stored["report"] == report
-    assert report["pipeline_version"] == "1.0.0-semantic"
+    assert report["pipeline_version"] == "1.0.1-semantic"
     assert report["matching_mode"] == "semantic"
     assert report["coverage"]["context"]["adjacent"] == 2
     assert report["coverage"]["required"]["direct"] == 5

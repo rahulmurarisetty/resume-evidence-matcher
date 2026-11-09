@@ -8,7 +8,8 @@ output. Nothing it returns is trusted as is:
   normalization. Requirements that don't are dropped and counted.
 - Every skill must be named in the requirement's own text. One that matches a
   catalog term becomes that catalog skill. Any other is kept as a free-text skill,
-  and exact matching then looks for it in the resume as a whole phrase.
+  and exact matching then looks for it in the resume as a whole phrase, except in
+  a years requirement, where such a phrase names a field and is dropped.
 - Catalog skills in the requirement text that Claude left out are added, so the
   result never knows fewer catalog skills than the rule parser would.
 - Years are kept only when the requirement's text states that number of years.
@@ -173,6 +174,12 @@ def build_job(
         years = item.min_years
         if years is None or not _states_years(text, years):
             years = min_years_in(text)
+        if years and free_text:
+            # In "5+ years of experience in data engineering" a free-text phrase
+            # names a field, not a tool, and an exact search for it would decide the
+            # requirement. Like the rule parser, keep only catalog skills there.
+            skills = [skill for skill in skills if skill not in free_text]
+            free_text = []
         if is_employment_term(text) and not (catalog.requirement_skills(text) or years):
             continue  # listed in employment_terms by the rule parser, never scored
         priority = Priority.CONTEXT if is_intro_sentence(text) else Priority(item.priority)

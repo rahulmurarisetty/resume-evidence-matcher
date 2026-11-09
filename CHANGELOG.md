@@ -2,6 +2,17 @@
 
 All notable changes to this project. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-11-08
+
+Fixes found by running 1.0.0 on a local machine with a real Anthropic key.
+
+### Fixed
+
+- Rewrite suggestions failed with "Claude couldn't be reached" on every call. Claude Sonnet 5.5, the default rewrite model, answers a forced `tool_choice` with a 400. Requests to it now mark the output tool `strict` (its schema made strict by the SDK's `transform_schema`), use `tool_choice` auto, say in the user message to call the tool, and send `thinking: {"type": "between_tools"}` so no thinking comes before the tool call and the token limit goes to the answer. Any other model that answers a forced `tool_choice` with a 400 about `tool_choice` is asked once more the same way, without the thinking setting, and later calls to it go straight to auto. Claude Haiku 5.5, which reads job descriptions, still gets the forced tool call.
+- With Claude reading the job description, "5+ years of experience in data engineering" was Missing on a resume with about 7.5 years, because Claude named "data engineering" as a skill and exact matching found no such phrase. A years requirement now keeps only catalog skills, as with the rule parser, so it is judged on years. `PIPELINE_VERSION` moves to 1.0.1.
+- Section order advice named a role by its title alone when the resume gave a client but no employer, so two "Guidewire Developer" roles read the same. It now says "Guidewire Developer (client: Donegal Insurance Group)".
+- The upload box said "200MB per file". It now shows the API's limit (5 MB, or `MAX_UPLOAD_MB` in the screen's environment). The `ui` extra and the screen's image need Streamlit 1.67 or later for this.
+
 ## [1.0.0] - 2026-11-08
 
 Accounts, Postgres with migrations, malware scanning, rate limits and an Azure deployment kit, and the rest of the project's specification: consent, section order advice, metric questions, a downloadable match report, an accessibility pass, and document quality and a human rating sheet in the evaluation. Three reading fixes, found during a demo on one held-out example, change parsing; the fact checker is the same as in 0.5.0. `PIPELINE_VERSION` moves to 1.0.0 with the app version. Every development-set number is the same as in 0.5.0. On the held-out set, roles found rise from 77.8% to 83.3% and extraction precision from 93.6% to 95.7%, and that set is no longer fully unseen.
@@ -112,6 +123,7 @@ Accounts, Postgres with migrations, malware scanning, rate limits and an Azure d
 - A FastAPI service with storage, deletion, 24-hour expiry and upload limits.
 - Tests, strict type checking, linting, and CI with a Docker smoke test.
 
+[1.0.1]: https://github.com/rahulmurarisetty/resume-evidence-matcher/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/rahulmurarisetty/resume-evidence-matcher/compare/02c3195...v1.0.0
 [0.5.0]: https://github.com/rahulmurarisetty/resume-evidence-matcher/commit/02c3195
 [0.4.0]: https://github.com/rahulmurarisetty/resume-evidence-matcher/commit/6b763ac

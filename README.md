@@ -150,7 +150,7 @@ pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -e ".[dev,ml]"
 ```
 
-With `SEMANTIC_MATCHING=auto` (the default), the app turns matching by meaning on when sentence-transformers is installed. The first start downloads the two models from Hugging Face, about 180 MB in all, and later starts load them from the local cache. Each report says which mode it used, in `matching_mode` and in `pipeline_version` ("1.0.0-semantic" or "1.0.0-exact").
+With `SEMANTIC_MATCHING=auto` (the default), the app turns matching by meaning on when sentence-transformers is installed. The first start downloads the two models from Hugging Face, about 180 MB in all, and later starts load them from the local cache. Each report says which mode it used, in `matching_mode` and in `pipeline_version` ("1.0.1-semantic" or "1.0.1-exact").
 
 ### Turning on Claude
 
@@ -263,7 +263,7 @@ Analyses made by v0.2 didn't store their lines, so their spans, export and sugge
 From the sample data engineer resume against the sample data engineer job, with exact matching:
 
 ```json
-"pipeline_version": "1.0.0-exact",
+"pipeline_version": "1.0.1-exact",
 "matching_mode": "exact",
 "job_parser": { "name": "rules", "prompt_version": null, "model": null, "fallback_reason": null, "dropped_requirements": 0 },
 "coverage": {

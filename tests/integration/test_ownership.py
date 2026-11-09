@@ -137,7 +137,7 @@ def test_the_list_shows_only_your_own(
     listed = client.get(BASE, headers=bearer(alice)).json()["analyses"]
     assert [a["id"] for a in listed] == [second, first]  # newest first
     assert listed[1]["required"]["direct"] == 5
-    assert listed[1]["pipeline_version"] == "1.0.0-exact"
+    assert listed[1]["pipeline_version"] == "1.0.1-exact"
     assert [a["id"] for a in client.get(BASE, headers=bearer(bob)).json()["analyses"]] == [theirs]
 
 

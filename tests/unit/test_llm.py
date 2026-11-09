@@ -19,7 +19,7 @@ from pydantic import BaseModel, ValidationError
 
 from app.config import Settings
 from app.llm import LLMError, LLMOutputError, LLMTimeoutError, start_llm
-from app.llm.anthropic_client import TOOL_NAME, AnthropicClient
+from app.llm.anthropic_client import TOOL_NAME, AnthropicClient, forces_tool_choice
 from app.llm.prompts import JD_PARSE, REWRITE, load_prompt
 from app.logging_setup import configure_logging
 from app.main import start_claude
@@ -106,12 +106,16 @@ def test_start_claude_reads_settings() -> None:
 # -- the Anthropic client ----------------------------------------------------------
 
 
-def _message(content: list[dict[str, Any]], stop_reason: str = "tool_use") -> dict[str, Any]:
+def _message(
+    content: list[dict[str, Any]],
+    stop_reason: str = "tool_use",
+    model: str = "claude-sonnet-5-5",
+) -> dict[str, Any]:
     return {
         "id": "msg_test",
         "type": "message",
         "role": "assistant",
-        "model": "claude-sonnet-5-5",
+        "model": model,
         "content": content,
         "stop_reason": stop_reason,
         "stop_sequence": None,
@@ -145,28 +149,45 @@ def _client(
     return client, sent
 
 
-def _generate(client: AnthropicClient) -> Any:
+USER = "<bullet>Built PRIVATE-RESUME-LINE dashboards</bullet>"
+TOOL_LINE = f"Answer by calling the {TOOL_NAME} tool once."
+
+
+def _generate(client: AnthropicClient, model: str = "claude-sonnet-5-5") -> Any:
     return client.generate(
         system="SYSTEM PROMPT TEXT",
-        user="<bullet>Built PRIVATE-RESUME-LINE dashboards</bullet>",
+        user=USER,
         output_type=Answer,
-        model="claude-sonnet-5-5",
+        model=model,
         prompt_version="rewrite_v1",
         max_tokens=512,
     )
 
 
+def _tool_choice_error() -> httpx2.Response:
+    message = 'tool_choice: type "tool" and "any" are not supported for this model.'
+    error = {"type": "invalid_request_error", "message": message}
+    return httpx2.Response(400, json={"type": "error", "error": error})
+
+
+def test_which_models_get_a_forced_tool_choice() -> None:
+    assert forces_tool_choice("claude-haiku-5-5")
+    assert forces_tool_choice("claude-opus-5-5")
+    assert not forces_tool_choice("claude-sonnet-5-5")
+
+
 def test_request_forces_one_tool_with_the_output_schema() -> None:
-    reply = httpx2.Response(200, json=_message([_tool_use({"rewrites": ["Built dashboards"]})]))
-    client, sent = _client([reply])
-    result = _generate(client)
+    model = "claude-haiku-5-5"
+    reply = _message([_tool_use({"rewrites": ["Built dashboards"]})], model=model)
+    client, sent = _client([httpx2.Response(200, json=reply)])
+    result = _generate(client, model)
 
     [request] = sent
     assert request.method == "POST"
     assert request.url.path == "/v1/messages"
     assert KEY in request.headers["authorization"]
     body = json.loads(request.content)
-    assert body["model"] == "claude-sonnet-5-5"
+    assert body["model"] == model
     assert body["max_tokens"] == 512
     assert body["system"] == "SYSTEM PROMPT TEXT"
     assert body["messages"] == [
@@ -180,10 +201,68 @@ def test_request_forces_one_tool_with_the_output_schema() -> None:
         "name": TOOL_NAME,
         "disable_parallel_tool_use": True,
     }
+    assert "thinking" not in body
+    assert "strict" not in tool
 
     assert result.output == Answer(rewrites=["Built dashboards"])
     assert (result.usage.input_tokens, result.usage.output_tokens) == (321, 54)
-    assert result.model == "claude-sonnet-5-5"
+    assert result.model == model
+
+
+def test_sonnet_5_5_gets_a_strict_tool_and_auto_choice() -> None:
+    # Claude Sonnet 5.5 answers a forced tool_choice with a 400.
+    reply = httpx2.Response(200, json=_message([_tool_use({"rewrites": ["Built dashboards"]})]))
+    client, sent = _client([reply])
+    result = _generate(client)
+
+    [request] = sent
+    body = json.loads(request.content)
+    assert body["model"] == "claude-sonnet-5-5"
+    assert body["tool_choice"] == {"type": "auto", "disable_parallel_tool_use": True}
+    assert body["thinking"] == {"type": "between_tools"}
+    [tool] = body["tools"]
+    assert tool["name"] == TOOL_NAME
+    assert tool["strict"] is True
+    assert tool["input_schema"]["additionalProperties"] is False
+    assert tool["input_schema"]["properties"]["rewrites"]["type"] == "array"
+    assert body["messages"] == [{"role": "user", "content": f"{USER}\n\n{TOOL_LINE}"}]
+    assert result.output == Answer(rewrites=["Built dashboards"])
+
+
+def test_a_model_that_rejects_forced_tool_use_is_asked_again_with_auto() -> None:
+    model = "claude-new-model"
+    reply = _message([_tool_use({"rewrites": ["x"]})], model=model)
+    client, sent = _client(
+        [_tool_choice_error(), httpx2.Response(200, json=reply), httpx2.Response(200, json=reply)]
+    )
+    assert _generate(client, model).output.rewrites == ["x"]
+    first, second = (json.loads(r.content) for r in sent)
+    assert first["tool_choice"]["type"] == "tool"
+    assert second["tool_choice"] == {"type": "auto", "disable_parallel_tool_use": True}
+    assert second["tools"][0]["strict"] is True
+    # Thinking is only set for models known to accept between_tools.
+    assert "thinking" not in second
+
+    # The next call goes straight to auto.
+    assert _generate(client, model).output.rewrites == ["x"]
+    assert json.loads(sent[2].content)["tool_choice"]["type"] == "auto"
+    assert len(sent) == 3
+
+
+def test_other_bad_requests_are_not_asked_again() -> None:
+    body = {"type": "error", "error": {"type": "invalid_request_error", "message": "bad"}}
+    client, sent = _client([httpx2.Response(400, json=body)])
+    with pytest.raises(LLMError, match="status 400"):
+        _generate(client, "claude-haiku-5-5")
+    assert len(sent) == 1
+
+
+def test_a_second_tool_choice_rejection_is_an_api_error() -> None:
+    client, sent = _client([_tool_choice_error(), _tool_choice_error()])
+    with pytest.raises(LLMError, match="status 400") as error:
+        _generate(client, "claude-new-model")
+    assert error.value.reason == "api_error"
+    assert len(sent) == 2
 
 
 def test_text_before_the_tool_call_is_ignored() -> None:
